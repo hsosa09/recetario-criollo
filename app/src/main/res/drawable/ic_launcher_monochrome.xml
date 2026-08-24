@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Version de un solo color para los iconos tematicos de Android 13+.
+     El sistema la pinta entera, asi que vale la silueta: misma geometria que
+     ic_launcher_foreground, con el cuerpo despegado de la tapa para que se lea. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Vapor: el del medio sale por encima de la perilla, los otros dos a los costados -->
+    <path
+        android:strokeColor="#FF000000"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M42,40 C38,36 46,33 42,29" />
+    <path
+        android:strokeColor="#FF000000"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M54,32 C50,28 58,26 54,23" />
+    <path
+        android:strokeColor="#FF000000"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M66,40 C62,36 70,33 66,29" />
+
+    <!-- Asas: redondeadas solo del lado de afuera -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M32,54 h-3 a4,4 0 0,0 0,8 h3 z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M76,54 h3 a4,4 0 0,1 0,8 h-3 z" />
+
+    <!-- Cuerpo de la olla -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M30,53 h48 l-4,26 a6,6 0 0,1 -6,5 h-28 a6,6 0 0,1 -6,-5 z" />
+
+    <!-- Tapa -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M26,44 h56 a2.5,2.5 0 0,1 0,7 h-56 a2.5,2.5 0 0,1 0,-7 z" />
+
+    <!-- Perilla -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M54,38 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" />
+</vector>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Backup en la nube para Android 11 e inferiores. Se guardan las recetas
+     (base Room) y las fotos; se excluyen los cronometros, que guardan el
+     instante exacto de fin y no tienen sentido restaurados en otro momento. -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="cronometros.xml" />
+</full-backup-content>

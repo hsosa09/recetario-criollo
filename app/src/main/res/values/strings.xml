@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recetario Criollo</string>
+
+    <!-- Navegación -->
+    <string name="nav_recetas">Recetas</string>
+    <string name="nav_buscar">Con lo que tengo</string>
+    <string name="nav_conversor">Conversor</string>
+    <string name="nav_timers">Timers</string>
+
+    <!-- Acciones comunes -->
+    <string name="accion_guardar">Guardar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_volver">Volver</string>
+    <string name="accion_agregar">Agregar</string>
+    <string name="accion_borrar">Borrar</string>
+    <string name="accion_cerrar">Cerrar</string>
+    <string name="accion_editar">Editar</string>
+    <string name="accion_quitar">Quitar</string>
+    <string name="accion_listo">Listo</string>
+
+    <!-- Lista de recetas -->
+    <string name="lista_titulo">Mis recetas</string>
+    <string name="lista_buscar">Buscar receta</string>
+    <string name="lista_solo_favoritas">Solo favoritas</string>
+    <string name="lista_vacia_titulo">Todavía no hay recetas</string>
+    <string name="lista_vacia_detalle">Tocá el botón de abajo y cargá la primera.</string>
+    <string name="lista_sin_resultados">Ninguna receta coincide con el filtro.</string>
+    <string name="lista_nueva_receta">Nueva receta</string>
+    <string name="filtro_todas">Todas</string>
+    <string name="receta_porciones">%1$d porciones</string>
+    <string name="receta_marcar_favorita">Marcar como favorita</string>
+    <string name="receta_quitar_favorita">Quitar de favoritas</string>
+    <string name="receta_cantidad_ingredientes">%1$d ingredientes</string>
+
+    <!-- Detalle de receta -->
+    <string name="detalle_ingredientes">Ingredientes</string>
+    <string name="detalle_preparacion">Preparación</string>
+    <string name="detalle_notas">Notas y tips</string>
+    <string name="detalle_porciones">Porciones</string>
+    <string name="detalle_menos_porciones">Menos porciones</string>
+    <string name="detalle_mas_porciones">Más porciones</string>
+    <string name="detalle_receta_original">La receta original es para %1$d porciones</string>
+    <string name="detalle_cantidades_ajustadas">Cantidades ajustadas para %1$d porciones</string>
+    <string name="detalle_restaurar">Volver al original</string>
+    <string name="detalle_borrar_titulo">¿Borrar la receta?</string>
+    <string name="detalle_borrar_mensaje">Se borra «%1$s» con sus ingredientes y pasos. No se puede deshacer.</string>
+    <string name="detalle_modo_cocina">Modo cocina</string>
+    <string name="detalle_modo_cocina_activo">Modo cocina: pantalla encendida y letra grande</string>
+    <string name="detalle_paso_numero">Paso %1$d</string>
+    <string name="detalle_arrancar_timer">Timer %1$s</string>
+    <string name="detalle_timer_arrancado">Cronómetro arrancado: %1$s</string>
+    <string name="detalle_sin_ingredientes">Esta receta no tiene ingredientes cargados.</string>
+    <string name="detalle_sin_pasos">Esta receta no tiene pasos cargados.</string>
+    <string name="detalle_no_escala">no escala</string>
+    <string name="detalle_ajuste_suave">ajuste suave</string>
+    <string name="detalle_redondeado">Cantidad redondeada para que se pueda medir</string>
+    <string name="detalle_no_encontrada">No se encontró la receta.</string>
+
+    <!-- Editor de recetas -->
+    <string name="editor_titulo_nueva">Nueva receta</string>
+    <string name="editor_titulo_editar">Editar receta</string>
+    <string name="editor_plantilla">Plantilla</string>
+    <string name="editor_plantilla_ayuda">Las plantillas cargan pasos típicos del tipo de plato. Después editás lo que quieras.</string>
+    <string name="editor_plantilla_ninguna">Empezar en blanco</string>
+    <string name="editor_nombre">Nombre de la receta</string>
+    <string name="editor_categoria">Categoría</string>
+    <string name="editor_porciones">Porciones base</string>
+    <string name="editor_tiempo">Tiempo estimado (minutos)</string>
+    <string name="editor_notas">Notas y tips</string>
+    <string name="editor_foto">Foto</string>
+    <string name="editor_elegir_foto">Elegir foto</string>
+    <string name="editor_cambiar_foto">Cambiar foto</string>
+    <string name="editor_quitar_foto">Quitar foto</string>
+    <string name="editor_ingredientes">Ingredientes</string>
+    <string name="editor_agregar_ingrediente">Agregar ingrediente</string>
+    <string name="editor_cantidad">Cantidad</string>
+    <string name="editor_unidad">Unidad</string>
+    <string name="editor_aclaracion">Aclaración (en cubos, tibia…)</string>
+    <string name="editor_regla">Al cambiar las porciones</string>
+    <string name="editor_pasos">Preparación</string>
+    <string name="editor_agregar_paso">Agregar paso</string>
+    <string name="editor_paso_texto">¿Qué hay que hacer?</string>
+    <string name="editor_paso_timer">Timer sugerido (minutos)</string>
+    <string name="editor_subir">Subir</string>
+    <string name="editor_bajar">Bajar</string>
+    <string name="editor_falta_nombre">Ponele un nombre a la receta.</string>
+    <string name="editor_falta_ingredientes">Agregá al menos un ingrediente.</string>
+    <string name="editor_porciones_invalidas">Las porciones tienen que ser al menos 1.</string>
+
+    <!-- Selector de ingredientes del catálogo -->
+    <string name="selector_titulo">Elegir del catálogo</string>
+    <string name="selector_filtro">Filtrar la lista</string>
+    <string name="selector_sin_resultados">No hay ingredientes con ese nombre.</string>
+    <string name="selector_crear">Crear «%1$s» en el catálogo</string>
+    <string name="selector_alta_titulo">Ingrediente nuevo</string>
+    <string name="selector_alta_nombre">Nombre</string>
+    <string name="selector_alta_categoria">Categoría</string>
+    <string name="selector_alta_densidad">Gramos por taza (opcional)</string>
+    <string name="selector_alta_densidad_ayuda">Sirve para convertir tazas a gramos. Si no lo sabés, dejalo vacío.</string>
+    <string name="selector_alta_especia">Es sal, especia o leudante</string>
+    <string name="selector_alta_especia_ayuda">Estos escalan atenuado: al doblar las porciones no van al doble.</string>
+    <string name="selector_alta_guardar">Agregar al catálogo</string>
+    <string name="selector_ya_existe">Ese ingrediente ya está en el catálogo.</string>
+
+    <!-- Búsqueda por ingredientes -->
+    <string name="busqueda_titulo">Con lo que tengo</string>
+    <string name="busqueda_elegir">Elegí lo que tenés en casa</string>
+    <string name="busqueda_seleccionados">%1$d tildados</string>
+    <string name="busqueda_asumir_basicos">Doy por hecho sal, agua y aceite</string>
+    <string name="busqueda_limpiar">Limpiar</string>
+    <string name="busqueda_sin_seleccion">Tildá ingredientes y te digo qué podés cocinar.</string>
+    <string name="busqueda_sin_resultados">Con eso no sale ninguna receta. Probá tildando algo más.</string>
+    <string name="busqueda_completa">Te da para hacerla</string>
+    <string name="busqueda_faltan">Te faltan %1$d ingredientes</string>
+    <string name="busqueda_falta_uno">Te falta 1 ingrediente</string>
+    <string name="busqueda_faltantes">Falta: %1$s</string>
+    <string name="busqueda_coincidencia">%1$d%%</string>
+
+    <!-- Conversor -->
+    <string name="conversor_titulo">Conversor de medidas</string>
+    <string name="conversor_tab_medidas">Medidas</string>
+    <string name="conversor_tab_ingrediente">Por ingrediente</string>
+    <string name="conversor_tab_horno">Horno</string>
+    <string name="conversor_tab_levadura">Levadura</string>
+    <string name="conversor_cantidad">Cantidad</string>
+    <string name="conversor_de">De</string>
+    <string name="conversor_a">A</string>
+    <string name="conversor_invertir">Invertir</string>
+    <string name="conversor_resultado">Resultado</string>
+    <string name="conversor_ingrediente">Ingrediente</string>
+    <string name="conversor_necesita_densidad">Para pasar de volumen a peso hace falta saber cuánto pesa una taza. Elegí un ingrediente en la pestaña «Por ingrediente».</string>
+    <string name="conversor_densidad_dato">1 taza de %1$s ≈ %2$s g</string>
+    <string name="conversor_sin_densidad">Este ingrediente no tiene el dato de gramos por taza.</string>
+    <string name="conversor_equivalencias">Equivalencias que se usan siempre</string>
+    <string name="conversor_horno_celsius">Grados centígrados</string>
+    <string name="conversor_horno_fahrenheit">Grados Fahrenheit</string>
+    <string name="conversor_horno_referencia">En la receta vieja dice</string>
+    <string name="conversor_horno_tabla">Tabla de hornos</string>
+    <string name="conversor_horno_sugerida">Poné el horno en %1$d °C</string>
+    <string name="conversor_horno_fuera_escala">Fuera de las referencias de horno.</string>
+    <string name="conversor_levadura_fresca">Levadura fresca (g)</string>
+    <string name="conversor_levadura_seca">Levadura seca (g)</string>
+    <string name="conversor_levadura_nota">Regla de la abuela: la levadura seca es un tercio de la fresca.</string>
+
+    <!-- Cronómetros -->
+    <string name="timers_titulo">Cronómetros</string>
+    <string name="timers_nuevo">Cronómetro nuevo</string>
+    <string name="timers_etiqueta">Etiqueta (torta, salsa…)</string>
+    <string name="timers_minutos">Minutos</string>
+    <string name="timers_segundos">Segundos</string>
+    <string name="timers_arrancar">Arrancar</string>
+    <string name="timers_vacio">No hay cronómetros andando.</string>
+    <string name="timers_vacio_detalle">Elegí un tiempo de arriba o armá uno a medida.</string>
+    <string name="timers_pausar">Pausar</string>
+    <string name="timers_reanudar">Seguir</string>
+    <string name="timers_reiniciar">Reiniciar</string>
+    <string name="timers_quitar">Quitar</string>
+    <string name="timers_terminado">¡Listo!</string>
+    <string name="timers_mas_minuto">+1 min</string>
+    <string name="timers_menos_minuto">−1 min</string>
+    <string name="timers_limpiar_terminados">Limpiar los terminados</string>
+    <string name="timers_atajo_minutos">%1$d min</string>
+    <string name="timers_atajo_hora">1 h</string>
+    <string name="timers_permiso">Activá las notificaciones para que te avise aunque la app esté cerrada.</string>
+    <string name="timers_permiso_boton">Activar avisos</string>
+    <string name="canal_cronometros">Cronómetros de cocina</string>
+    <string name="canal_cronometros_descripcion">Avisa cuando se cumple el tiempo de un cronómetro.</string>
+    <string name="cronometro_listo">%1$s ya está</string>
+    <string name="cronometro_listo_detalle">Se cumplió el tiempo.</string>
+
+    <!-- Categorías de receta -->
+    <string name="categoria_entrada">Entradas</string>
+    <string name="categoria_plato_principal">Platos principales</string>
+    <string name="categoria_guarnicion">Guarniciones</string>
+    <string name="categoria_sopa_guiso">Sopas y guisos</string>
+    <string name="categoria_postre">Postres</string>
+    <string name="categoria_panificados">Panificados</string>
+    <string name="categoria_salsa">Salsas y aderezos</string>
+    <string name="categoria_bebida">Bebidas</string>
+    <string name="categoria_conserva">Conservas</string>
+    <string name="categoria_otra">Otras</string>
+
+    <!-- Categorías de ingrediente -->
+    <string name="categoria_ing_verduras">Verduras</string>
+    <string name="categoria_ing_frutas">Frutas</string>
+    <string name="categoria_ing_carnes">Carnes</string>
+    <string name="categoria_ing_pescados">Pescados</string>
+    <string name="categoria_ing_lacteos">Lácteos y huevos</string>
+    <string name="categoria_ing_harinas">Harinas y cereales</string>
+    <string name="categoria_ing_legumbres">Legumbres</string>
+    <string name="categoria_ing_condimentos">Condimentos y especias</string>
+    <string name="categoria_ing_endulzantes">Endulzantes</string>
+    <string name="categoria_ing_grasas">Grasas y aceites</string>
+    <string name="categoria_ing_bebidas">Bebidas</string>
+    <string name="categoria_ing_otros">Otros</string>
+
+    <!-- Reglas de escalado -->
+    <string name="regla_lineal">Proporcional</string>
+    <string name="regla_lineal_detalle">Se multiplica igual que las porciones.</string>
+    <string name="regla_atenuada">Ajuste suave</string>
+    <string name="regla_atenuada_detalle">Sube menos que las porciones. Sal, especias y levadura.</string>
+    <string name="regla_fija">No escala</string>
+    <string name="regla_fija_detalle">Queda igual sin importar las porciones (el aceite para freír, por ejemplo).</string>
+
+    <!-- Niveles de horno -->
+    <string name="horno_muy_suave">Horno muy suave</string>
+    <string name="horno_suave">Horno suave</string>
+    <string name="horno_moderado">Horno moderado</string>
+    <string name="horno_fuerte">Horno fuerte</string>
+    <string name="horno_muy_fuerte">Horno muy fuerte</string>
+</resources>

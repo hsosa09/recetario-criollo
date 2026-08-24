@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(sed -n *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(du *)",
+      "Bash(file *)",
+      "Bash(unzip -l *)",
+      "Bash(unzip -p *)",
+      "Read"
+    ],
+    "deny": [
+      "Read(./keystore.properties)",
+      "Read(./**/*.jks)",
+      "Read(./**/*.keystore)",
+      "Bash(cat keystore.properties*)",
+      "Bash(cat ./keystore.properties*)",
+      "Bash(grep * keystore.properties*)"
+    ]
+  }
+}
