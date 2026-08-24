@@ -76,7 +76,47 @@ disponibles y generador guiado con plantillas. Detalle en `CLAUDE.md` y `README.
 5. **Alta en Play Console**: pegar los textos de `docs/play/ficha.md`, subir el AAB junto
    con `mapping.txt`, prueba interna primero y recién después producción.
 
-## 5. Detalles del build que conviene no olvidar
+## 5. Cómo llevar el repo a la otra máquina
+
+El historial vive en un repo privado **local** (bare), que hace de `origin`:
+
+```
+/home/horacio/git-privados/recetario-criollo.git
+```
+
+Para el traspaso hay además un bundle con todo el historial en un solo archivo:
+
+```
+/home/horacio/recetario-criollo.bundle
+```
+
+Copiar ese archivo por pendrive o nube y, en la máquina nueva:
+
+```bash
+git clone recetario-criollo.bundle Recetario
+cd Recetario
+git remote remove origin        # el bundle no sirve como remoto vivo
+```
+
+Para traer cambios nuevos desde la máquina vieja, se regenera el bundle allá
+(`git bundle create recetario-criollo.bundle --all`) y acá se hace
+`git pull /ruta/al/recetario-criollo.bundle main`.
+
+### Si más adelante se quiere un repo privado en GitHub
+
+Eso necesita una cuenta y un login que hay que hacer a mano una sola vez:
+
+```bash
+sudo apt install gh
+gh auth login
+gh repo create recetario-criollo --private --source=. --push
+```
+
+Desde ahí, las dos máquinas trabajan contra el mismo `origin` y se termina el ida y
+vuelta de bundles. **El repo tiene que ser privado**: no por el código, sino porque es
+el lugar donde uno se descuida y termina subiendo el `keystore.properties`.
+
+## 6. Detalles del build que conviene no olvidar
 
 - `gradle.properties` lleva `android.disallowKotlinSourceSets=false`: AGP 9 trae Kotlin
   incorporado y KSP registra sus fuentes generadas por el DSL viejo. Sin ese flag no compila.
