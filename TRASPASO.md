@@ -31,7 +31,9 @@ Tienen que pasar los tests de `Escalador`, `Fracciones`, `Conversor` y
 ## 2. Lo que NO viene en el repo (a propósito)
 
 - **`local.properties`** — la ruta del SDK. Android Studio lo genera solo al abrir el
-  proyecto; si no, crearlo con `sdk.dir=/ruta/al/Android/Sdk`.
+  proyecto; si no, crearlo con `sdk.dir=/ruta/al/Android/Sdk`. Alcanza también con tener
+  `ANDROID_HOME` apuntando al SDK: probado clonando el bundle en limpio, compila y pasan
+  los tests sin `local.properties`.
 - **`.claude/settings.local.json`** — ajustes de Claude Code con rutas absolutas de esta
   máquina (`JAVA_HOME`, `ANDROID_HOME` y los permisos de `adb`). Hay que rehacerlo con las
   rutas nuevas; `.claude/settings.json` (permisos del proyecto) sí viene en el repo.
