@@ -80,43 +80,44 @@ disponibles y generador guiado con plantillas. Detalle en `CLAUDE.md` y `README.
 
 ## 5. Cómo llevar el repo a la otra máquina
 
-El historial vive en un repo privado **local** (bare), que hace de `origin`:
+El repo vive en GitHub, **privado**:
 
 ```
-/home/horacio/git-privados/recetario-criollo.git
+https://github.com/hsosa09/recetario-criollo
 ```
 
-Para el traspaso hay además un bundle con todo el historial en un solo archivo:
-
-```
-/home/horacio/recetario-criollo.bundle
-```
-
-Copiar ese archivo por pendrive o nube y, en la máquina nueva:
+En la máquina nueva:
 
 ```bash
-git clone recetario-criollo.bundle Recetario
+git clone https://github.com/hsosa09/recetario-criollo.git Recetario
 cd Recetario
-git remote remove origin        # el bundle no sirve como remoto vivo
 ```
 
-Para traer cambios nuevos desde la máquina vieja, se regenera el bundle allá
-(`git bundle create recetario-criollo.bundle --all`) y acá se hace
-`git pull /ruta/al/recetario-criollo.bundle main`.
-
-### Si más adelante se quiere un repo privado en GitHub
-
-Eso necesita una cuenta y un login que hay que hacer a mano una sola vez:
+Al clonar pide credenciales: usuario `hsosa09` y, como contraseña, un token personal
+(GitHub no acepta la contraseña de la cuenta). Lo más cómodo es instalar el CLI una vez y
+dejar que él maneje las credenciales:
 
 ```bash
 sudo apt install gh
-gh auth login
-gh repo create recetario-criollo --private --source=. --push
+gh auth login          # elegir HTTPS, y que configure git
 ```
 
-Desde ahí, las dos máquinas trabajan contra el mismo `origin` y se termina el ida y
-vuelta de bundles. **El repo tiene que ser privado**: no por el código, sino porque es
-el lugar donde uno se descuida y termina subiendo el `keystore.properties`.
+**Nunca guardar el token dentro del repo.** Si se usa `credential.helper store`, queda en
+texto plano en `~/.git-credentials`: preferible `gh auth login` o el helper del sistema.
+
+### Respaldo sin red
+
+Además del remoto hay un espejo local y un bundle con todo el historial, por si hace falta
+mover el proyecto sin internet o sin cuenta:
+
+```
+/home/horacio/git-privados/recetario-criollo.git   (remoto `espejo-local`)
+/home/horacio/recetario-criollo.bundle             (un archivo, se copia por pendrive)
+```
+
+Para clonar desde el bundle: `git clone recetario-criollo.bundle Recetario`. Se regenera con
+`git bundle create /home/horacio/recetario-criollo.bundle --all`. Son respaldos: la fuente de
+verdad es GitHub.
 
 ## 6. Detalles del build que conviene no olvidar
 
