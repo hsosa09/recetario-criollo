@@ -54,6 +54,8 @@ import uy.horacio.recetariocriollo.ui.conversor.ConversorPantalla
 import uy.horacio.recetariocriollo.ui.conversor.ConversorViewModel
 import uy.horacio.recetariocriollo.ui.cronometro.CronometrosPantalla
 import uy.horacio.recetariocriollo.ui.cronometro.CronometrosViewModel
+import uy.horacio.recetariocriollo.ui.historial.HistorialPantalla
+import uy.horacio.recetariocriollo.ui.historial.HistorialViewModel
 import uy.horacio.recetariocriollo.ui.recetas.DetalleRecetaPantalla
 import uy.horacio.recetariocriollo.ui.recetas.DetalleRecetaViewModel
 import uy.horacio.recetariocriollo.ui.recetas.EditorRecetaPantalla
@@ -123,7 +125,8 @@ fun NavegacionRecetario(
                 ListaRecetasPantalla(
                     vistaModelo = vistaModelo,
                     alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) },
-                    alCrearReceta = { controlador.navigate(RutaEditorReceta()) }
+                    alCrearReceta = { controlador.navigate(RutaEditorReceta()) },
+                    alVerHistorial = { controlador.navigate(RutaHistorial) }
                 )
             }
 
@@ -150,7 +153,17 @@ fun NavegacionRecetario(
                     vistaModelo = vistaModelo,
                     alVolver = { controlador.popBackStack() },
                     alEditar = { id -> controlador.navigate(RutaEditorReceta(id)) },
-                    alCocinar = { id, porciones -> controlador.navigate(RutaCocina(id, porciones)) }
+                    alCocinar = { id, porciones -> controlador.navigate(RutaCocina(id, porciones)) },
+                    alVerHistorial = { controlador.navigate(RutaHistorial) }
+                )
+            }
+
+            composable<RutaHistorial> {
+                val vistaModelo: HistorialViewModel = viewModel(factory = Fabricas.Factory)
+                HistorialPantalla(
+                    vistaModelo = vistaModelo,
+                    alVolver = { controlador.popBackStack() },
+                    alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) }
                 )
             }
 
@@ -159,7 +172,7 @@ fun NavegacionRecetario(
                 CocinaPantalla(
                     vistaModelo = vistaModelo,
                     alSalir = { controlador.popBackStack() },
-                    alTerminar = { _, _ -> controlador.popBackStack() }
+                    alTerminar = { controlador.popBackStack() }
                 )
             }
 

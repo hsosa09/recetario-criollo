@@ -10,6 +10,7 @@ import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
 import uy.horacio.recetariocriollo.ui.cocina.CocinaViewModel
 import uy.horacio.recetariocriollo.ui.conversor.ConversorViewModel
 import uy.horacio.recetariocriollo.ui.cronometro.CronometrosViewModel
+import uy.horacio.recetariocriollo.ui.historial.HistorialViewModel
 import uy.horacio.recetariocriollo.ui.recetas.DetalleRecetaViewModel
 import uy.horacio.recetariocriollo.ui.recetas.EditorRecetaViewModel
 import uy.horacio.recetariocriollo.ui.recetas.ListaRecetasViewModel
@@ -23,6 +24,7 @@ object Fabricas {
         initializer {
             DetalleRecetaViewModel(
                 repositorio = app().contenedor.recetas,
+                cocinadas = app().contenedor.cocinadas,
                 cronometros = app().contenedor.cronometros,
                 estadoGuardado = createSavedStateHandle()
             )
@@ -49,8 +51,16 @@ object Fabricas {
         initializer { CronometrosViewModel(app().contenedor.cronometros) }
 
         initializer {
+            HistorialViewModel(
+                cocinadas = app().contenedor.cocinadas,
+                recetas = app().contenedor.recetas
+            )
+        }
+
+        initializer {
             CocinaViewModel(
                 repositorio = app().contenedor.recetas,
+                cocinadas = app().contenedor.cocinadas,
                 cronometros = app().contenedor.cronometros,
                 estadoGuardado = createSavedStateHandle()
             )

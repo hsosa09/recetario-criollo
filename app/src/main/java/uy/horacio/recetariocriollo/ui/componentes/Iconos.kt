@@ -53,6 +53,8 @@ object Iconos {
     val Foto = trazo("foto", 2f, "M3 7h4l2-3h6l2 3h4v13H3z", "M8.5 13a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0")
     val Llama = trazo("llama", 2f, "M12 21c-4 0-7-2.7-7-6.5C5 10 9 8 9 3c3 1.5 4.5 4 4.5 6.5C15 8.5 15.5 7 15.5 6c2 2 3.5 5 3.5 8.5C19 18.3 16 21 12 21z")
 
+    val Historial = trazo("historial", 2f, "M3 12a9 9 0 1 0 3-6.7", "M3 4v5h5", "M12 7v5l3 2")
+
     val CorazonVacio = trazo("corazon", 2f, CORAZON)
 
     val CorazonLleno: ImageVector = ImageVector.Builder(

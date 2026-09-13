@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
+import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
+import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
 import uy.horacio.recetariocriollo.dominio.CantidadEscalada
 import uy.horacio.recetariocriollo.dominio.Escalador
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
@@ -20,6 +22,8 @@ data class EstadoDetalleReceta(
     val porciones: Int = 0,
     val ingredientes: List<CantidadEscalada> = emptyList(),
     val modoCocina: Boolean = false,
+    /** Historial de esta receta, de la más reciente a la más vieja. */
+    val cocinadas: List<Cocinada> = emptyList(),
     val cargando: Boolean = true
 ) {
     val estaEscalada: Boolean
@@ -28,6 +32,7 @@ data class EstadoDetalleReceta(
 
 class DetalleRecetaViewModel(
     private val repositorio: RecetaRepositorio,
+    cocinadas: CocinadaRepositorio,
     private val cronometros: GestorCronometros,
     estadoGuardado: SavedStateHandle
 ) : ViewModel() {
@@ -42,8 +47,9 @@ class DetalleRecetaViewModel(
         combine(
             repositorio.observarReceta(recetaId),
             porcionesElegidas,
-            modoCocina
-        ) { receta, porciones, cocina ->
+            modoCocina,
+            cocinadas.observarDeReceta(recetaId)
+        ) { receta, porciones, cocina, historial ->
             if (receta == null) {
                 EstadoDetalleReceta(cargando = false)
             } else {
@@ -53,6 +59,7 @@ class DetalleRecetaViewModel(
                     porciones = objetivo,
                     ingredientes = Escalador.escalarReceta(receta, objetivo),
                     modoCocina = cocina,
+                    cocinadas = historial,
                     cargando = false
                 )
             }

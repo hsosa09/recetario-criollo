@@ -74,6 +74,30 @@
     <string name="cocina_siguiente">Siguiente</string>
     <string name="cocina_termine">Terminé</string>
 
+    <!-- ¿Cómo salió? e historial -->
+    <string name="como_salio_titulo">¿Cómo salió?</string>
+    <string name="como_salio_detalle">Queda en el historial de la receta y te lo muestra la próxima vez.</string>
+    <string name="como_salio_nota">¿Qué cambiarías la próxima?</string>
+    <string name="como_salio_nota_ejemplo">Menos sal, 10 minutos más de horno…</string>
+    <string name="como_salio_guardar">Guardar en el historial</string>
+    <string name="como_salio_saltar">Ahora no</string>
+    <plurals name="estrellas_descripcion">
+        <item quantity="one">%1$d estrella</item>
+        <item quantity="other">%1$d estrellas</item>
+    </plurals>
+    <string name="detalle_como_te_salio">Cómo te salió</string>
+    <string name="detalle_ver_historial">Ver todo el historial</string>
+    <string name="historial_titulo">Historial</string>
+    <string name="historial_mas_cocinado">Lo que más cocinás</string>
+    <string name="historial_todas">Cada vez que cocinaste</string>
+    <plurals name="historial_veces">
+        <item quantity="one">%1$d vez</item>
+        <item quantity="other">%1$d veces</item>
+    </plurals>
+    <string name="historial_vacio_titulo">Todavía no cocinaste nada</string>
+    <string name="historial_vacio_detalle">Al terminar el paso a paso, contá cómo salió y queda anotado acá.</string>
+    <string name="historial_borrar">Borrar del historial</string>
+
     <!-- Editor de recetas -->
     <string name="editor_titulo_nueva">Nueva receta</string>
     <string name="editor_titulo_editar">Editar receta</string>

@@ -620,3 +620,32 @@ fun EspacioAlto(alto: Int = 12) {
 fun EspacioAncho(ancho: Int = 8) {
     Spacer(modifier = Modifier.width(ancho.dp))
 }
+
+/** Cinco casilleros de 48 dp para elegir de 1 a 5 estrellas. */
+@Composable
+fun SelectorEstrellas(
+    valor: Int,
+    alElegir: (Int) -> Unit,
+    descripcion: (Int) -> String,
+    modifier: Modifier = Modifier
+) {
+    val colores = MaterialTheme.colorScheme
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        (1..5).forEach { n ->
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .border(1.dp, colores.outline)
+                    .clickable(role = Role.RadioButton) { alElegir(n) }
+                    .semantics { contentDescription = descripcion(n) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "★",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = if (n <= valor) colores.primary else colores.onBackground.copy(alpha = 0.25f)
+                )
+            }
+        }
+    }
+}

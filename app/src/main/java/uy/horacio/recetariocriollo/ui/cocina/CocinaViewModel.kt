@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.stateIn
 import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
+import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
+import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
+import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.dominio.CantidadEscalada
 import uy.horacio.recetariocriollo.dominio.Escalador
 import uy.horacio.recetariocriollo.dominio.IngredientesDelPaso
@@ -35,6 +38,7 @@ data class EstadoCocina(
 
 class CocinaViewModel(
     repositorio: RecetaRepositorio,
+    private val cocinadas: CocinadaRepositorio,
     private val cronometros: GestorCronometros,
     private val estadoGuardado: SavedStateHandle
 ) : ViewModel() {
@@ -90,6 +94,24 @@ class CocinaViewModel(
         val etiqueta = "${receta.nombre} · paso ${actual.pasoActual + 1}"
         cronometros.crear(etiqueta, segundos)
         return etiqueta
+    }
+
+    /** Anota en el historial como salio. Llama a [alTerminar] cuando quedo guardado. */
+    fun registrarCocinada(estrellas: Int, nota: String, alTerminar: () -> Unit) {
+        val actual = estado.value
+        val receta = actual.receta ?: return alTerminar()
+        viewModelScope.launch {
+            cocinadas.registrar(
+                Cocinada(
+                    recetaId = receta.id,
+                    fechaMillis = System.currentTimeMillis(),
+                    estrellas = estrellas,
+                    porciones = actual.porciones,
+                    nota = nota
+                )
+            )
+            alTerminar()
+        }
     }
 
     private companion object {
