@@ -14,9 +14,10 @@ import kotlinx.coroutines.launch
         RecetaEntity::class,
         IngredienteEntity::class,
         RecetaIngredienteEntity::class,
-        PasoEntity::class
+        PasoEntity::class,
+        CocinadaEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Convertidores::class)
@@ -24,6 +25,7 @@ abstract class RecetarioBaseDatos : RoomDatabase() {
 
     abstract fun recetaDao(): RecetaDao
     abstract fun ingredienteDao(): IngredienteDao
+    abstract fun cocinadaDao(): CocinadaDao
 
     companion object {
         private const val NOMBRE_ARCHIVO = "recetario.db"
@@ -46,6 +48,7 @@ abstract class RecetarioBaseDatos : RoomDatabase() {
                         }
                     }
                 })
+                .addMigrations(*Migraciones.TODAS)
                 .build()
     }
 }

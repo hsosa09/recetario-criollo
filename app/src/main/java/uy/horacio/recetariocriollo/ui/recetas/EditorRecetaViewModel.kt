@@ -20,6 +20,7 @@ import uy.horacio.recetariocriollo.dominio.PlantillaReceta
 import uy.horacio.recetariocriollo.dominio.Plantillas
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
+import uy.horacio.recetariocriollo.dominio.modelo.Dificultad
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.dominio.modelo.IngredienteDeReceta
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
@@ -105,6 +106,9 @@ data class EstadoEditorReceta(
     val pasos: List<LineaPaso> = emptyList(),
     val catalogo: List<Ingrediente> = emptyList(),
     val esFavorita: Boolean = false,
+    val dificultad: Dificultad? = null,
+    /** Diametro del molde en cm, como texto mientras se edita. */
+    val molde: String = "",
     val guardando: Boolean = false,
     /** Plantilla aplicada ahora, o null si se empezo en blanco. */
     val plantillaId: String? = null,
@@ -159,6 +163,8 @@ class EditorRecetaViewModel(
                     notas = receta.notas.orEmpty(),
                     fotoPath = receta.fotoPath,
                     esFavorita = receta.esFavorita,
+                    dificultad = receta.dificultad,
+                    molde = receta.moldeCm?.toString().orEmpty(),
                     ingredientes = receta.ingredientes.map { item ->
                         LineaIngrediente(
                             idLocal = siguienteIdLocal++,
@@ -321,6 +327,8 @@ class EditorRecetaViewModel(
                 notas = actual.notas.trim().ifBlank { null },
                 fotoPath = actual.fotoPath,
                 esFavorita = actual.esFavorita,
+                dificultad = actual.dificultad,
+                moldeCm = actual.molde.trim().toIntOrNull()?.takeIf { it in 5..60 },
                 ingredientes = actual.ingredientes.mapIndexed { indice, linea ->
                     IngredienteDeReceta(
                         ingrediente = linea.ingrediente,

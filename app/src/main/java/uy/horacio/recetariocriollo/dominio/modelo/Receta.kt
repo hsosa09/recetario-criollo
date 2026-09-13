@@ -46,6 +46,9 @@ data class Receta(
     val notas: String? = null,
     val fotoPath: String? = null,
     val esFavorita: Boolean = false,
+    val dificultad: Dificultad? = null,
+    /** Diametro del molde redondo en cm, si la receta usa uno. Base para ajustar por molde. */
+    val moldeCm: Int? = null,
     val ingredientes: List<IngredienteDeReceta> = emptyList(),
     val pasos: List<PasoPreparacion> = emptyList()
 ) {
@@ -57,4 +60,33 @@ data class Receta(
                 else -> "${minutos / 60} h ${minutos % 60} min"
             }
         }
+}
+
+enum class Dificultad { FACIL, MEDIA, DIFICIL }
+
+/** Una vez que se cocino la receta: como salio y que cambiar la proxima. */
+data class Cocinada(
+    val id: Long = 0,
+    val recetaId: Long,
+    val fechaMillis: Long,
+    /** De 1 a 5. */
+    val estrellas: Int,
+    val porciones: Int,
+    val nota: String? = null
+)
+
+/** Cocinada junto con el nombre de su receta, para el historial general. */
+data class CocinadaConReceta(val cocinada: Cocinada, val nombreReceta: String)
+
+/** Lo que se muestra de una receta sin recorrer todo su historial. */
+data class ResumenCocinadas(
+    val recetaId: Long,
+    val veces: Int,
+    /** Promedio de estrellas, o null si nunca se cocino. */
+    val promedioEstrellas: Double?,
+    val ultimaMillis: Long?
+) {
+    companion object {
+        fun vacio(recetaId: Long) = ResumenCocinadas(recetaId, 0, null, null)
+    }
 }

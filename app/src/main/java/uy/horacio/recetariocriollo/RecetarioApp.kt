@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
 import uy.horacio.recetariocriollo.datos.AlmacenFotos
+import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.IngredienteRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetarioBaseDatos
@@ -26,6 +27,8 @@ class Contenedor(contexto: Context) {
     val recetas = RecetaRepositorio(baseDatos.recetaDao(), almacenFotos)
 
     val ingredientes = IngredienteRepositorio(baseDatos.ingredienteDao(), baseDatos.recetaDao())
+
+    val cocinadas = CocinadaRepositorio(baseDatos.cocinadaDao())
 
     val cronometros: GestorCronometros = GestorCronometros.obtener(contexto)
 }
