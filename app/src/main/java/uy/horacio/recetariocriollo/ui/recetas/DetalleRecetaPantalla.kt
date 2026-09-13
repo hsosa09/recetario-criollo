@@ -169,7 +169,30 @@ fun DetalleRecetaPantalla(
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Etiqueta(stringResource(receta.categoria.textoId), acento = true)
                         receta.tiempoLegible?.let { Etiqueta(it) }
-                        Etiqueta(pluralStringResource(R.plurals.receta_porciones, receta.porcionesBase, receta.porcionesBase))
+                        receta.dificultad?.let { Etiqueta(stringResource(it.textoId)) }
+                    }
+                    val resumen = Historial.resumir(receta.id, estado.cocinadas)
+                    if (resumen.veces > 0) {
+                        val ahora = remember { System.currentTimeMillis() }
+                        Row(
+                            modifier = Modifier.padding(top = 10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = Historial.estrellas(resumen.promedioEstrellas ?: 0.0),
+                                style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
+                                color = colores.primary
+                            )
+                            TextoTenue(
+                                pluralStringResource(
+                                    R.plurals.detalle_resumen_cocinadas,
+                                    resumen.veces,
+                                    resumen.veces,
+                                    Historial.fechaCorta(resumen.ultimaMillis ?: 0L, ahora)
+                                )
+                            )
+                        }
                     }
                     if (estado.modoCocina) {
                         TextoTenue(

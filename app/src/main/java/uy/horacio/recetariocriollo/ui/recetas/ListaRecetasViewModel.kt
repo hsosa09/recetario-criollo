@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
+import uy.horacio.recetariocriollo.dominio.modelo.ResumenCocinadas
 import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
@@ -21,6 +23,8 @@ data class EstadoListaRecetas(
     val categoria: CategoriaReceta? = null,
     val soloFavoritas: Boolean = false,
     val categoriasDisponibles: List<CategoriaReceta> = emptyList(),
+    /** Veces cocinada y estrellas por receta; las nunca cocinadas no están. */
+    val resumenes: Map<Long, ResumenCocinadas> = emptyMap(),
     val cargando: Boolean = true
 )
 
@@ -30,12 +34,15 @@ private data class FiltroLista(
     val soloFavoritas: Boolean = false
 )
 
-class ListaRecetasViewModel(private val repositorio: RecetaRepositorio) : ViewModel() {
+class ListaRecetasViewModel(
+    private val repositorio: RecetaRepositorio,
+    cocinadas: CocinadaRepositorio
+) : ViewModel() {
 
     private val filtro = MutableStateFlow(FiltroLista())
 
     val estado: StateFlow<EstadoListaRecetas> =
-        combine(repositorio.observarRecetas(), filtro) { recetas, filtroActual ->
+        combine(repositorio.observarRecetas(), filtro, cocinadas.observarResumenes()) { recetas, filtroActual, resumenes ->
             val filtradas = recetas.filter { receta ->
                 Texto.contiene(receta.nombre, filtroActual.texto) &&
                     (filtroActual.categoria == null || receta.categoria == filtroActual.categoria) &&
@@ -48,6 +55,7 @@ class ListaRecetasViewModel(private val repositorio: RecetaRepositorio) : ViewMo
                 categoria = filtroActual.categoria,
                 soloFavoritas = filtroActual.soloFavoritas,
                 categoriasDisponibles = recetas.map { it.categoria }.distinct().sortedBy { it.ordinal },
+                resumenes = resumenes,
                 cargando = false
             )
         }.stateIn(

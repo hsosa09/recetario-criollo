@@ -74,6 +74,24 @@
     <string name="cocina_siguiente">Siguiente</string>
     <string name="cocina_termine">Terminé</string>
 
+    <!-- Dificultad -->
+    <string name="dificultad_facil">Fácil</string>
+    <string name="dificultad_media">Media</string>
+    <string name="dificultad_dificil">Difícil</string>
+    <string name="receta_sin_cocinar">sin cocinar todavía</string>
+    <plurals name="receta_cocinada_veces">
+        <item quantity="one">cocinada %1$d vez</item>
+        <item quantity="other">cocinada %1$d veces</item>
+    </plurals>
+    <plurals name="detalle_resumen_cocinadas">
+        <item quantity="one">%1$d vez · última el %2$s</item>
+        <item quantity="other">%1$d veces · última el %2$s</item>
+    </plurals>
+    <string name="editor_dificultad">Dificultad</string>
+    <string name="editor_molde">Molde redondo (cm)</string>
+    <string name="editor_molde_ayuda">Opcional. Sirve para ajustar la receta a otro molde.</string>
+    <string name="editor_molde_invalido">El molde tiene que medir entre 5 y 60 cm.</string>
+
     <!-- ¿Cómo salió? e historial -->
     <string name="como_salio_titulo">¿Cómo salió?</string>
     <string name="como_salio_detalle">Queda en el historial de la receta y te lo muestra la próxima vez.</string>

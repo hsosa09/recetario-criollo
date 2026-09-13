@@ -45,6 +45,7 @@ import coil3.compose.AsyncImage
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.Plantillas
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
+import uy.horacio.recetariocriollo.dominio.modelo.Dificultad
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 import uy.horacio.recetariocriollo.ui.componentes.AvisoRecetario
@@ -195,6 +196,26 @@ fun EditorRecetaPantalla(
                             opciones = CategoriaReceta.entries,
                             textoDe = { stringResource(it.textoId) },
                             alElegir = vistaModelo::cambiarCategoria
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            TextoTenue(stringResource(R.string.editor_dificultad))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Dificultad.entries.forEach { dificultad ->
+                                    ChipRecto(
+                                        texto = stringResource(dificultad.textoId),
+                                        activo = estado.dificultad == dificultad,
+                                        alTocar = { vistaModelo.alternarDificultad(dificultad) }
+                                    )
+                                }
+                            }
+                        }
+                        CampoTexto(
+                            valor = estado.molde,
+                            alCambiar = vistaModelo::cambiarMolde,
+                            etiqueta = stringResource(R.string.editor_molde),
+                            ayuda = stringResource(R.string.editor_molde_ayuda),
+                            teclado = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(0.5f)
                         )
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             TextoTenue(stringResource(R.string.editor_foto))

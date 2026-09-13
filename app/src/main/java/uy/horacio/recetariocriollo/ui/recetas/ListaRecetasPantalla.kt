@@ -30,13 +30,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import uy.horacio.recetariocriollo.R
+import uy.horacio.recetariocriollo.dominio.Historial
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
+import uy.horacio.recetariocriollo.dominio.modelo.ResumenCocinadas
 import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
 import uy.horacio.recetariocriollo.ui.componentes.BotonIcono
 import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
 import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.ChipRecto
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
+import uy.horacio.recetariocriollo.ui.componentes.Etiqueta
 import uy.horacio.recetariocriollo.ui.componentes.Iconos
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
@@ -135,6 +138,7 @@ fun ListaRecetasPantalla(
             items(estado.recetas, key = { it.id }) { receta ->
                 FilaReceta(
                     receta = receta,
+                    resumen = estado.resumenes[receta.id],
                     alTocar = { alAbrirReceta(receta.id) },
                     alAlternarFavorita = { vistaModelo.alternarFavorita(receta) }
                 )
@@ -146,6 +150,7 @@ fun ListaRecetasPantalla(
 @Composable
 private fun FilaReceta(
     receta: Receta,
+    resumen: ResumenCocinadas?,
     alTocar: () -> Unit,
     alAlternarFavorita: () -> Unit
 ) {
@@ -167,7 +172,8 @@ private fun FilaReceta(
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                 modifier = Modifier.padding(bottom = 5.dp)
             )
-            TextoTenue(texto = metaDeReceta(receta))
+            TextoTenue(texto = metaDeReceta(receta), modifier = Modifier.padding(bottom = 7.dp))
+            LineaDificultadYVeces(receta = receta, resumen = resumen)
         }
 
         BotonIcono(
@@ -215,5 +221,28 @@ fun MiniaturaReceta(receta: Receta, lado: Dp, modifier: Modifier = Modifier) {
                 color = extra.textoMarcador
             )
         }
+    }
+}
+
+/** "Media · ★★★★½ · cocinada 5 veces", la línea chica de la fila del prototipo. */
+@Composable
+private fun LineaDificultadYVeces(receta: Receta, resumen: ResumenCocinadas?) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        receta.dificultad?.let { Etiqueta(stringResource(it.textoId)) }
+        resumen?.promedioEstrellas?.let { promedio ->
+            Text(
+                text = Historial.estrellas(promedio),
+                style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        TextoTenue(
+            texto = if (resumen == null || resumen.veces == 0) stringResource(R.string.receta_sin_cocinar)
+            else pluralStringResource(R.plurals.receta_cocinada_veces, resumen.veces, resumen.veces),
+            estilo = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp)
+        )
     }
 }

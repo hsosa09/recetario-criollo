@@ -19,7 +19,7 @@ import uy.horacio.recetariocriollo.ui.recetas.ListaRecetasViewModel
 object Fabricas {
 
     val Factory = viewModelFactory {
-        initializer { ListaRecetasViewModel(app().contenedor.recetas) }
+        initializer { ListaRecetasViewModel(app().contenedor.recetas, app().contenedor.cocinadas) }
 
         initializer {
             DetalleRecetaViewModel(
