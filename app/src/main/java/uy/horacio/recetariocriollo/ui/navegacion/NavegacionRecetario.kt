@@ -1,5 +1,6 @@
 package uy.horacio.recetariocriollo.ui.navegacion
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,11 +16,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +51,12 @@ import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.ui.Fabricas
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
+import uy.horacio.recetariocriollo.ui.cajon.CajonRecetario
+import uy.horacio.recetariocriollo.ui.cajon.CajonViewModel
+import uy.horacio.recetariocriollo.ui.componentes.LocalAbrirCajon
+import kotlinx.coroutines.launch
+import uy.horacio.recetariocriollo.ui.catalogo.CatalogoPantalla
+import uy.horacio.recetariocriollo.ui.catalogo.CatalogoViewModel
 import uy.horacio.recetariocriollo.ui.cocina.CocinaPantalla
 import uy.horacio.recetariocriollo.ui.cocina.CocinaViewModel
 import uy.horacio.recetariocriollo.ui.theme.PapelNoche
@@ -94,6 +106,27 @@ fun NavegacionRecetario(
     val activos = cronometros.count { it.estado != EstadoCronometro.TERMINADO }
     val terminados = cronometros.count { it.estado == EstadoCronometro.TERMINADO }
 
+    val cajon = rememberDrawerState(DrawerValue.Closed)
+    val alcance = rememberCoroutineScope()
+    val cajonVm: CajonViewModel = viewModel(factory = Fabricas.Factory)
+    val resumen by cajonVm.resumen.collectAsStateWithLifecycle()
+    BackHandler(enabled = cajon.isOpen) { alcance.launch { cajon.close() } }
+
+    ModalNavigationDrawer(
+        drawerState = cajon,
+        gesturesEnabled = enSolapa || cajon.isOpen,
+        scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
+        drawerContent = {
+            CajonRecetario(
+                resumen = resumen,
+                alIr = { ruta ->
+                    alcance.launch { cajon.close() }
+                    controlador.navigate(ruta) { launchSingleTop = true }
+                }
+            )
+        }
+    ) {
+    CompositionLocalProvider(LocalAbrirCajon provides if (enSolapa) ({ alcance.launch { cajon.open() } }) else null) {
     Scaffold(
         containerColor = if (cocinando) PapelNoche else MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -125,8 +158,7 @@ fun NavegacionRecetario(
                 ListaRecetasPantalla(
                     vistaModelo = vistaModelo,
                     alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) },
-                    alCrearReceta = { controlador.navigate(RutaEditorReceta()) },
-                    alVerHistorial = { controlador.navigate(RutaHistorial) }
+                    alCrearReceta = { controlador.navigate(RutaEditorReceta()) }
                 )
             }
 
@@ -167,6 +199,11 @@ fun NavegacionRecetario(
                 )
             }
 
+            composable<RutaCatalogo> {
+                val vistaModelo: CatalogoViewModel = viewModel(factory = Fabricas.Factory)
+                CatalogoPantalla(vistaModelo = vistaModelo, alVolver = { controlador.popBackStack() })
+            }
+
             composable<RutaCocina> {
                 val vistaModelo: CocinaViewModel = viewModel(factory = Fabricas.Factory)
                 CocinaPantalla(
@@ -192,6 +229,8 @@ fun NavegacionRecetario(
                 )
             }
         }
+    }
+    }
     }
 }
 

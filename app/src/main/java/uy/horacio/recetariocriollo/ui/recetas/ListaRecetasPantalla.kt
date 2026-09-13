@@ -52,7 +52,6 @@ fun ListaRecetasPantalla(
     vistaModelo: ListaRecetasViewModel,
     alAbrirReceta: (Long) -> Unit,
     alCrearReceta: () -> Unit,
-    alVerHistorial: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
@@ -60,11 +59,6 @@ fun ListaRecetasPantalla(
 
     Column(modifier = modifier.fillMaxSize()) {
         BarraSuperior(titulo = stringResource(R.string.lista_titulo)) {
-            BotonIcono(
-                icono = Iconos.Historial,
-                descripcion = stringResource(R.string.historial_titulo),
-                alTocar = alVerHistorial
-            )
             BotonSecundario(
                 texto = stringResource(R.string.lista_nueva_receta),
                 alTocar = alCrearReceta,

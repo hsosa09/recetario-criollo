@@ -165,6 +165,49 @@
     <string name="selector_alta_guardar">Agregar al catálogo</string>
     <string name="selector_densidad_corta">%1$d g por taza</string>
 
+    <!-- Cajón lateral -->
+    <string name="cajon_abrir">Abrir el menú</string>
+    <string name="cajon_resumen">%1$s · %2$s · todo en el teléfono</string>
+    <plurals name="cajon_recetas">
+        <item quantity="one">%1$d receta</item>
+        <item quantity="other">%1$d recetas</item>
+    </plurals>
+    <plurals name="cajon_ingredientes">
+        <item quantity="one">%1$d ingrediente</item>
+        <item quantity="other">%1$d ingredientes</item>
+    </plurals>
+    <plurals name="cajon_cocinadas">
+        <item quantity="one">%1$d vez cocinado</item>
+        <item quantity="other">%1$d veces cocinado</item>
+    </plurals>
+    <string name="cajon_sin_cocinadas">Todavía sin cocinadas</string>
+    <string name="historial_titulo_largo">Historial de cocinadas</string>
+
+    <!-- Catálogo de ingredientes -->
+    <string name="catalogo_titulo">Catálogo de ingredientes</string>
+    <string name="catalogo_nuevo">Nuevo</string>
+    <string name="catalogo_editar_titulo">Editar ingrediente</string>
+    <plurals name="catalogo_resumen">
+        <item quantity="one">%1$d ingrediente · tocá uno para editarlo</item>
+        <item quantity="other">%1$d ingredientes · tocá uno para editarlo</item>
+    </plurals>
+    <plurals name="catalogo_en_recetas">
+        <item quantity="one">en %1$d receta</item>
+        <item quantity="other">en %1$d recetas</item>
+    </plurals>
+    <string name="catalogo_densidad">%1$s g por taza</string>
+    <string name="catalogo_sin_densidad">sin densidad cargada</string>
+    <string name="catalogo_basico">Es básico de despensa</string>
+    <string name="catalogo_basico_ayuda">«Con lo que tengo» lo puede dar por hecho, como la sal o el aceite.</string>
+    <string name="catalogo_nombre_repetido">Ya hay un ingrediente con ese nombre.</string>
+    <string name="catalogo_densidad_invalida">Los gramos por taza tienen que ser un número entre 1 y 1000.</string>
+    <string name="catalogo_borrar">Borrar del catálogo</string>
+    <string name="catalogo_borrado">«%1$s» se borró del catálogo.</string>
+    <plurals name="catalogo_no_se_puede_borrar">
+        <item quantity="one">No se puede borrar: lo usa %1$d receta.</item>
+        <item quantity="other">No se puede borrar: lo usan %1$d recetas.</item>
+    </plurals>
+
     <!-- Búsqueda por ingredientes -->
     <string name="busqueda_titulo">Con lo que tengo</string>
     <string name="busqueda_elegir">Elegí lo que tenés en casa</string>
