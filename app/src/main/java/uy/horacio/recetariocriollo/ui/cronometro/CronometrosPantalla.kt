@@ -137,12 +137,14 @@ fun CronometrosPantalla(
                             teclado = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f)
                         )
+                        val total = (minutos.trim().toIntOrNull() ?: 0) * 60 +
+                            (segundos.trim().toIntOrNull() ?: 0)
                         BotonPrimario(
                             texto = stringResource(R.string.timers_arrancar),
                             alto = 44.dp,
+                            // Sin tiempo el ViewModel no crea nada: mejor que el boton lo diga.
+                            habilitado = total > 0,
                             alTocar = {
-                                val total = (minutos.trim().toIntOrNull() ?: 0) * 60 +
-                                    (segundos.trim().toIntOrNull() ?: 0)
                                 vistaModelo.crear(etiqueta, total)
                                 etiqueta = ""
                                 minutos = ""
