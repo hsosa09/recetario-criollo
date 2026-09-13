@@ -98,11 +98,14 @@ fun ListaCatalogoIngredientes(
                     )
                 }
             }
-            if (alCrearNuevo != null) {
+            // Solo se ofrece crear si hay algo escrito y no existe ya con ese nombre.
+            val nombreNuevo = filtro.trim()
+            val yaExiste = catalogo.any { Texto.mismoNombre(it.nombre, nombreNuevo) }
+            if (alCrearNuevo != null && nombreNuevo.isNotEmpty() && !yaExiste) {
                 item {
                     BotonSecundario(
-                        texto = stringResource(R.string.selector_crear, filtro.trim()),
-                        alTocar = { alCrearNuevo(filtro.trim()) },
+                        texto = stringResource(R.string.selector_crear, nombreNuevo),
+                        alTocar = { alCrearNuevo(nombreNuevo) },
                         icono = Iconos.Mas,
                         modifier = Modifier
                             .fillMaxWidth()
