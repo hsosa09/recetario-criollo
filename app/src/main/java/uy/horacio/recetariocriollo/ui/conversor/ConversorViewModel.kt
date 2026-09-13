@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.datos.IngredienteRepositorio
+import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.Conversor
 import uy.horacio.recetariocriollo.dominio.Fracciones
 import uy.horacio.recetariocriollo.dominio.NivelHorno
@@ -20,6 +21,8 @@ data class EstadoConversor(
     val hasta: Unidad = Unidad.GRAMO,
     val ingrediente: Ingrediente? = null,
     val catalogoConDensidad: List<Ingrediente> = emptyList(),
+    /** Ingredientes que usa alguna receta: van primero en «Por ingrediente». */
+    val idsEnRecetas: Set<Long> = emptySet(),
     val resultado: Double? = null,
     val faltaDensidad: Boolean = false,
     val celsius: String = "180",
@@ -29,7 +32,10 @@ data class EstadoConversor(
     val levaduraSeca: String = "10"
 )
 
-class ConversorViewModel(ingredientes: IngredienteRepositorio) : ViewModel() {
+class ConversorViewModel(
+    ingredientes: IngredienteRepositorio,
+    recetas: RecetaRepositorio
+) : ViewModel() {
 
     private val _estado = MutableStateFlow(EstadoConversor())
     val estado: StateFlow<EstadoConversor> = _estado.asStateFlow()
@@ -38,6 +44,12 @@ class ConversorViewModel(ingredientes: IngredienteRepositorio) : ViewModel() {
         viewModelScope.launch {
             ingredientes.observarConDensidad().collect { lista ->
                 _estado.update { it.copy(catalogoConDensidad = lista) }
+            }
+        }
+        viewModelScope.launch {
+            recetas.observarRecetas().collect { lista ->
+                val ids = lista.flatMap { receta -> receta.ingredientes.map { it.ingrediente.id } }.toSet()
+                _estado.update { it.copy(idsEnRecetas = ids) }
             }
         }
         recalcular()

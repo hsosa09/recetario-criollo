@@ -46,7 +46,7 @@ object Fabricas {
             )
         }
 
-        initializer { ConversorViewModel(app().contenedor.ingredientes) }
+        initializer { ConversorViewModel(app().contenedor.ingredientes, app().contenedor.recetas) }
 
         initializer { CronometrosViewModel(app().contenedor.cronometros) }
 
