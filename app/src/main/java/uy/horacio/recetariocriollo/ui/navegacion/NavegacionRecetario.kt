@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import uy.horacio.recetariocriollo.R
+import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.ui.Fabricas
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
@@ -98,6 +100,8 @@ private val SOLAPAS = listOf(
 
 @Composable
 fun NavegacionRecetario(
+    atajo: Atajo? = null,
+    alAtenderAtajo: () -> Unit = {},
     controlador: NavHostController = rememberNavController()
 ) {
     val entradaActual by controlador.currentBackStackEntryAsState()
@@ -117,6 +121,30 @@ fun NavegacionRecetario(
     val cajonVm: CajonViewModel = viewModel(factory = Fabricas.Factory)
     val resumen by cajonVm.resumen.collectAsStateWithLifecycle()
     BackHandler(enabled = cajon.isOpen) { alcance.launch { cajon.close() } }
+
+    fun irASolapa(ruta: Any) = controlador.navigate(ruta) {
+        popUpTo(RutaRecetas) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+
+    LaunchedEffect(atajo) {
+        val pedido = atajo ?: return@LaunchedEffect
+        alcance.launch { cajon.close() }
+        when (pedido) {
+            is Atajo.NuevoTimer -> {
+                cronometrosVm.crear(Cronometro.describirDuracion(pedido.segundos), pedido.segundos)
+                irASolapa(RutaCronometros)
+            }
+            Atajo.Timers -> irASolapa(RutaCronometros)
+            Atajo.ConLoQueTengo -> irASolapa(RutaBusqueda)
+            Atajo.NuevaReceta -> {
+                irASolapa(RutaRecetas)
+                controlador.navigate(RutaEditorReceta())
+            }
+        }
+        alAtenderAtajo()
+    }
 
     ModalNavigationDrawer(
         drawerState = cajon,
@@ -138,13 +166,7 @@ fun NavegacionRecetario(
         bottomBar = {
             if (enSolapa) {
                 BarraSolapas(
-                    alElegir = { solapa ->
-                        controlador.navigate(solapa.ruta) {
-                            popUpTo(RutaRecetas) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
+                    alElegir = { solapa -> irASolapa(solapa.ruta) },
                     esActual = { solapa -> destino?.hasRoute(solapa.clase) == true },
                     cantidadTimers = activos + terminados
                 )

@@ -432,4 +432,18 @@
     <string name="horno_moderado">Horno moderado</string>
     <string name="horno_fuerte">Horno fuerte</string>
     <string name="horno_muy_fuerte">Horno muy fuerte</string>
+    <!-- Widget de timers y accesos directos -->
+    <string name="widget_timers_nombre">Timers de cocina</string>
+    <string name="widget_timers_descripcion">Los cronómetros andando, con +1 min y pausa, y atajos para arrancar uno.</string>
+    <string name="widget_timers_titulo">Timers</string>
+    <string name="widget_timers_vacio">Nada andando. Arrancá uno:</string>
+    <string name="widget_timers_listo_a_las">listo a las %1$s</string>
+    <string name="widget_timers_pausado">pausado · %1$s</string>
+    <string name="widget_timers_y_mas">y %1$d más</string>
+    <string name="atajo_timer_corto">Timer 10 min</string>
+    <string name="atajo_timer_largo">Timer de 10 minutos</string>
+    <string name="atajo_nueva_receta_corto">Nueva receta</string>
+    <string name="atajo_nueva_receta_largo">Cargar una receta nueva</string>
+    <string name="atajo_tengo_corto">Con lo que tengo</string>
+    <string name="atajo_tengo_largo">Buscar recetas con lo que tengo</string>
 </resources>
