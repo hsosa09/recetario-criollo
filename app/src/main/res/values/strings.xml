@@ -201,6 +201,8 @@
     <string name="conversor_cruza_con">Estás cruzando volumen con peso: se usa la densidad de %1$s. Cambialo en «Por ingrediente».</string>
     <string name="conversor_ingrediente_elegi">Elegí un ingrediente</string>
     <string name="conversor_ingrediente_ayuda">Con el peso de una taza quedan habilitadas las conversiones de volumen a peso en «Medidas».</string>
+    <string name="conversor_de_tus_recetas">De tus recetas</string>
+    <string name="conversor_resto_catalogo">Resto del catálogo</string>
     <string name="conversor_levadura_seca_rotulo">Levadura seca</string>
     <string name="conversor_gramos">%1$s g</string>
     <string name="conversor_densidad_dato">1 taza de %1$s ≈ %2$s g</string>

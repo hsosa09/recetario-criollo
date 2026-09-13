@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.Conversor
 import uy.horacio.recetariocriollo.dominio.Fracciones
 import uy.horacio.recetariocriollo.dominio.NivelHorno
+import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
 import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
@@ -215,8 +217,12 @@ private fun SeccionMedidas(
 
 @Composable
 private fun SeccionIngrediente(estado: EstadoConversor, vistaModelo: ConversorViewModel) {
+    var filtro by rememberSaveable { mutableStateOf("") }
+    val elegido = estado.ingrediente
+    val visibles = estado.catalogoConDensidad.filter { Texto.contiene(it.nombre, filtro) }
+    val (deTusRecetas, resto) = visibles.partition { it.id in estado.idsEnRecetas }
+
     Column(modifier = Modifier.padding(MARGEN)) {
-        val elegido = estado.ingrediente
         val densidad = elegido?.densidadGramosPorTaza
         Text(
             text = if (elegido != null && densidad != null) {
@@ -236,18 +242,41 @@ private fun SeccionIngrediente(estado: EstadoConversor, vistaModelo: ConversorVi
             estilo = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 14.dp)
         )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            estado.catalogoConDensidad.forEach { ingrediente ->
-                ChipRecto(
-                    texto = ingrediente.nombre,
-                    activo = ingrediente.id == elegido?.id,
-                    alTocar = {
-                        vistaModelo.elegirIngrediente(if (ingrediente.id == elegido?.id) null else ingrediente)
-                    }
-                )
+        CampoTexto(
+            valor = filtro,
+            alCambiar = { filtro = it },
+            marcador = stringResource(R.string.selector_filtro),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        if (visibles.isEmpty()) {
+            TextoTenue(
+                texto = stringResource(R.string.selector_sin_resultados),
+                estilo = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(vertical = 14.dp)
+            )
+        }
+        listOf(
+            R.string.conversor_de_tus_recetas to deTusRecetas,
+            R.string.conversor_resto_catalogo to resto
+        ).filter { it.second.isNotEmpty() }.forEach { (rotulo, grupo) ->
+            Rotulo(
+                texto = stringResource(rotulo),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                grupo.forEach { ingrediente ->
+                    ChipRecto(
+                        texto = ingrediente.nombre,
+                        activo = ingrediente.id == elegido?.id,
+                        alTocar = {
+                            vistaModelo.elegirIngrediente(if (ingrediente.id == elegido?.id) null else ingrediente)
+                        }
+                    )
+                }
             }
         }
     }
