@@ -2,35 +2,31 @@ package uy.horacio.recetariocriollo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta "criolla": terracota de cazuela, verde oliva y dorado de dulce de leche.
-val Terracota = Color(0xFF8C3A1E)
-val TerracotaClaro = Color(0xFFFFDBCF)
-val TerracotaOscuro = Color(0xFF3B0B00)
-val TerracotaSuave = Color(0xFFFFB59B)
+// Paleta del sistema "Modernist" del prototipo de Claude Design: papel gris calido,
+// tinta casi negra y un solo acento rojo. Las rampas salen de OKLCH con la misma
+// escala de luminosidad, asi el mismo escalon de dos roles pesa igual a la vista.
 
-val Oliva = Color(0xFF5A6247)
-val OlivaClaro = Color(0xFFDDE7C4)
-val OlivaOscuro = Color(0xFF181E0B)
-val OlivaSuave = Color(0xFFC1CBA9)
+val Papel = Color(0xFFF3F2F2)
+val PapelHundido = Color(0xFFEAE9E9)
+val Tinta = Color(0xFF201E1D)
 
-val Dorado = Color(0xFF7B5800)
-val DoradoClaro = Color(0xFFFFDEA6)
-val DoradoOscuro = Color(0xFF261A00)
-val DoradoSuave = Color(0xFFF2BF48)
+val Acento = Color(0xFFEC3013)
+val Acento100 = Color(0xFFFFF2EF)
+val Acento400 = Color(0xFFFF9783)
+val Acento600 = Color(0xFFDD2B0F)
+val Acento700 = Color(0xFFAE1800)
+val Acento800 = Color(0xFF7C1405)
+val Acento900 = Color(0xFF4D170E)
+val AcentoSecundario = Color(0xFFE15B47)
 
-val FondoCrema = Color(0xFFFFFBFF)
-val FondoOscuro = Color(0xFF201A18)
-val SuperficieCrema = Color(0xFFFFF8F6)
-val SuperficieOscura = Color(0xFF201A18)
-val SuperficieVariante = Color(0xFFF5DED7)
-val SuperficieVarianteOscura = Color(0xFF53433F)
+val Neutro100 = Color(0xFFF8F4F4)
+val Neutro300 = Color(0xFFD7D3D3)
+val Neutro500 = Color(0xFF9B9797)
+val Neutro700 = Color(0xFF605D5D)
+val Neutro800 = Color(0xFF444141)
+val Neutro900 = Color(0xFF2D2B2B)
 
-val TextoPrincipal = Color(0xFF201A18)
-val TextoClaro = Color(0xFFEDE0DD)
-val TextoVariante = Color(0xFF53433F)
-val TextoVarianteClaro = Color(0xFFD8C2BC)
-
-val RojoError = Color(0xFFBA1A1A)
-val RojoErrorClaro = Color(0xFFFFDAD6)
-val RojoErrorOscuro = Color(0xFFFFB4AB)
-val RojoErrorContenedorOscuro = Color(0xFF93000A)
+// Variante oscura: la misma que usa el prototipo para cocinar paso a paso.
+val PapelNoche = Color(0xFF201E1D)
+val PapelNocheElevado = Color(0xFF2D2B2B)
+val TintaNoche = Color(0xFFF3F2F2)

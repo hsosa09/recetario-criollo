@@ -6,36 +6,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,19 +26,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
 import uy.horacio.recetariocriollo.cronometro.Notificaciones
+import uy.horacio.recetariocriollo.ui.componentes.BarraProgreso
+import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
+import uy.horacio.recetariocriollo.ui.componentes.BloqueSeccion
+import uy.horacio.recetariocriollo.ui.componentes.BotonPrimario
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
-import uy.horacio.recetariocriollo.ui.componentes.FilaPareja
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
+import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CronometrosPantalla(
     vistaModelo: CronometrosViewModel,
@@ -67,6 +56,7 @@ fun CronometrosPantalla(
     val cronometros by vistaModelo.cronometros.collectAsStateWithLifecycle()
     val ahora by vistaModelo.ahora.collectAsStateWithLifecycle()
     val contexto = LocalContext.current
+    val colores = MaterialTheme.colorScheme
 
     var etiqueta by rememberSaveable { mutableStateOf("") }
     var minutos by rememberSaveable { mutableStateOf("") }
@@ -77,128 +67,95 @@ fun CronometrosPantalla(
         contract = ActivityResultContracts.RequestPermission()
     ) { concedido -> hayPermiso = concedido }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.timers_titulo)) },
-                actions = {
-                    if (cronometros.any { it.estado == EstadoCronometro.TERMINADO }) {
-                        TextButton(onClick = vistaModelo::quitarTerminados) {
-                            Text(stringResource(R.string.timers_limpiar_terminados))
-                        }
-                    }
-                }
-            )
-        }
-    ) { relleno ->
+    Column(modifier = modifier.fillMaxSize()) {
+        BarraSuperior(titulo = stringResource(R.string.timers_titulo))
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(relleno),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .imePadding()
         ) {
             if (!hayPermiso && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                item {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(stringResource(R.string.timers_permiso))
-                            TextButton(
-                                onClick = { pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS) }
-                            ) { Text(stringResource(R.string.timers_permiso_boton)) }
+                item(key = "permiso") {
+                    BloqueSeccion(fondo = RecetarioTema.extra.acentoTenue) {
+                        Text(
+                            text = stringResource(R.string.timers_permiso),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = RecetarioTema.extra.textoAcentoTenue,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        BotonSecundario(
+                            texto = stringResource(R.string.timers_permiso_boton),
+                            alTocar = { pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                            alto = 40.dp
+                        )
+                    }
+                }
+            }
+
+            item(key = "nuevo") {
+                BloqueSeccion {
+                    CampoTexto(
+                        valor = etiqueta,
+                        alCambiar = { etiqueta = it },
+                        marcador = stringResource(R.string.timers_etiqueta),
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    // Atajos en grilla de 4 por fila, casilleros contiguos.
+                    GestorCronometros.ATAJOS_SEGUNDOS.chunked(4).forEach { fila ->
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            fila.forEach { atajo ->
+                                BotonSecundario(
+                                    texto = if (atajo >= 3600) stringResource(R.string.timers_atajo_hora)
+                                    else stringResource(R.string.timers_atajo_minutos, atajo / 60),
+                                    alTocar = {
+                                        vistaModelo.crear(etiqueta, atajo)
+                                        etiqueta = ""
+                                    },
+                                    alto = 48.dp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
-                }
-            }
-
-            item {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    GestorCronometros.ATAJOS_SEGUNDOS.forEach { atajo ->
-                        AssistChip(
-                            onClick = {
-                                vistaModelo.crear(etiqueta.ifBlank { "" }, atajo)
-                                etiqueta = ""
-                            },
-                            label = {
-                                Text(
-                                    if (atajo >= 3600) stringResource(R.string.timers_atajo_hora)
-                                    else stringResource(R.string.timers_atajo_minutos, atajo / 60)
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-
-            item {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    Row(
+                        modifier = Modifier.padding(top = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        Text(
-                            text = stringResource(R.string.timers_nuevo),
-                            style = MaterialTheme.typography.titleMedium
+                        CampoTexto(
+                            valor = minutos,
+                            alCambiar = { minutos = it },
+                            marcador = stringResource(R.string.timers_minutos),
+                            teclado = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.weight(1f)
                         )
-                        OutlinedTextField(
-                            value = etiqueta,
-                            onValueChange = { etiqueta = it },
-                            label = { Text(stringResource(R.string.timers_etiqueta)) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
+                        CampoTexto(
+                            valor = segundos,
+                            alCambiar = { segundos = it },
+                            marcador = stringResource(R.string.timers_segundos),
+                            teclado = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.weight(1f)
                         )
-                        FilaPareja(
-                            izquierda = {
-                                OutlinedTextField(
-                                    value = minutos,
-                                    onValueChange = { minutos = it },
-                                    label = { Text(stringResource(R.string.timers_minutos)) },
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            },
-                            derecha = {
-                                OutlinedTextField(
-                                    value = segundos,
-                                    onValueChange = { segundos = it },
-                                    label = { Text(stringResource(R.string.timers_segundos)) },
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        )
-                        Button(
-                            onClick = {
+                        BotonPrimario(
+                            texto = stringResource(R.string.timers_arrancar),
+                            alto = 44.dp,
+                            alTocar = {
                                 val total = (minutos.trim().toIntOrNull() ?: 0) * 60 +
                                     (segundos.trim().toIntOrNull() ?: 0)
                                 vistaModelo.crear(etiqueta, total)
                                 etiqueta = ""
                                 minutos = ""
                                 segundos = ""
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(stringResource(R.string.timers_arrancar)) }
+                            }
+                        )
                     }
                 }
             }
 
             if (cronometros.isEmpty()) {
-                item {
+                item(key = "vacio") {
                     EstadoVacio(
-                        icono = Icons.Default.Timer,
                         titulo = stringResource(R.string.timers_vacio),
                         detalle = stringResource(R.string.timers_vacio_detalle)
                     )
@@ -206,7 +163,7 @@ fun CronometrosPantalla(
             }
 
             items(cronometros, key = { it.id }) { cronometro ->
-                TarjetaCronometro(
+                FilaCronometro(
                     cronometro = cronometro,
                     ahora = ahora,
                     alPausar = { vistaModelo.pausar(cronometro.id) },
@@ -216,12 +173,24 @@ fun CronometrosPantalla(
                     alAjustar = { vistaModelo.ajustar(cronometro.id, it) }
                 )
             }
+
+            if (cronometros.any { it.estado == EstadoCronometro.TERMINADO }) {
+                item(key = "limpiar") {
+                    BotonSecundario(
+                        texto = stringResource(R.string.timers_limpiar_terminados),
+                        alTocar = vistaModelo::quitarTerminados,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(MARGEN)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun TarjetaCronometro(
+private fun FilaCronometro(
     cronometro: Cronometro,
     ahora: Long,
     alPausar: () -> Unit,
@@ -230,79 +199,63 @@ private fun TarjetaCronometro(
     alQuitar: () -> Unit,
     alAjustar: (Int) -> Unit
 ) {
+    val colores = MaterialTheme.colorScheme
     val terminado = cronometro.estado == EstadoCronometro.TERMINADO
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = if (terminado) MaterialTheme.colorScheme.errorContainer
-            else MaterialTheme.colorScheme.primaryContainer
-        ),
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteAbajo(colores.outline)
+            .padding(horizontal = MARGEN, vertical = 14.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(bottom = 8.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = cronometro.etiqueta,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = alQuitar) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.timers_quitar)
-                    )
-                }
-            }
-
+            TextoTenue(
+                texto = cronometro.etiqueta,
+                estilo = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                maxLineas = 2,
+                modifier = Modifier.weight(1f)
+            )
             Text(
                 text = if (terminado) stringResource(R.string.timers_terminado)
                 else Cronometro.formatearSegundos(cronometro.restanteSegundos(ahora)),
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.displaySmall.copy(fontSize = 30.sp),
+                color = if (terminado) colores.primary else colores.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Clip
             )
-
-            LinearProgressIndicator(
-                progress = { cronometro.progreso(ahora) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (cronometro.estado == EstadoCronometro.CORRIENDO) {
-                    TextButton(onClick = alPausar) {
-                        Icon(Icons.Default.Pause, contentDescription = null)
-                        Text(
-                            text = stringResource(R.string.timers_pausar),
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                } else {
-                    TextButton(onClick = alReanudar) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null)
-                        Text(
-                            text = stringResource(R.string.timers_reanudar),
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                }
-                TextButton(onClick = alReiniciar) {
-                    Icon(Icons.Default.Refresh, contentDescription = null)
-                    Text(
-                        text = stringResource(R.string.timers_reiniciar),
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                }
-                TextButton(onClick = { alAjustar(60) }) {
-                    Text(stringResource(R.string.timers_mas_minuto))
-                }
-                TextButton(onClick = { alAjustar(-60) }) {
-                    Text(stringResource(R.string.timers_menos_minuto))
-                }
+        }
+        BarraProgreso(
+            fraccion = cronometro.progreso(ahora),
+            color = if (terminado) colores.primary else colores.onBackground,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            val modificador = Modifier.weight(1f)
+            when (cronometro.estado) {
+                EstadoCronometro.CORRIENDO -> AccionCronometro(stringResource(R.string.timers_pausar), alPausar, modificador)
+                EstadoCronometro.PAUSADO -> AccionCronometro(stringResource(R.string.timers_reanudar), alReanudar, modificador)
+                EstadoCronometro.TERMINADO -> AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
             }
+            if (!terminado) {
+                AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
+            }
+            AccionCronometro(stringResource(R.string.timers_menos_minuto), { alAjustar(-60) }, modificador)
+            AccionCronometro(stringResource(R.string.timers_mas_minuto), { alAjustar(60) }, modificador)
+            AccionCronometro(stringResource(R.string.timers_quitar), alQuitar, modificador)
         }
     }
+}
+
+@Composable
+private fun AccionCronometro(texto: String, alTocar: () -> Unit, modifier: Modifier) {
+    BotonSecundario(
+        texto = texto,
+        alTocar = alTocar,
+        alto = 40.dp,
+        centrado = true,
+        modifier = modifier
+    )
 }

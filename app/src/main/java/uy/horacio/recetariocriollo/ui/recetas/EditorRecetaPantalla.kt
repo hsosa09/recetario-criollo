@@ -3,43 +3,29 @@ package uy.horacio.recetariocriollo.ui.recetas
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,12 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import uy.horacio.recetariocriollo.R
@@ -61,14 +47,29 @@ import uy.horacio.recetariocriollo.dominio.Plantillas
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
+import uy.horacio.recetariocriollo.ui.componentes.AvisoRecetario
+import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
+import uy.horacio.recetariocriollo.ui.componentes.BloqueSeccion
+import uy.horacio.recetariocriollo.ui.componentes.BotonIcono
+import uy.horacio.recetariocriollo.ui.componentes.BotonPrimario
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.BotonTexto
+import uy.horacio.recetariocriollo.ui.componentes.CabeceraSeccion
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
+import uy.horacio.recetariocriollo.ui.componentes.ChipRecto
 import uy.horacio.recetariocriollo.ui.componentes.FilaPareja
+import uy.horacio.recetariocriollo.ui.componentes.Iconos
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.Rotulo
 import uy.horacio.recetariocriollo.ui.componentes.SelectorDesplegable
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.detalleId
 import uy.horacio.recetariocriollo.ui.ingredientes.DialogoNuevoIngrediente
 import uy.horacio.recetariocriollo.ui.ingredientes.HojaSelectorIngrediente
 import uy.horacio.recetariocriollo.ui.textoId
+import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorRecetaPantalla(
     vistaModelo: EditorRecetaViewModel,
@@ -80,6 +81,7 @@ fun EditorRecetaPantalla(
     var mostrandoSelector by remember { mutableStateOf(false) }
     var nombreParaAlta by remember { mutableStateOf<String?>(null) }
     val avisos = remember { SnackbarHostState() }
+    val colores = MaterialTheme.colorScheme
 
     val elegirFoto = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -99,161 +101,130 @@ fun EditorRecetaPantalla(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(avisos) },
+        containerColor = colores.background,
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(avisos) { AvisoRecetario(it) } },
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        stringResource(
-                            if (estado.esNueva) R.string.editor_titulo_nueva
-                            else R.string.editor_titulo_editar
-                        )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = alVolver) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.accion_volver))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = vistaModelo::guardar, enabled = !estado.guardando) {
-                        Icon(Icons.Default.Save, contentDescription = stringResource(R.string.accion_guardar))
-                    }
-                }
-            )
+            BarraSuperior(
+                titulo = stringResource(
+                    if (estado.esNueva) R.string.editor_titulo_nueva else R.string.editor_titulo_editar
+                ),
+                alVolver = alVolver,
+                descripcionVolver = stringResource(R.string.accion_volver)
+            ) {
+                BotonSecundario(
+                    texto = stringResource(R.string.accion_guardar),
+                    alTocar = vistaModelo::guardar,
+                    habilitado = !estado.guardando,
+                    alto = 36.dp
+                )
+            }
         }
     ) { relleno ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(relleno),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(relleno)
+                .imePadding()
         ) {
             if (estado.esNueva) {
-                item {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.editor_plantilla),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = stringResource(R.string.editor_plantilla_ayuda),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                item(key = "plantillas") {
+                    BloqueSeccion {
+                        Rotulo(stringResource(R.string.editor_plantilla), modifier = Modifier.padding(bottom = 10.dp))
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             items(Plantillas.todas, key = { it.id }) { plantilla ->
-                                AssistChip(
-                                    onClick = { vistaModelo.aplicarPlantilla(plantilla) },
-                                    label = { Text(plantilla.nombre) }
+                                ChipRecto(
+                                    texto = plantilla.nombre,
+                                    activo = false,
+                                    alTocar = { vistaModelo.aplicarPlantilla(plantilla) }
                                 )
                             }
                         }
+                        TextoTenue(stringResource(R.string.editor_plantilla_ayuda))
                     }
                 }
             }
 
-            item {
-                OutlinedTextField(
-                    value = estado.nombre,
-                    onValueChange = vistaModelo::cambiarNombre,
-                    label = { Text(stringResource(R.string.editor_nombre)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                SelectorDesplegable(
-                    etiqueta = stringResource(R.string.editor_categoria),
-                    seleccion = estado.categoria,
-                    opciones = CategoriaReceta.entries,
-                    textoDe = { stringResource(it.textoId) },
-                    alElegir = vistaModelo::cambiarCategoria
-                )
-            }
-
-            item {
-                FilaPareja(
-                    izquierda = {
-                        OutlinedTextField(
-                            value = estado.porciones,
-                            onValueChange = vistaModelo::cambiarPorciones,
-                            label = { Text(stringResource(R.string.editor_porciones)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+            item(key = "datos") {
+                BloqueSeccion(modifier = Modifier.padding(top = 2.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        CampoTexto(
+                            valor = estado.nombre,
+                            alCambiar = vistaModelo::cambiarNombre,
+                            etiqueta = stringResource(R.string.editor_nombre)
                         )
-                    },
-                    derecha = {
-                        OutlinedTextField(
-                            value = estado.tiempo,
-                            onValueChange = vistaModelo::cambiarTiempo,
-                            label = { Text(stringResource(R.string.editor_tiempo)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Next
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                        FilaPareja(
+                            izquierda = {
+                                CampoTexto(
+                                    valor = estado.porciones,
+                                    alCambiar = vistaModelo::cambiarPorciones,
+                                    etiqueta = stringResource(R.string.editor_porciones),
+                                    teclado = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Next
+                                    )
+                                )
+                            },
+                            derecha = {
+                                CampoTexto(
+                                    valor = estado.tiempo,
+                                    alCambiar = vistaModelo::cambiarTiempo,
+                                    etiqueta = stringResource(R.string.editor_tiempo),
+                                    teclado = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Next
+                                    )
+                                )
+                            }
                         )
-                    }
-                )
-            }
-
-            item {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.editor_foto),
-                            style = MaterialTheme.typography.titleMedium
+                        SelectorDesplegable(
+                            etiqueta = stringResource(R.string.editor_categoria),
+                            seleccion = estado.categoria,
+                            opciones = CategoriaReceta.entries,
+                            textoDe = { stringResource(it.textoId) },
+                            alElegir = vistaModelo::cambiarCategoria
                         )
-                        estado.fotoPath?.let { ruta ->
-                            AsyncImage(
-                                model = ruta,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                                    .padding(vertical = 8.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                            )
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(
-                                onClick = {
-                                    elegirFoto.launch(
-                                        PickVisualMediaRequest(
-                                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            TextoTenue(stringResource(R.string.editor_foto))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                if (estado.fotoPath != null) {
+                                    AsyncImage(
+                                        model = estado.fotoPath,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.size(70.dp)
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(70.dp)
+                                            .background(RecetarioTema.extra.marcador)
                                     )
                                 }
-                            ) {
-                                Icon(Icons.Default.PhotoCamera, contentDescription = null)
-                                Text(
-                                    text = stringResource(
+                                BotonSecundario(
+                                    texto = stringResource(
                                         if (estado.fotoPath == null) R.string.editor_elegir_foto
                                         else R.string.editor_cambiar_foto
                                     ),
-                                    modifier = Modifier.padding(start = 8.dp)
+                                    icono = Iconos.Foto,
+                                    alto = 42.dp,
+                                    alTocar = {
+                                        elegirFoto.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    }
                                 )
-                            }
-                            if (estado.fotoPath != null) {
-                                TextButton(onClick = vistaModelo::quitarFoto) {
-                                    Text(stringResource(R.string.editor_quitar_foto))
+                                if (estado.fotoPath != null) {
+                                    BotonTexto(
+                                        texto = stringResource(R.string.editor_quitar_foto),
+                                        alTocar = vistaModelo::quitarFoto
+                                    )
                                 }
                             }
                         }
@@ -261,16 +232,14 @@ fun EditorRecetaPantalla(
                 }
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.editor_ingredientes),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            item(key = "rotulo_ingredientes") {
+                CabeceraSeccion(stringResource(R.string.editor_ingredientes)) {
+                    TextoTenue(stringResource(R.string.editor_ingredientes_ayuda))
+                }
             }
 
             items(estado.ingredientes, key = { "ingrediente_${it.idLocal}" }) { linea ->
-                TarjetaLineaIngrediente(
+                FilaLineaIngrediente(
                     linea = linea,
                     alCambiarCantidad = { vistaModelo.cambiarCantidad(linea.idLocal, it) },
                     alCambiarUnidad = { vistaModelo.cambiarUnidad(linea.idLocal, it) },
@@ -280,31 +249,31 @@ fun EditorRecetaPantalla(
                 )
             }
 
-            item {
-                OutlinedButton(
-                    onClick = { mostrandoSelector = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text(
-                        text = stringResource(R.string.editor_agregar_ingrediente),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+            item(key = "agregar_ingrediente") {
+                BotonSecundario(
+                    texto = stringResource(R.string.editor_agregar_ingrediente),
+                    alTocar = { mostrandoSelector = true },
+                    icono = Iconos.Mas,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fileteArriba(colores.outline)
+                        .padding(horizontal = MARGEN, vertical = 12.dp)
+                )
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.editor_pasos),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+            item(key = "rotulo_pasos") {
+                CabeceraSeccion(
+                    rotulo = stringResource(R.string.editor_pasos),
+                    modifier = Modifier.fileteArriba(colores.outline, 2.dp)
                 )
             }
 
             itemsIndexed(estado.pasos, key = { _, paso -> "paso_${paso.idLocal}" }) { indice, paso ->
-                TarjetaLineaPaso(
+                FilaLineaPaso(
                     numero = indice + 1,
                     linea = paso,
+                    esPrimero = indice == 0,
+                    esUltimo = indice == estado.pasos.lastIndex,
                     alCambiarTexto = { vistaModelo.cambiarTextoPaso(paso.idLocal, it) },
                     alCambiarTimer = { vistaModelo.cambiarTimerPaso(paso.idLocal, it) },
                     alSubir = { vistaModelo.moverPaso(paso.idLocal, true) },
@@ -313,27 +282,40 @@ fun EditorRecetaPantalla(
                 )
             }
 
-            item {
-                OutlinedButton(
-                    onClick = vistaModelo::agregarPaso,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text(
-                        text = stringResource(R.string.editor_agregar_paso),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+            item(key = "agregar_paso") {
+                BotonSecundario(
+                    texto = stringResource(R.string.editor_agregar_paso),
+                    alTocar = vistaModelo::agregarPaso,
+                    icono = Iconos.Mas,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fileteArriba(colores.outline)
+                        .padding(horizontal = MARGEN, vertical = 12.dp)
+                )
             }
 
-            item {
-                OutlinedTextField(
-                    value = estado.notas,
-                    onValueChange = vistaModelo::cambiarNotas,
-                    label = { Text(stringResource(R.string.editor_notas)) },
-                    minLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            item(key = "notas") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fileteArriba(colores.outline, 2.dp)
+                        .padding(MARGEN),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CampoTexto(
+                        valor = estado.notas,
+                        alCambiar = vistaModelo::cambiarNotas,
+                        etiqueta = stringResource(R.string.editor_notas),
+                        unaLinea = false,
+                        lineasMinimas = 3
+                    )
+                    BotonPrimario(
+                        texto = stringResource(R.string.editor_guardar_receta),
+                        alTocar = vistaModelo::guardar,
+                        habilitado = !estado.guardando,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -366,7 +348,7 @@ fun EditorRecetaPantalla(
 }
 
 @Composable
-private fun TarjetaLineaIngrediente(
+private fun FilaLineaIngrediente(
     linea: LineaIngrediente,
     alCambiarCantidad: (String) -> Unit,
     alCambiarUnidad: (Unidad) -> Unit,
@@ -374,33 +356,42 @@ private fun TarjetaLineaIngrediente(
     alCambiarAclaracion: (String) -> Unit,
     alQuitar: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteArriba(MaterialTheme.colorScheme.outline)
+            .padding(start = MARGEN, end = 6.dp, top = 6.dp, bottom = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = linea.ingrediente.nombre,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(linea.regla.textoId),
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            BotonIcono(
+                icono = Iconos.Cerrar,
+                descripcion = stringResource(R.string.accion_quitar),
+                alTocar = alQuitar,
+                tamanioIcono = 18.dp
+            )
+        }
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(end = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = linea.ingrediente.nombre,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = alQuitar) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.accion_quitar))
-                }
-            }
             FilaPareja(
                 izquierda = {
-                    OutlinedTextField(
-                        value = linea.cantidad,
-                        onValueChange = alCambiarCantidad,
-                        label = { Text(stringResource(R.string.editor_cantidad)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.fillMaxWidth()
+                    CampoTexto(
+                        valor = linea.cantidad,
+                        alCambiar = alCambiarCantidad,
+                        etiqueta = stringResource(R.string.editor_cantidad),
+                        teclado = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 },
                 derecha = {
@@ -421,66 +412,80 @@ private fun TarjetaLineaIngrediente(
                 detalleDe = { stringResource(it.detalleId) },
                 alElegir = alCambiarRegla
             )
-            OutlinedTextField(
-                value = linea.aclaracion,
-                onValueChange = alCambiarAclaracion,
-                label = { Text(stringResource(R.string.editor_aclaracion)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+            CampoTexto(
+                valor = linea.aclaracion,
+                alCambiar = alCambiarAclaracion,
+                etiqueta = stringResource(R.string.editor_aclaracion)
             )
         }
     }
 }
 
 @Composable
-private fun TarjetaLineaPaso(
+private fun FilaLineaPaso(
     numero: Int,
     linea: LineaPaso,
+    esPrimero: Boolean,
+    esUltimo: Boolean,
     alCambiarTexto: (String) -> Unit,
     alCambiarTimer: (String) -> Unit,
     alSubir: () -> Unit,
     alBajar: () -> Unit,
     alQuitar: () -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteArriba(MaterialTheme.colorScheme.outline)
+            .padding(start = MARGEN, end = 6.dp, top = 12.dp, bottom = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        Text(
+            text = numero.toString(),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .width(22.dp)
+                .padding(top = 10.dp)
+        )
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(R.string.detalle_paso_numero, numero),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = alSubir) {
-                    Icon(Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.editor_subir))
-                }
-                IconButton(onClick = alBajar) {
-                    Icon(Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.editor_bajar))
-                }
-                IconButton(onClick = alQuitar) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.accion_quitar))
-                }
-            }
-            OutlinedTextField(
-                value = linea.texto,
-                onValueChange = alCambiarTexto,
-                label = { Text(stringResource(R.string.editor_paso_texto)) },
-                minLines = 2,
-                modifier = Modifier.fillMaxWidth()
+            CampoTexto(
+                valor = linea.texto,
+                alCambiar = alCambiarTexto,
+                marcador = stringResource(R.string.editor_paso_texto),
+                unaLinea = false,
+                lineasMinimas = 2
             )
-            OutlinedTextField(
-                value = linea.minutosTimer,
-                onValueChange = alCambiarTimer,
-                label = { Text(stringResource(R.string.editor_paso_timer)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+            CampoTexto(
+                valor = linea.minutosTimer,
+                alCambiar = alCambiarTimer,
+                etiqueta = stringResource(R.string.editor_paso_timer),
+                teclado = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+        }
+        Column {
+            BotonIcono(
+                icono = Iconos.Arriba,
+                descripcion = stringResource(R.string.editor_subir),
+                alTocar = alSubir,
+                habilitado = !esPrimero,
+                tamanioIcono = 18.dp
+            )
+            BotonIcono(
+                icono = Iconos.Abajo,
+                descripcion = stringResource(R.string.editor_bajar),
+                alTocar = alBajar,
+                habilitado = !esUltimo,
+                tamanioIcono = 18.dp
+            )
+            BotonIcono(
+                icono = Iconos.Cerrar,
+                descripcion = stringResource(R.string.accion_quitar),
+                alTocar = alQuitar,
+                tamanioIcono = 18.dp
             )
         }
     }

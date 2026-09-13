@@ -1,15 +1,15 @@
 package uy.horacio.recetariocriollo.ui.ingredientes
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,15 +21,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.Fracciones
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
+import uy.horacio.recetariocriollo.ui.componentes.Casilla
 import uy.horacio.recetariocriollo.ui.componentes.SelectorDesplegable
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
 import uy.horacio.recetariocriollo.ui.textoId
 
 /** Alta rapida de un ingrediente al catalogo, sin salir de donde estabas. */
@@ -44,10 +47,12 @@ fun DialogoNuevoIngrediente(
     var unidad by remember { mutableStateOf(Unidad.GRAMO) }
     var densidad by rememberSaveable { mutableStateOf("") }
     var especia by rememberSaveable { mutableStateOf(false) }
+    val colores = MaterialTheme.colorScheme
 
     AlertDialog(
         onDismissRequest = alCancelar,
-        title = { Text(stringResource(R.string.selector_alta_titulo)) },
+        containerColor = colores.background,
+        title = { Text(stringResource(R.string.selector_alta_titulo), style = MaterialTheme.typography.headlineSmall) },
         confirmButton = {
             TextButton(
                 onClick = {
@@ -60,22 +65,32 @@ fun DialogoNuevoIngrediente(
                     )
                 },
                 enabled = nombre.isNotBlank()
-            ) { Text(stringResource(R.string.selector_alta_guardar)) }
+            ) {
+                Text(
+                    text = stringResource(R.string.selector_alta_guardar),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (nombre.isNotBlank()) colores.primary else colores.onSurfaceVariant
+                )
+            }
         },
         dismissButton = {
-            TextButton(onClick = alCancelar) { Text(stringResource(R.string.accion_cancelar)) }
+            TextButton(onClick = alCancelar) {
+                Text(
+                    text = stringResource(R.string.accion_cancelar),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colores.onBackground
+                )
+            }
         },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    label = { Text(stringResource(R.string.selector_alta_nombre)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                CampoTexto(
+                    valor = nombre,
+                    alCambiar = { nombre = it },
+                    etiqueta = stringResource(R.string.selector_alta_nombre)
                 )
                 SelectorDesplegable(
                     etiqueta = stringResource(R.string.selector_alta_categoria),
@@ -91,31 +106,27 @@ fun DialogoNuevoIngrediente(
                     textoDe = { it.plural },
                     alElegir = { unidad = it }
                 )
-                OutlinedTextField(
-                    value = densidad,
-                    onValueChange = { densidad = it },
-                    label = { Text(stringResource(R.string.selector_alta_densidad)) },
-                    supportingText = { Text(stringResource(R.string.selector_alta_densidad_ayuda)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
+                CampoTexto(
+                    valor = densidad,
+                    alCambiar = { densidad = it },
+                    etiqueta = stringResource(R.string.selector_alta_densidad),
+                    ayuda = stringResource(R.string.selector_alta_densidad_ayuda),
+                    teclado = KeyboardOptions(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Done
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    )
                 )
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(role = Role.Checkbox) { especia = !especia }
                 ) {
-                    Switch(checked = especia, onCheckedChange = { especia = it })
+                    Casilla(marcada = especia)
                     Column {
-                        Text(stringResource(R.string.selector_alta_especia))
-                        Text(
-                            text = stringResource(R.string.selector_alta_especia_ayuda),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Text(stringResource(R.string.selector_alta_especia), style = MaterialTheme.typography.titleSmall)
+                        TextoTenue(stringResource(R.string.selector_alta_especia_ayuda))
                     }
                 }
             }

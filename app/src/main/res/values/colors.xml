@@ -2,5 +2,5 @@
 <resources>
     <!-- Fondo de la ventana mientras arranca la app: igual al del tema Compose,
          para que no pegue un flash blanco antes del primer frame. -->
-    <color name="fondo_ventana">#FFFBFF</color>
+    <color name="fondo_ventana">#F3F2F2</color>
 </resources>

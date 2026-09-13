@@ -19,7 +19,9 @@ data class EstadoBusqueda(
     val seleccionados: Set<Long> = emptySet(),
     val asumirBasicos: Boolean = true,
     val resultados: List<CoincidenciaReceta> = emptyList(),
-    val hayRecetas: Boolean = false
+    val hayRecetas: Boolean = false,
+    /** Lo que aparece en alguna receta: tildar algo que ninguna usa no cambia el resultado. */
+    val ingredientesDeRecetas: List<Ingrediente> = emptyList()
 ) {
     val ingredientesElegidos: List<Ingrediente>
         get() = catalogo.filter { it.id in seleccionados }
@@ -56,7 +58,11 @@ class BusquedaViewModel(
             seleccionados = elegido.seleccionados,
             asumirBasicos = elegido.asumirBasicos,
             resultados = resultados,
-            hayRecetas = listaRecetas.isNotEmpty()
+            hayRecetas = listaRecetas.isNotEmpty(),
+            ingredientesDeRecetas = listaRecetas
+                .flatMap { receta -> receta.ingredientes.map { it.ingrediente } }
+                .distinctBy { it.id }
+                .sortedBy { it.nombre.lowercase() }
         )
     }.stateIn(
         scope = viewModelScope,
