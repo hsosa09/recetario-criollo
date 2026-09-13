@@ -1,10 +1,12 @@
 package uy.horacio.recetariocriollo.cronometro
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.core.content.edit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -188,9 +190,7 @@ class GestorCronometros private constructor(private val contexto: Context) {
 
     private fun guardar(lista: List<Cronometro>) {
         _cronometros.value = lista
-        preferencias.edit()
-            .putString(CLAVE_LISTA, json.encodeToString(lista))
-            .apply()
+        preferencias.edit { putString(CLAVE_LISTA, json.encodeToString(lista)) }
     }
 
     private fun leerGuardados(): List<Cronometro> {
@@ -252,6 +252,8 @@ class GestorCronometros private constructor(private val contexto: Context) {
         /** Duraciones que se usan todo el tiempo en la cocina. */
         val ATAJOS_SEGUNDOS = listOf(60, 180, 300, 600, 900, 1800, 2700, 3600)
 
+        // Guarda el applicationContext, que vive lo mismo que el proceso: no hay fuga.
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instancia: GestorCronometros? = null
 

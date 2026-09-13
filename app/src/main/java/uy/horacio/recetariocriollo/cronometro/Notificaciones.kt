@@ -21,7 +21,6 @@ object Notificaciones {
     const val CANAL_CRONOMETROS = "cronometros_cocina"
 
     fun crearCanal(contexto: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val gestor = contexto.getSystemService(NotificationManager::class.java) ?: return
         if (gestor.getNotificationChannel(CANAL_CRONOMETROS) != null) return
         val canal = NotificationChannel(
@@ -44,7 +43,11 @@ object Notificaciones {
 
     fun avisarFin(contexto: Context, idCronometro: Long, etiqueta: String) {
         crearCanal(contexto)
-        if (!hayPermiso(contexto)) return
+        // El chequeo va en este mismo metodo para que lint lo vea (MissingPermission).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(contexto, android.Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) return
 
         val intencionAbrir = Intent(contexto, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -68,8 +71,10 @@ object Notificaciones {
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
             .build()
 
-        runCatching {
+        // El usuario puede revocar el permiso entre el chequeo y el aviso.
+        try {
             NotificationManagerCompat.from(contexto).notify(idCronometro.toInt(), aviso)
+        } catch (_: SecurityException) {
         }
     }
 

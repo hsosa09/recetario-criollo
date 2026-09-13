@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,6 +84,7 @@ fun DetalleRecetaPantalla(
 
     // Modo cocina: la pantalla no se apaga mientras se cocina con las manos ocupadas.
     val contexto = LocalContext.current
+    val recursos = LocalResources.current
     DisposableEffect(estado.modoCocina) {
         val ventana = (contexto as? android.app.Activity)?.window
         if (estado.modoCocina) {
@@ -240,7 +242,7 @@ fun DetalleRecetaPantalla(
                         val etiqueta = vistaModelo.arrancarTimerDePaso(indice + 1, segundos)
                         alcance.launch {
                             avisos.showSnackbar(
-                                contexto.getString(R.string.detalle_timer_arrancado, etiqueta)
+                                recursos.getString(R.string.detalle_timer_arrancado, etiqueta)
                             )
                         }
                     }

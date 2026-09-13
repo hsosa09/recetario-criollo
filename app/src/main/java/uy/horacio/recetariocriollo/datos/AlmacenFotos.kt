@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.core.graphics.scale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -64,12 +65,7 @@ class AlmacenFotos(private val contexto: Context) {
         val lado = max(bitmap.width, bitmap.height)
         if (lado <= ladoMaximo) return bitmap
         val proporcion = ladoMaximo.toFloat() / lado
-        return Bitmap.createScaledBitmap(
-            bitmap,
-            (bitmap.width * proporcion).toInt(),
-            (bitmap.height * proporcion).toInt(),
-            true
-        )
+        return bitmap.scale((bitmap.width * proporcion).toInt(), (bitmap.height * proporcion).toInt())
     }
 
     private companion object {

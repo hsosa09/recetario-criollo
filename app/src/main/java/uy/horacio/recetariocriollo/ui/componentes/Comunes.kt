@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -61,16 +60,6 @@ import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
  */
 
 val MARGEN = 16.dp
-
-/** Filete horizontal: fino entre filas, grueso entre secciones. */
-@Composable
-fun Filete(grueso: Boolean = false, modifier: Modifier = Modifier) {
-    HorizontalDivider(
-        modifier = modifier,
-        thickness = if (grueso) 2.dp else 1.dp,
-        color = MaterialTheme.colorScheme.outline
-    )
-}
 
 /** Dibuja un filete arriba del elemento sin sumar un Composable aparte. */
 fun Modifier.fileteArriba(color: Color, grosor: Dp = 1.dp): Modifier = drawBehind {
@@ -325,7 +314,7 @@ fun BotonTexto(
 
 /** Etiqueta chica de dato (categoria, tiempo). */
 @Composable
-fun Etiqueta(texto: String, acento: Boolean = false, modifier: Modifier = Modifier) {
+fun Etiqueta(texto: String, modifier: Modifier = Modifier, acento: Boolean = false) {
     val extra = RecetarioTema.extra
     Text(
         text = texto,
@@ -381,8 +370,8 @@ fun Casilla(marcada: Boolean, modifier: Modifier = Modifier) {
 @Composable
 fun EstadoVacio(
     titulo: String,
-    detalle: String? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    detalle: String? = null
 ) {
     Column(
         modifier = modifier

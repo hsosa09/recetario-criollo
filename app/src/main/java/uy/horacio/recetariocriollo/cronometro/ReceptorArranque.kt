@@ -1,6 +1,5 @@
 package uy.horacio.recetariocriollo.cronometro
 
-import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,8 @@ class ReceptorArranque : BroadcastReceiver() {
         val ACCIONES = setOf(
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
-            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED
+            // Literal y no AlarmManager.ACTION_...: la constante es de API 31 y minSdk es 26.
+            "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"
         )
     }
 }

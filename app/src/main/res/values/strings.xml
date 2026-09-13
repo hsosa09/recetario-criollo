@@ -12,12 +12,9 @@
     <string name="accion_guardar">Guardar</string>
     <string name="accion_cancelar">Cancelar</string>
     <string name="accion_volver">Volver</string>
-    <string name="accion_agregar">Agregar</string>
     <string name="accion_borrar">Borrar</string>
-    <string name="accion_cerrar">Cerrar</string>
     <string name="accion_editar">Editar</string>
     <string name="accion_quitar">Quitar</string>
-    <string name="accion_listo">Listo</string>
 
     <!-- Lista de recetas -->
     <string name="lista_titulo">Mis recetas</string>
@@ -53,14 +50,12 @@
     <string name="detalle_borrar_receta">Borrar receta</string>
     <string name="detalle_a_gusto">a gusto</string>
     <string name="detalle_redondeado_corto">redondeado para poder medirlo</string>
-    <string name="detalle_paso_numero">Paso %1$d</string>
     <string name="detalle_arrancar_timer">%1$s</string>
     <string name="detalle_timer_arrancado">Cronómetro arrancado: %1$s</string>
     <string name="detalle_sin_ingredientes">Esta receta no tiene ingredientes cargados.</string>
     <string name="detalle_sin_pasos">Esta receta no tiene pasos cargados.</string>
     <string name="detalle_no_escala">no escala</string>
     <string name="detalle_ajuste_suave">ajuste suave</string>
-    <string name="detalle_redondeado">Cantidad redondeada para que se pueda medir</string>
     <string name="detalle_no_encontrada">No se encontró la receta.</string>
 
     <!-- Editor de recetas -->
@@ -111,7 +106,6 @@
     <string name="selector_alta_especia_ayuda">Estos escalan atenuado: al doblar las porciones no van al doble.</string>
     <string name="selector_alta_guardar">Agregar al catálogo</string>
     <string name="selector_densidad_corta">%1$d g por taza</string>
-    <string name="selector_ya_existe">Ese ingrediente ya está en el catálogo.</string>
 
     <!-- Búsqueda por ingredientes -->
     <string name="busqueda_titulo">Con lo que tengo</string>
@@ -139,7 +133,6 @@
     <string name="conversor_a">A</string>
     <string name="conversor_invertir">Invertir</string>
     <string name="conversor_resultado">Resultado</string>
-    <string name="conversor_ingrediente">Ingrediente</string>
     <string name="conversor_necesita_densidad">Para pasar de volumen a peso hace falta saber cuánto pesa una taza. Elegí un ingrediente en la pestaña «Por ingrediente».</string>
     <string name="conversor_elegir_ingrediente">Elegir ingrediente</string>
     <string name="conversor_cruza_con">Estás cruzando volumen con peso: se usa la densidad de %1$s. Cambialo en «Por ingrediente».</string>
@@ -148,13 +141,11 @@
     <string name="conversor_levadura_seca_rotulo">Levadura seca</string>
     <string name="conversor_gramos">%1$s g</string>
     <string name="conversor_densidad_dato">1 taza de %1$s ≈ %2$s g</string>
-    <string name="conversor_sin_densidad">Este ingrediente no tiene el dato de gramos por taza.</string>
     <string name="conversor_equivalencias">Equivalencias que se usan siempre</string>
     <string name="conversor_horno_celsius">Centígrados (°C)</string>
     <string name="conversor_horno_fahrenheit">Fahrenheit (°F)</string>
     <string name="conversor_horno_referencia">En la receta vieja</string>
     <string name="conversor_horno_tabla">Tabla de hornos</string>
-    <string name="conversor_horno_sugerida">Poné el horno en %1$d °C</string>
     <string name="conversor_horno_fuera_escala">Fuera de las referencias de horno.</string>
     <string name="conversor_levadura_fresca">Levadura fresca (g)</string>
     <string name="conversor_levadura_seca">Levadura seca (g)</string>
@@ -162,7 +153,6 @@
 
     <!-- Cronómetros -->
     <string name="timers_titulo">Cronómetros</string>
-    <string name="timers_nuevo">Cronómetro nuevo</string>
     <string name="timers_etiqueta">Etiqueta (torta, salsa…)</string>
     <string name="timers_minutos">Min</string>
     <string name="timers_segundos">Seg</string>

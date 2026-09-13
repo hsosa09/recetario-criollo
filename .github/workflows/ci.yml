@@ -1,0 +1,58 @@
+# Compila y corre los tests unitarios en cada push a main y en cada PR.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests unitarios y build de debug
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-37.0 build-tools;37.0.0 platform-tools"
+
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Tests unitarios
+        run: ./gradlew :app:testDebugUnitTest --stacktrace
+
+      - name: Lint de release
+        run: ./gradlew :app:lintRelease
+
+      - name: APK de debug
+        run: ./gradlew :app:assembleDebug
+
+      - name: Resultados de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-tests
+          path: |
+            app/build/reports/tests/
+            app/build/reports/lint-results-release.html
+          if-no-files-found: ignore
+
+      - name: APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: recetario-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
