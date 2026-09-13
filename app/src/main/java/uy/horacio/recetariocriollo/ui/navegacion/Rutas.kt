@@ -25,6 +25,9 @@ data class RutaEditorReceta(val recetaId: Long = 0L)
 @Serializable
 data object RutaHistorial
 
+@Serializable
+data object RutaCatalogo
+
 /** Cocinar paso a paso con las porciones que se estaban viendo en el detalle. */
 @Serializable
 data class RutaCocina(val recetaId: Long, val porciones: Int)

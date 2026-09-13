@@ -55,6 +55,23 @@ class IngredienteRepositorio(
     suspend fun actualizar(ingrediente: Ingrediente) =
         ingredienteDao.actualizar(ingrediente.aEntidad())
 
+    /** Alta con todos los datos (desde el catálogo). Si el nombre ya existe devuelve ese. */
+    suspend fun crear(ingrediente: Ingrediente): Ingrediente {
+        val existente = crearSiNoExiste(
+            nombre = ingrediente.nombre,
+            categoria = ingrediente.categoria,
+            densidadGramosPorTaza = ingrediente.densidadGramosPorTaza,
+            esSalOEspecia = ingrediente.esSalOEspecia,
+            unidadHabitual = ingrediente.unidadHabitual
+        )
+        if (ingrediente.esBasicoDeDespensa && !existente.esBasicoDeDespensa) {
+            val marcado = existente.copy(esBasicoDeDespensa = true)
+            actualizar(marcado)
+            return marcado
+        }
+        return existente
+    }
+
     /** No se puede borrar algo que alguna receta usa: devuelve false y no toca nada. */
     suspend fun borrarSiNoSeUsa(id: Long): Boolean {
         if (recetaDao.vecesUsado(id) > 0) return false
