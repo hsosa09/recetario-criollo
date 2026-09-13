@@ -20,6 +20,7 @@
     <string name="lista_titulo">Mis recetas</string>
     <string name="lista_buscar">Buscar receta</string>
     <string name="lista_solo_favoritas">Solo favoritas</string>
+    <string name="lista_de_estacion">De estación</string>
     <string name="lista_vacia_titulo">Todavía no hay recetas</string>
     <string name="lista_vacia_detalle">Tocá «Nueva receta» arriba y cargá la primera.</string>
     <string name="lista_sin_resultados">Ninguna receta coincide</string>
@@ -222,6 +223,20 @@
     </plurals>
     <string name="catalogo_densidad">%1$s g por taza</string>
     <string name="catalogo_sin_densidad">sin densidad cargada</string>
+    <string name="catalogo_temporada">Meses de estación</string>
+    <string name="catalogo_temporada_ayuda">Sin marcar, cuenta como de todo el año.</string>
+    <string name="mes_ene">Ene</string>
+    <string name="mes_feb">Feb</string>
+    <string name="mes_mar">Mar</string>
+    <string name="mes_abr">Abr</string>
+    <string name="mes_may">May</string>
+    <string name="mes_jun">Jun</string>
+    <string name="mes_jul">Jul</string>
+    <string name="mes_ago">Ago</string>
+    <string name="mes_sep">Sep</string>
+    <string name="mes_oct">Oct</string>
+    <string name="mes_nov">Nov</string>
+    <string name="mes_dic">Dic</string>
     <string name="catalogo_basico">Es básico de despensa</string>
     <string name="catalogo_basico_ayuda">«Con lo que tengo» lo puede dar por hecho, como la sal o el aceite.</string>
     <string name="catalogo_nombre_repetido">Ya hay un ingrediente con ese nombre.</string>

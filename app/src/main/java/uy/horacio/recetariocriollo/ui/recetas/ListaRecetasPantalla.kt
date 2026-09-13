@@ -96,6 +96,13 @@ fun ListaRecetasPantalla(
                     }
                     item {
                         ChipRecto(
+                            texto = stringResource(R.string.lista_de_estacion),
+                            activo = estado.soloDeEstacion,
+                            alTocar = vistaModelo::alternarSoloDeEstacion
+                        )
+                    }
+                    item {
+                        ChipRecto(
                             texto = stringResource(R.string.filtro_todas),
                             activo = estado.categoria == null,
                             alTocar = { vistaModelo.cambiarCategoria(null) }
@@ -133,6 +140,7 @@ fun ListaRecetasPantalla(
                 FilaReceta(
                     receta = receta,
                     resumen = estado.resumenes[receta.id],
+                    deEstacion = receta.id in estado.deEstacion,
                     alTocar = { alAbrirReceta(receta.id) },
                     alAlternarFavorita = { vistaModelo.alternarFavorita(receta) }
                 )
@@ -145,6 +153,7 @@ fun ListaRecetasPantalla(
 private fun FilaReceta(
     receta: Receta,
     resumen: ResumenCocinadas?,
+    deEstacion: Boolean,
     alTocar: () -> Unit,
     alAlternarFavorita: () -> Unit
 ) {
@@ -167,7 +176,7 @@ private fun FilaReceta(
                 modifier = Modifier.padding(bottom = 5.dp)
             )
             TextoTenue(texto = metaDeReceta(receta), modifier = Modifier.padding(bottom = 7.dp))
-            LineaDificultadYVeces(receta = receta, resumen = resumen)
+            LineaDificultadYVeces(receta = receta, resumen = resumen, deEstacion = deEstacion)
         }
 
         BotonIcono(
@@ -220,11 +229,12 @@ fun MiniaturaReceta(receta: Receta, lado: Dp, modifier: Modifier = Modifier) {
 
 /** "Media · ★★★★½ · cocinada 5 veces", la línea chica de la fila del prototipo. */
 @Composable
-private fun LineaDificultadYVeces(receta: Receta, resumen: ResumenCocinadas?) {
+private fun LineaDificultadYVeces(receta: Receta, resumen: ResumenCocinadas?, deEstacion: Boolean) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (deEstacion) Etiqueta(stringResource(R.string.lista_de_estacion), acento = true)
         receta.dificultad?.let { Etiqueta(stringResource(it.textoId)) }
         resumen?.promedioEstrellas?.let { promedio ->
             Text(

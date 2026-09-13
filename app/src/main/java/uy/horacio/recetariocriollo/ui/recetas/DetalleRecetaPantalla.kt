@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.dominio.CantidadEscalada
+import uy.horacio.recetariocriollo.dominio.Estacionalidad
 import uy.horacio.recetariocriollo.dominio.Historial
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
@@ -170,6 +171,10 @@ fun DetalleRecetaPantalla(
                         Etiqueta(stringResource(receta.categoria.textoId), acento = true)
                         receta.tiempoLegible?.let { Etiqueta(it) }
                         receta.dificultad?.let { Etiqueta(stringResource(it.textoId)) }
+                        val mes = remember { java.time.LocalDate.now().monthValue }
+                        if (Estacionalidad.esDeEstacion(receta, mes)) {
+                            Etiqueta(stringResource(R.string.lista_de_estacion), acento = true)
+                        }
                     }
                     val resumen = Historial.resumir(receta.id, estado.cocinadas)
                     if (resumen.veces > 0) {
