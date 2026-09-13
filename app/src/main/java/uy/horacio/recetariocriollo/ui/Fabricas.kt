@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import uy.horacio.recetariocriollo.RecetarioApp
+import uy.horacio.recetariocriollo.ui.ajustes.AjustesViewModel
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
 import uy.horacio.recetariocriollo.ui.cajon.CajonViewModel
 import uy.horacio.recetariocriollo.ui.catalogo.CatalogoViewModel
@@ -27,6 +28,7 @@ object Fabricas {
             DetalleRecetaViewModel(
                 repositorio = app().contenedor.recetas,
                 cocinadas = app().contenedor.cocinadas,
+                ajustes = app().contenedor.ajustes,
                 cronometros = app().contenedor.cronometros,
                 estadoGuardado = createSavedStateHandle()
             )
@@ -37,6 +39,7 @@ object Fabricas {
                 recetas = app().contenedor.recetas,
                 ingredientes = app().contenedor.ingredientes,
                 almacenFotos = app().contenedor.almacenFotos,
+                ajustes = app().contenedor.ajustes,
                 estadoGuardado = createSavedStateHandle()
             )
         }
@@ -51,6 +54,8 @@ object Fabricas {
         initializer { ConversorViewModel(app().contenedor.ingredientes, app().contenedor.recetas) }
 
         initializer { CronometrosViewModel(app().contenedor.cronometros) }
+
+        initializer { AjustesViewModel(app().contenedor.ajustes, app().contenedor.cronometros) }
 
         initializer {
             CajonViewModel(

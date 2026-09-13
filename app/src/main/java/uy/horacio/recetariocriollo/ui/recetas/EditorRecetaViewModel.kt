@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.R
+import kotlinx.coroutines.flow.first
+import uy.horacio.recetariocriollo.datos.AjustesRepositorio
 import uy.horacio.recetariocriollo.datos.AlmacenFotos
+import uy.horacio.recetariocriollo.dominio.UnidadSugerida
 import uy.horacio.recetariocriollo.datos.IngredienteRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.Escalador
@@ -126,6 +129,7 @@ class EditorRecetaViewModel(
     private val recetas: RecetaRepositorio,
     private val ingredientes: IngredienteRepositorio,
     private val almacenFotos: AlmacenFotos,
+    private val ajustes: AjustesRepositorio,
     estadoGuardado: SavedStateHandle
 ) : ViewModel() {
 
@@ -207,13 +211,20 @@ class EditorRecetaViewModel(
     }
 
     fun agregarIngrediente(ingrediente: Ingrediente) {
+        viewModelScope.launch {
+            val unidad = UnidadSugerida.para(ingrediente, ajustes.ajustes.first().unidades)
+            agregarLinea(ingrediente, unidad)
+        }
+    }
+
+    private fun agregarLinea(ingrediente: Ingrediente, unidad: Unidad) {
         _estado.update { actual ->
             actual.copy(
                 ingredientes = actual.ingredientes + LineaIngrediente(
                     idLocal = siguienteIdLocal++,
                     ingrediente = ingrediente,
                     cantidad = "",
-                    unidad = ingrediente.unidadHabitual,
+                    unidad = unidad,
                     regla = Escalador.reglaSugerida(ingrediente),
                     aclaracion = ""
                 ),

@@ -183,6 +183,31 @@
     <string name="cajon_sin_cocinadas">Todavía sin cocinadas</string>
     <string name="historial_titulo_largo">Historial de cocinadas</string>
 
+    <!-- Ajustes -->
+    <string name="ajustes_titulo">Ajustes</string>
+    <string name="cajon_ajustes_detalle">Tema, modo cocina, unidades y avisos</string>
+    <string name="ajustes_tema">Tema</string>
+    <string name="ajustes_tema_sistema">El del sistema</string>
+    <string name="ajustes_tema_claro">Claro</string>
+    <string name="ajustes_tema_oscuro">Oscuro</string>
+    <string name="ajustes_cocina">Cocina</string>
+    <string name="ajustes_modo_cocina">Abrir las recetas en modo cocina</string>
+    <string name="ajustes_modo_cocina_detalle">Letra un 25 % más grande y la pantalla encendida desde que entrás.</string>
+    <string name="ajustes_unidades">Unidades al cargar ingredientes</string>
+    <string name="ajustes_unidades_metricas">Gramos y mililitros</string>
+    <string name="ajustes_unidades_cocina">Tazas y cucharadas</string>
+    <string name="ajustes_unidades_detalle">Es la unidad que se propone al agregar un ingrediente. Pasa a tazas solo si se sabe cuánto pesa una taza de ese ingrediente.</string>
+    <string name="ajustes_avisos">Avisos de los cronómetros</string>
+    <string name="ajustes_notificaciones">Notificaciones</string>
+    <string name="ajustes_alarmas_exactas">Alarmas exactas</string>
+    <string name="ajustes_permiso_si">Permitidas</string>
+    <string name="ajustes_permiso_no">No permitidas: el aviso puede llegar tarde o no llegar</string>
+    <string name="ajustes_abrir_sistema">Cambiar</string>
+    <string name="ajustes_acerca">Acerca de</string>
+    <string name="ajustes_version">Recetario Criollo %1$s</string>
+    <string name="ajustes_acerca_detalle">Sin internet, sin cuentas, sin anuncios. Todo queda en el teléfono.</string>
+    <string name="ajustes_licencia_fuente">Tipografía Archivo, de Omnibus-Type, bajo SIL Open Font License 1.1.</string>
+
     <!-- Catálogo de ingredientes -->
     <string name="catalogo_titulo">Catálogo de ingredientes</string>
     <string name="catalogo_nuevo">Nuevo</string>

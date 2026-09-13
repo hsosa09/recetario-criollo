@@ -106,10 +106,14 @@ dependencies {
     // Cronometros persistidos como JSON en SharedPreferences
     implementation(libs.kotlinx.serialization.json)
 
+    // Ajustes del usuario (tema, modo cocina, unidades), sin red
+    implementation(libs.androidx.datastore.preferences)
+
     // Fotos de recetas guardadas en el almacenamiento interno
     implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
