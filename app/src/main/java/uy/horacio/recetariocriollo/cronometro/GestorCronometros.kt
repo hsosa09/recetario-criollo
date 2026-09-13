@@ -41,6 +41,9 @@ class GestorCronometros private constructor(private val contexto: Context) {
 
     private val alcance = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
+    /** Los que se encontraron vencidos al leer lo guardado: si hubo reinicio, nadie les aviso. */
+    private val vencidosAlLeer = mutableListOf<Cronometro>()
+
     init {
         _cronometros.value = leerGuardados()
         Notificaciones.crearCanal(contexto)
@@ -84,6 +87,17 @@ class GestorCronometros private constructor(private val contexto: Context) {
         _cronometros.value
             .filter { it.estado == EstadoCronometro.CORRIENDO }
             .forEach { programarAlarma(it) }
+    }
+
+    /**
+     * Android borra las alarmas al reiniciar (y al actualizar la app). Se llama desde
+     * [ReceptorArranque]: avisa una vez por los que vencieron con el telefono apagado y
+     * vuelve a programar los que siguen en marcha.
+     */
+    fun recuperarAlarmas() {
+        vencidosAlLeer.forEach { Notificaciones.avisarFin(contexto, it.id, it.etiqueta) }
+        vencidosAlLeer.clear()
+        reprogramarCorriendo()
     }
 
     fun crear(etiqueta: String, segundos: Int): Cronometro {
@@ -189,6 +203,7 @@ class GestorCronometros private constructor(private val contexto: Context) {
             if (cronometro.estado == EstadoCronometro.CORRIENDO &&
                 cronometro.restanteSegundos(ahoraMillis) <= 0
             ) {
+                vencidosAlLeer += cronometro
                 cronometro.copy(estado = EstadoCronometro.TERMINADO, finEnMillis = null)
             } else {
                 cronometro

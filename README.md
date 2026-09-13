@@ -164,7 +164,7 @@ Tildás lo que hay en casa y aparecen las recetas **ordenadas por porcentaje de 
 - **Atajos** de 1, 3, 5, 10, 15, 30 y 45 min y 1 h, o tiempo a medida en minutos y segundos.
 - Por cronómetro: **Pausar / Seguir**, **Otra vez**, **−1 min**, **+1 min** y **Quitar**.
 - **Avisan con la app cerrada**: notificación con sonido de alarma y vibración.
-- **Sobreviven al cierre**: se guarda el instante de fin, no los segundos que faltan.
+- **Sobreviven al cierre y al reinicio**: se guarda el instante de fin, no los segundos que faltan; al prender el teléfono se reprograman y avisan los que vencieron apagado.
 - Si el sistema no permite alarmas exactas, la pantalla ofrece concederlo; mientras tanto el timer suena igual, con un margen de hasta unos minutos si el teléfono está en reposo.
 
 </td>
@@ -223,6 +223,7 @@ Un ingrediente repetido en la receta (harina para la masa y para estirar) cuenta
 
 - Mientras corre, un cronómetro guarda **el instante en que termina**. Cerrar la app, apagar la pantalla o que Android mate el proceso no le mueve la cuenta.
 - La alarma se programa con `AlarmManager.setAlarmClock` si el sistema permite alarmas exactas (`SCHEDULE_EXACT_ALARM`, que desde Android 13 arranca denegado). Si no, con `setAndAllowWhileIdle`, y con la app abierta el aviso sale igual desde el propio gestor.
+- Android borra las alarmas al reiniciar y al actualizar la app: `ReceptorArranque` las vuelve a programar y avisa una vez por los timers que vencieron con el teléfono apagado.
 - Los timers no se incluyen en la copia de seguridad: restaurados en otro momento no tendrían sentido.
 
 ---
@@ -325,6 +326,7 @@ La app no tiene acceso a internet: no declara el permiso y no incluye librerías
 | --- | --- | --- |
 | `POST_NOTIFICATIONS` | Avisar cuando termina un cronómetro | El timer corre, pero no avisa con la app cerrada |
 | `SCHEDULE_EXACT_ALARM` | Que la alarma suene en el segundo justo | Suena igual, con posible demora en reposo |
+| `RECEIVE_BOOT_COMPLETED` | Reprogramar los timers en marcha después de reiniciar | Un timer andando no avisa si se reinicia el teléfono |
 | `VIBRATE` | Vibrar con el aviso | — |
 
 Las fotos se eligen con el selector del sistema, sin permiso de almacenamiento. La copia de seguridad de Android incluye la base y las fotos, nunca los cronómetros.
