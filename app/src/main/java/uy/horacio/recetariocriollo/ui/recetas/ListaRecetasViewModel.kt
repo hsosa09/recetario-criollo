@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
+import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
 
@@ -35,9 +36,8 @@ class ListaRecetasViewModel(private val repositorio: RecetaRepositorio) : ViewMo
 
     val estado: StateFlow<EstadoListaRecetas> =
         combine(repositorio.observarRecetas(), filtro) { recetas, filtroActual ->
-            val texto = filtroActual.texto.trim().lowercase()
             val filtradas = recetas.filter { receta ->
-                (texto.isEmpty() || receta.nombre.lowercase().contains(texto)) &&
+                Texto.contiene(receta.nombre, filtroActual.texto) &&
                     (filtroActual.categoria == null || receta.categoria == filtroActual.categoria) &&
                     (!filtroActual.soloFavoritas || receta.esFavorita)
             }

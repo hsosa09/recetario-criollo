@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import uy.horacio.recetariocriollo.R
+import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
@@ -59,9 +60,7 @@ fun ListaCatalogoIngredientes(
     var filtro by remember { mutableStateOf("") }
 
     val visibles = remember(catalogo, filtro) {
-        val texto = filtro.trim().lowercase()
-        if (texto.isEmpty()) catalogo
-        else catalogo.filter { it.nombre.lowercase().contains(texto) }
+        catalogo.filter { Texto.contiene(it.nombre, filtro) }
     }
     val porCategoria = remember(visibles) {
         visibles.groupBy { it.categoria }
