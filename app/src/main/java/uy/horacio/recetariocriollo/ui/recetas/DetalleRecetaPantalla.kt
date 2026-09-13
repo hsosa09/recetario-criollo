@@ -112,7 +112,10 @@ fun DetalleRecetaPantalla(
                 )
                 BotonIcono(
                     icono = if (receta?.esFavorita == true) Iconos.CorazonLleno else Iconos.CorazonVacio,
-                    descripcion = stringResource(R.string.receta_marcar_favorita),
+                    descripcion = stringResource(
+                        if (receta?.esFavorita == true) R.string.receta_quitar_favorita
+                        else R.string.receta_marcar_favorita
+                    ),
                     alTocar = vistaModelo::alternarFavorita,
                     color = if (receta?.esFavorita == true) colores.primary else colores.onBackground
                 )
