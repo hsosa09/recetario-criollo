@@ -106,6 +106,11 @@ dependencies {
     // Cronometros persistidos como JSON en SharedPreferences
     implementation(libs.kotlinx.serialization.json)
 
+    // Compose UI trae graphics-path 1.0.1, cuya .so no está alineada a páginas de 16 KB (#54).
+    constraints {
+        implementation(libs.androidx.graphics.path) { because("1.1.0 sale alineada a 16 KB") }
+    }
+
     // Ajustes del usuario (tema, modo cocina, unidades), sin red
     implementation(libs.androidx.datastore.preferences)
 
