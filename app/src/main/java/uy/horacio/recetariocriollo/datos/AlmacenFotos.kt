@@ -4,7 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -44,6 +47,18 @@ class AlmacenFotos(private val contexto: Context) {
             runCatching { File(ruta).takeIf { it.exists() }?.delete() }
         }
     }
+
+    /**
+     * Borra en segundo plano, sin atarse a quien lo pide. Sirve para limpiar desde
+     * ViewModel.onCleared, cuando su viewModelScope ya esta cancelado.
+     */
+    fun descartar(rutas: Collection<String>) {
+        if (rutas.isEmpty()) return
+        val copia = rutas.toList()
+        alcanceLimpieza.launch { copia.forEach { borrar(it) } }
+    }
+
+    private val alcanceLimpieza = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private fun reducir(bitmap: Bitmap, ladoMaximo: Int): Bitmap {
         val lado = max(bitmap.width, bitmap.height)

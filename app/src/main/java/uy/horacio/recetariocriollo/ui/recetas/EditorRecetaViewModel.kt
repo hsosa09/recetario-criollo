@@ -132,6 +132,12 @@ class EditorRecetaViewModel(
 
     private var siguienteIdLocal = 1L
 
+    /**
+     * Fotos copiadas a files/fotos durante esta edicion. Las que no terminen en la
+     * receta guardada (se cambio, se quito o se salio sin guardar) se borran.
+     */
+    private val fotosCopiadas = mutableSetOf<String>()
+
     init {
         viewModelScope.launch {
             ingredientes.observarCatalogo().collect { catalogo ->
@@ -272,6 +278,7 @@ class EditorRecetaViewModel(
     fun elegirFoto(origen: Uri) {
         viewModelScope.launch {
             val ruta = almacenFotos.guardarDesde(origen) ?: return@launch
+            fotosCopiadas += ruta
             _estado.update { it.copy(fotoPath = ruta) }
         }
     }
@@ -338,8 +345,18 @@ class EditorRecetaViewModel(
                     }
             )
             val id = recetas.guardar(receta)
+            // La foto que quedo en la receta ya no es de esta sesion; el resto sobra.
+            fotosCopiadas.remove(receta.fotoPath)
+            almacenFotos.descartar(fotosCopiadas)
+            fotosCopiadas.clear()
             _estado.update { it.copy(guardando = false, guardadaConId = id) }
         }
+    }
+
+    override fun onCleared() {
+        // Salir sin guardar: nada de lo copiado en esta edicion quedo referenciado.
+        almacenFotos.descartar(fotosCopiadas)
+        fotosCopiadas.clear()
     }
 
     fun limpiarError() = _estado.update { it.copy(error = null, errorDetalle = null) }
