@@ -1,7 +1,10 @@
 package uy.horacio.recetariocriollo.ui.cronometro
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.Cronometro
@@ -62,6 +66,14 @@ fun CronometrosPantalla(
     var minutos by rememberSaveable { mutableStateOf("") }
     var segundos by rememberSaveable { mutableStateOf("") }
     var hayPermiso by remember { mutableStateOf(Notificaciones.hayPermiso(contexto)) }
+    var alarmasExactas by remember { mutableStateOf(vistaModelo.alarmasExactasPermitidas()) }
+
+    // El permiso de alarmas exactas se concede en Ajustes: se revisa cada vez que se vuelve.
+    LifecycleResumeEffect(Unit) {
+        alarmasExactas = vistaModelo.alarmasExactasPermitidas()
+        vistaModelo.alVolverALaPantalla()
+        onPauseOrDispose { }
+    }
 
     val pedirPermiso = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -87,6 +99,33 @@ fun CronometrosPantalla(
                         BotonSecundario(
                             texto = stringResource(R.string.timers_permiso_boton),
                             alTocar = { pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                            alto = 40.dp
+                        )
+                    }
+                }
+            }
+
+            if (!alarmasExactas) {
+                item(key = "alarmas_exactas") {
+                    BloqueSeccion(fondo = RecetarioTema.extra.acentoTenue) {
+                        Text(
+                            text = stringResource(R.string.timers_alarmas_exactas),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = RecetarioTema.extra.textoAcentoTenue,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        BotonSecundario(
+                            texto = stringResource(R.string.timers_alarmas_exactas_boton),
+                            alTocar = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    contexto.startActivity(
+                                        Intent(
+                                            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                            Uri.parse("package:${contexto.packageName}")
+                                        )
+                                    )
+                                }
+                            },
                             alto = 40.dp
                         )
                     }

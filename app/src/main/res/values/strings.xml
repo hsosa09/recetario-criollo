@@ -181,6 +181,8 @@
     <string name="timers_atajo_hora">1 h</string>
     <string name="timers_permiso">Activá las notificaciones para que te avise aunque la app esté cerrada.</string>
     <string name="timers_permiso_boton">Activar avisos</string>
+    <string name="timers_alarmas_exactas">Para que el timer suene en el segundo justo, permití las alarmas exactas. Sin eso suena igual, pero con el teléfono en reposo puede atrasarse unos minutos.</string>
+    <string name="timers_alarmas_exactas_boton">Permitir alarmas exactas</string>
     <string name="canal_cronometros">Cronómetros de cocina</string>
     <string name="canal_cronometros_descripcion">Avisa cuando se cumple el tiempo de un cronómetro.</string>
     <string name="cronometro_listo">%1$s ya está</string>

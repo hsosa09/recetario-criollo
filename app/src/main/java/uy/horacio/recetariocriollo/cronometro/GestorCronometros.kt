@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,8 +19,11 @@ import kotlinx.serialization.json.Json
  * Los cronometros de la app, todos en un solo lugar para que se puedan ver y
  * manejar desde cualquier pantalla.
  *
- * Cada uno programa una alarma del sistema ([AlarmManager.setAlarmClock]) para avisar
- * aunque la app este cerrada, y el estado se persiste para sobrevivir al cierre.
+ * Cada uno programa una alarma del sistema para avisar aunque la app este cerrada, y el
+ * estado se persiste para sobrevivir al cierre. La alarma es exacta ([AlarmManager.setAlarmClock])
+ * solo si el sistema lo permite: desde Android 12 hace falta SCHEDULE_EXACT_ALARM y desde
+ * Android 13 ese permiso arranca denegado. Sin el, se programa inexacta y, con la app viva,
+ * el aviso sale igual desde el latido.
  */
 class GestorCronometros private constructor(private val contexto: Context) {
 
@@ -57,12 +61,29 @@ class GestorCronometros private constructor(private val contexto: Context) {
             if (cronometro.estado == EstadoCronometro.CORRIENDO &&
                 cronometro.restanteSegundos(ahoraMillis) <= 0
             ) {
+                // Con la app viva se avisa aca y se cancela la alarma pendiente: si era
+                // inexacta podria llegar minutos tarde, y si era exacta no hace falta dos veces.
+                cancelarAlarma(cronometro)
+                Notificaciones.avisarFin(contexto, cronometro.id, cronometro.etiqueta)
                 cronometro.copy(estado = EstadoCronometro.TERMINADO, finEnMillis = null)
             } else {
                 cronometro
             }
         }
         if (actualizados != _cronometros.value) guardar(actualizados)
+    }
+
+    /** true si el sistema deja programar la alarma en el segundo justo. */
+    fun alarmasExactasPermitidas(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        return contexto.getSystemService(AlarmManager::class.java)?.canScheduleExactAlarms() == true
+    }
+
+    /** Vuelve a programar los que corren, por ejemplo al conceder el permiso de alarmas exactas. */
+    fun reprogramarCorriendo() {
+        _cronometros.value
+            .filter { it.estado == EstadoCronometro.CORRIENDO }
+            .forEach { programarAlarma(it) }
     }
 
     fun crear(etiqueta: String, segundos: Int): Cronometro {
@@ -179,11 +200,16 @@ class GestorCronometros private constructor(private val contexto: Context) {
         val fin = cronometro.finEnMillis ?: return
         val gestorAlarmas = contexto.getSystemService(AlarmManager::class.java) ?: return
         val pendiente = pendienteDe(cronometro)
-        // setAlarmClock es exacta y no pide permiso especial, justo lo que necesita un timer de cocina.
-        gestorAlarmas.setAlarmClock(
-            AlarmManager.AlarmClockInfo(fin, pendiente),
-            pendiente
-        )
+        if (alarmasExactasPermitidas()) {
+            try {
+                gestorAlarmas.setAlarmClock(AlarmManager.AlarmClockInfo(fin, pendiente), pendiente)
+                return
+            } catch (_: SecurityException) {
+                // El permiso se revoco entre el chequeo y el uso: se sigue con la inexacta.
+            }
+        }
+        // Inexacta pero permitida siempre: en reposo Android puede demorarla unos minutos.
+        gestorAlarmas.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fin, pendiente)
     }
 
     private fun cancelarAlarma(cronometro: Cronometro) {
