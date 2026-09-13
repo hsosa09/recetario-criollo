@@ -8,6 +8,8 @@
          desde la pantalla de Timers; sin el, la alarma se programa inexacta.
          No se usa USE_EXACT_ALARM: Play lo reserva para despertadores y calendarios. -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Reprogramar los timers en marcha despues de reiniciar el telefono -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".RecetarioApp"
@@ -34,6 +36,16 @@
         <receiver
             android:name=".cronometro.ReceptorFinCronometro"
             android:exported="false" />
+
+        <receiver
+            android:name=".cronometro.ReceptorArranque"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
