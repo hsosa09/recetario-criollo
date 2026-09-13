@@ -2,6 +2,10 @@ package uy.horacio.recetariocriollo.ui.cocina
 
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +34,7 @@ import uy.horacio.recetariocriollo.ui.componentes.MARGEN
 import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.BotonTexto
 import uy.horacio.recetariocriollo.ui.componentes.BotonPrimario
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -50,6 +55,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -183,6 +190,17 @@ fun CocinaPantalla(
                                     .padding(bottom = 24.dp)
                                     .semantics { heading() }
                             )
+                            paso.fotoPath?.let { ruta ->
+                                AsyncImage(
+                                    model = ruta,
+                                    contentDescription = stringResource(R.string.editor_foto_paso),
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(220.dp)
+                                        .padding(bottom = 24.dp)
+                                )
+                            }
                             paso.timerSugeridoSegundos?.let { segundos ->
                                 Row(
                                     modifier = Modifier
@@ -320,13 +338,19 @@ fun CocinaPantalla(
             }
 
             if (preguntando) {
+                val foto by vistaModelo.fotoResultado.collectAsStateWithLifecycle()
                 HojaComoSalio(
+                    foto = foto,
+                    nuevoArchivoCamara = vistaModelo::archivoParaCamara,
+                    alElegirFoto = { uri, alTerminar -> vistaModelo.usarFotoResultado(uri, alTerminar) },
+                    alQuitarFoto = vistaModelo::descartarFotoResultado,
                     alGuardar = { estrellas, nota ->
                         preguntando = false
                         vistaModelo.registrarCocinada(estrellas, nota, alTerminar)
                     },
                     alSaltar = {
                         preguntando = false
+                        vistaModelo.descartarFotoResultado()
                         alTerminar()
                     },
                     alCerrar = { preguntando = false }
@@ -369,6 +393,10 @@ private fun PantallaEncendidaYBarrasOscuras(claroAfuera: Boolean) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HojaComoSalio(
+    foto: String?,
+    nuevoArchivoCamara: () -> java.io.File,
+    alElegirFoto: (android.net.Uri, alTerminar: () -> Unit) -> Unit,
+    alQuitarFoto: () -> Unit,
     alGuardar: (estrellas: Int, nota: String) -> Unit,
     alSaltar: () -> Unit,
     alCerrar: () -> Unit
@@ -376,6 +404,22 @@ private fun HojaComoSalio(
     var estrellas by rememberSaveable { mutableIntStateOf(5) }
     var nota by rememberSaveable { mutableStateOf("") }
     val recursos = LocalResources.current
+    val contexto = androidx.compose.ui.platform.LocalContext.current
+    // Ruta del archivo que se le pasó a la cámara: sobrevive a que el sistema mate la app mientras se saca la foto.
+    var tomaEnCurso by rememberSaveable { mutableStateOf<String?>(null) }
+    val camara = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { sacada ->
+        val ruta = tomaEnCurso
+        tomaEnCurso = null
+        if (ruta != null) {
+            val archivo = java.io.File(ruta)
+            // La toma se copia reducida a files/fotos; el original de la cámara se borra siempre.
+            if (sacada && archivo.length() > 0) alElegirFoto(android.net.Uri.fromFile(archivo)) { archivo.delete() }
+            else archivo.delete()
+        }
+    }
+    val galeria = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let { alElegirFoto(it) {} }
+    }
     HojaRecetario(
         estado = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         alCerrar = alCerrar
@@ -396,6 +440,32 @@ private fun HojaComoSalio(
                 alElegir = { estrellas = it },
                 descripcion = { n -> recursos.getQuantityString(R.plurals.estrellas_descripcion, n, n) }
             )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (foto != null) {
+                    AsyncImage(
+                        model = foto,
+                        contentDescription = stringResource(R.string.como_salio_foto),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+                BotonSecundario(
+                    texto = stringResource(if (foto == null) R.string.como_salio_sacar_foto else R.string.como_salio_otra_foto),
+                    icono = Iconos.Foto,
+                    alto = 40.dp,
+                    alTocar = {
+                        val archivo = nuevoArchivoCamara()
+                        tomaEnCurso = archivo.absolutePath
+                        camara.launch(FileProvider.getUriForFile(contexto, "${contexto.packageName}.archivos", archivo))
+                    }
+                )
+                BotonSecundario(
+                    texto = stringResource(R.string.como_salio_elegir_foto),
+                    alto = 40.dp,
+                    alTocar = { galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                )
+                if (foto != null) BotonTexto(texto = stringResource(R.string.accion_quitar), alTocar = alQuitarFoto)
+            }
             CampoTexto(
                 valor = nota,
                 alCambiar = { nota = it },

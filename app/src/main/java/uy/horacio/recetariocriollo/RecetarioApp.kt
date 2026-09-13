@@ -29,11 +29,11 @@ class Contenedor(contexto: Context) {
 
     val almacenFotos = AlmacenFotos(contexto)
 
-    val recetas = RecetaRepositorio(baseDatos.recetaDao(), almacenFotos)
+    val recetas = RecetaRepositorio(baseDatos.recetaDao(), baseDatos.cocinadaDao(), almacenFotos)
 
     val ingredientes = IngredienteRepositorio(baseDatos.ingredienteDao(), baseDatos.recetaDao())
 
-    val cocinadas = CocinadaRepositorio(baseDatos.cocinadaDao())
+    val cocinadas = CocinadaRepositorio(baseDatos.cocinadaDao(), almacenFotos)
 
     val ajustes = AjustesRepositorio(contexto.almacenAjustes)
 

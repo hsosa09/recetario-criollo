@@ -21,6 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -144,6 +147,16 @@ private fun FilaCocinada(
         }
         item.cocinada.nota?.let { nota ->
             TextoTenue(nota, estilo = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp))
+        }
+        item.cocinada.fotoPath?.let { ruta ->
+            AsyncImage(
+                model = ruta,
+                contentDescription = stringResource(R.string.como_salio_foto),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .size(96.dp)
+            )
         }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = colores.background) {
             DropdownMenuItem(

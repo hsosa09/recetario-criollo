@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -484,6 +485,17 @@ private fun FilaPaso(
                     lineHeight = 22.5.sp * escala
                 )
             )
+            paso.fotoPath?.let { ruta ->
+                Spacer(Modifier.height(8.dp))
+                AsyncImage(
+                    model = ruta,
+                    contentDescription = stringResource(R.string.editor_foto_paso),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                )
+            }
             paso.timerSugeridoSegundos?.let { segundos ->
                 Spacer(Modifier.height(8.dp))
                 BotonSecundario(
@@ -532,6 +544,16 @@ private fun BloqueComoTeSalio(
                 }
                 cocinada.nota?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp), modifier = Modifier.padding(top = 3.dp))
+                }
+                cocinada.fotoPath?.let { ruta ->
+                    AsyncImage(
+                        model = ruta,
+                        contentDescription = stringResource(R.string.como_salio_foto),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .size(80.dp)
+                    )
                 }
             }
             Spacer(Modifier.height(10.dp))

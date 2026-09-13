@@ -43,6 +43,13 @@ class AlmacenFotos(private val contexto: Context) {
         }.getOrNull()
     }
 
+    /**
+     * Archivo vacío donde la app de cámara guarda la foto (TakePicture). Se comparte por
+     * FileProvider (res/xml/rutas_archivos.xml); después se copia reducida con [guardarDesde].
+     */
+    fun archivoParaCamara(): File =
+        File(File(contexto.cacheDir, "camara").apply { mkdirs() }, "toma_${UUID.randomUUID()}.jpg")
+
     /** Copia independiente de una foto ya guardada (para una variante). Null si no se pudo. */
     suspend fun duplicar(ruta: String): String? = withContext(Dispatchers.IO) {
         runCatching {
