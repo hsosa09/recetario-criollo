@@ -184,6 +184,34 @@
     <string name="cajon_sin_cocinadas">Todavía sin cocinadas</string>
     <string name="historial_titulo_largo">Historial de cocinadas</string>
 
+    <!-- Estadísticas -->
+    <string name="estadisticas_titulo">Tu año cocinero</string>
+    <string name="cajon_estadisticas_detalle">Qué, cuánto y cuándo cocinaste</string>
+    <string name="estadisticas_en_el_anio">En %1$d</string>
+    <plurals name="estadisticas_veces">
+        <item quantity="one">%1$d vez</item>
+        <item quantity="other">%1$d veces</item>
+    </plurals>
+    <plurals name="estadisticas_dias">
+        <item quantity="one">%1$d día cocinando</item>
+        <item quantity="other">%1$d días cocinando</item>
+    </plurals>
+    <plurals name="estadisticas_racha">
+        <item quantity="one">racha más larga: %1$d día</item>
+        <item quantity="other">racha más larga: %1$d días seguidos</item>
+    </plurals>
+    <plurals name="estadisticas_en_cocinadas">
+        <item quantity="one">en %1$d cocinada</item>
+        <item quantity="other">en %1$d cocinadas</item>
+    </plurals>
+    <string name="estadisticas_por_mes">Por mes</string>
+    <string name="estadisticas_destacados">Lo destacado</string>
+    <string name="estadisticas_mas_cocinada">La que más hiciste</string>
+    <string name="estadisticas_mejor_calificada">La mejor calificada</string>
+    <string name="estadisticas_ingrediente">El ingrediente que más usaste</string>
+    <string name="estadisticas_sin_datos">Todavía nada este año</string>
+    <string name="estadisticas_sin_cocinar">Sin cocinar este año</string>
+
     <!-- Ajustes -->
     <string name="ajustes_titulo">Ajustes</string>
     <string name="cajon_ajustes_detalle">Tema, modo cocina, unidades y avisos</string>
