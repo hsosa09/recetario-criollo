@@ -13,6 +13,7 @@ import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.IngredienteRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetarioBaseDatos
+import uy.horacio.recetariocriollo.ui.navegacion.AccesosDirectos
 
 /** Un solo DataStore por proceso: el delegado garantiza la instancia única. */
 private val Context.almacenAjustes by preferencesDataStore(name = "ajustes")
@@ -47,5 +48,6 @@ class RecetarioApp : Application() {
     override fun onCreate() {
         super.onCreate()
         contenedor = Contenedor(this)
+        AccesosDirectos.publicar(this)
     }
 }

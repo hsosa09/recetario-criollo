@@ -106,6 +106,9 @@ dependencies {
     // Cronometros persistidos como JSON en SharedPreferences
     implementation(libs.kotlinx.serialization.json)
 
+    // Widget de timers en la pantalla de inicio
+    implementation(libs.androidx.glance.appwidget)
+
     // Ajustes del usuario (tema, modo cocina, unidades), sin red
     implementation(libs.androidx.datastore.preferences)
 
@@ -119,6 +122,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.glance.appwidget.testing)
+    androidTestImplementation(libs.androidx.glance.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

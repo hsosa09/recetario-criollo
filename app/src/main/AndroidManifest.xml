@@ -45,6 +45,19 @@
                 android:resource="@xml/rutas_archivos" />
         </provider>
 
+        <!-- Widget de timers: lo instancia el launcher, por eso va exportado -->
+        <receiver
+            android:name=".widget.ReceptorWidgetTimers"
+            android:exported="true"
+            android:label="@string/widget_timers_nombre">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_timers" />
+        </receiver>
+
         <receiver
             android:name=".cronometro.ReceptorFinCronometro"
             android:exported="false" />

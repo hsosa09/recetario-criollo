@@ -11,11 +11,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import uy.horacio.recetariocriollo.widget.WidgetTimersGlance
 
 /**
  * Los cronometros de la app, todos en un solo lugar para que se puedan ver y
@@ -191,6 +193,18 @@ class GestorCronometros private constructor(private val contexto: Context) {
     private fun guardar(lista: List<Cronometro>) {
         _cronometros.value = lista
         preferencias.edit { putString(CLAVE_LISTA, json.encodeToString(lista)) }
+        actualizarWidget()
+    }
+
+    private var actualizacionWidget: Job? = null
+
+    /** Varios cambios seguidos (+1 min tres veces) redibujan el widget una sola vez. */
+    private fun actualizarWidget() {
+        actualizacionWidget?.cancel()
+        actualizacionWidget = alcance.launch {
+            delay(250)
+            runCatching { WidgetTimersGlance.actualizar(contexto) }
+        }
     }
 
     private fun leerGuardados(): List<Cronometro> {
