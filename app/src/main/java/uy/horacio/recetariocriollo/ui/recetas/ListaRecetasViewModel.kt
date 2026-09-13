@@ -25,6 +25,8 @@ data class EstadoListaRecetas(
     val categoria: CategoriaReceta? = null,
     val soloFavoritas: Boolean = false,
     val soloDeEstacion: Boolean = false,
+    /** Nombre de la original para cada variante. */
+    val nombresOriginales: Map<Long, String> = emptyMap(),
     /** Ids de las recetas de estación en el mes actual. */
     val deEstacion: Set<Long> = emptySet(),
     val categoriasDisponibles: List<CategoriaReceta> = emptyList(),
@@ -67,6 +69,7 @@ class ListaRecetasViewModel(
                 soloFavoritas = filtroActual.soloFavoritas,
                 soloDeEstacion = filtroActual.soloDeEstacion,
                 deEstacion = deEstacion,
+                nombresOriginales = recetas.mapNotNull { r -> r.origenId?.let { o -> recetas.firstOrNull { it.id == o }?.let { r.id to it.nombre } } }.toMap(),
                 categoriasDisponibles = recetas.map { it.categoria }.distinct().sortedBy { it.ordinal },
                 resumenes = resumenes,
                 cargando = false

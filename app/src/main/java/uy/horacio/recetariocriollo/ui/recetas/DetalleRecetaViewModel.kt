@@ -17,6 +17,7 @@ import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
 import uy.horacio.recetariocriollo.dominio.CantidadEscalada
 import uy.horacio.recetariocriollo.dominio.Escalador
+import uy.horacio.recetariocriollo.dominio.Variantes
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
 
 data class EstadoDetalleReceta(
@@ -26,6 +27,8 @@ data class EstadoDetalleReceta(
     val modoCocina: Boolean = false,
     /** Historial de esta receta, de la más reciente a la más vieja. */
     val cocinadas: List<Cocinada> = emptyList(),
+    /** La original y sus variantes, sin esta receta. Vacía si no tiene familia. */
+    val familia: List<Receta> = emptyList(),
     val cargando: Boolean = true
 ) {
     val estaEscalada: Boolean
@@ -56,8 +59,9 @@ class DetalleRecetaViewModel(
             repositorio.observarReceta(recetaId),
             porcionesElegidas,
             modoCocina,
-            cocinadas.observarDeReceta(recetaId)
-        ) { receta, porciones, cocina, historial ->
+            cocinadas.observarDeReceta(recetaId),
+            repositorio.observarRecetas()
+        ) { receta, porciones, cocina, historial, todas ->
             if (receta == null) {
                 EstadoDetalleReceta(cargando = false)
             } else {
@@ -68,6 +72,7 @@ class DetalleRecetaViewModel(
                     ingredientes = Escalador.escalarReceta(receta, objetivo),
                     modoCocina = cocina,
                     cocinadas = historial,
+                    familia = Variantes.familia(receta, todas).filter { it.id != receta.id },
                     cargando = false
                 )
             }

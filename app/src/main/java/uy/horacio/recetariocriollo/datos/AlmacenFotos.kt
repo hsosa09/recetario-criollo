@@ -43,6 +43,16 @@ class AlmacenFotos(private val contexto: Context) {
         }.getOrNull()
     }
 
+    /** Copia independiente de una foto ya guardada (para una variante). Null si no se pudo. */
+    suspend fun duplicar(ruta: String): String? = withContext(Dispatchers.IO) {
+        runCatching {
+            val origen = File(ruta).takeIf { it.exists() } ?: return@runCatching null
+            val destino = File(carpeta, "receta_${UUID.randomUUID()}.jpg")
+            origen.copyTo(destino)
+            destino.absolutePath
+        }.getOrNull()
+    }
+
     suspend fun borrar(ruta: String) {
         withContext(Dispatchers.IO) {
             runCatching { File(ruta).takeIf { it.exists() }?.delete() }
