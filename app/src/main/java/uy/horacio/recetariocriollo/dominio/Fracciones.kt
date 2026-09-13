@@ -113,6 +113,37 @@ object Fracciones {
         return "$cantidad $nombre"
     }
 
+    /**
+     * Resultado de una conversion. A diferencia de [formatearConUnidad] no redondea para
+     * medir: una calculadora que dice "0 l" para una cucharadita se come el dato.
+     * Usa fraccion si el valor cae justo en una de cocina; si no, decimales significativos.
+     */
+    fun formatearConversion(valor: Double, unidad: Unidad): String {
+        val cantidad = when {
+            valor <= 0.0 -> "0"
+            unidad.prefiereFracciones && valor >= MINIMO_PARA_FRACCION && comoFraccion(valor) != null ->
+                comoFraccion(valor)!!
+            valor >= 100 -> formatearDecimal(valor, 0)
+            valor >= 1 -> formatearDecimal(valor, 2)
+            else -> formatearDecimal(valor, decimalesSignificativos(valor, 3))
+        }
+        val nombre = when (unidad) {
+            Unidad.TAZA, Unidad.CUCHARADA, Unidad.CUCHARADITA, Unidad.PIZCA ->
+                if (esSingular(valor)) unidad.singular else unidad.plural
+            else -> unidad.abreviatura
+        }
+        return "$cantidad $nombre"
+    }
+
+    /** Cuantos decimales hacen falta para mostrar [cifras] cifras significativas de un valor < 1. */
+    private fun decimalesSignificativos(valor: Double, cifras: Int): Int {
+        val ceros = kotlin.math.floor(-kotlin.math.log10(abs(valor))).toInt()
+        return (ceros + cifras).coerceIn(cifras, 8)
+    }
+
+    /** Debajo de 1/4 las fracciones de cocina no aplican: 0,005 l no es "0 l". */
+    private const val MINIMO_PARA_FRACCION = 0.24
+
     /** Hasta una unidad va en singular: "1/2 cucharadita", "1 taza". */
     private fun esSingular(valor: Double) = valor <= 1.0 + 0.02
 
