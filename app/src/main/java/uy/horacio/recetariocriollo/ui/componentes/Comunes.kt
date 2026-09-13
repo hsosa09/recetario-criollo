@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -48,6 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
@@ -268,16 +270,40 @@ fun BotonSecundario(
             .heightIn(min = alto)
             .border(1.dp, colores.outline)
             .clickable(enabled = habilitado, role = Role.Button, onClick = alTocar)
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = if (centrado) 4.dp else 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (centrado) Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
         else Arrangement.spacedBy(6.dp)
     ) {
         val tinta = if (habilitado) colores.onBackground else colores.onSurfaceVariant.copy(alpha = 0.4f)
         if (icono != null) Icon(icono, contentDescription = null, tint = tinta, modifier = Modifier.size(15.dp))
-        Text(text = texto, style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp), color = tinta)
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
+            color = tinta,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
+
+/**
+ * Casilleros contiguos: a partir del segundo, cada uno se estira 1 dp hacia atras y pisa
+ * el filete del anterior, asi entre dos queda una sola linea y el borde final no se corre.
+ */
+fun Modifier.contiguo(indice: Int, vertical: Boolean = false): Modifier =
+    if (indice == 0) this else layout { medible, restricciones ->
+        val extra = 1.dp.roundToPx()
+        // offset respeta las restricciones infinitas (una fila dentro de un LazyColumn).
+        val medido = medible.measure(
+            if (vertical) restricciones.offset(vertical = extra) else restricciones.offset(horizontal = extra)
+        )
+        val ancho = if (vertical) medido.width else medido.width - extra
+        val alto = if (vertical) medido.height - extra else medido.height
+        layout(ancho, alto) {
+            medido.place(if (vertical) 0 else -extra, if (vertical) -extra else 0)
+        }
+    }
 
 /** Accion de texto en color acento, sin caja. */
 @Composable

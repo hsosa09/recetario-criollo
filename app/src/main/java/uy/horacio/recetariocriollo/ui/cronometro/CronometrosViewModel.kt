@@ -21,4 +21,11 @@ class CronometrosViewModel(private val gestor: GestorCronometros) : ViewModel() 
     fun quitar(id: Long) = gestor.quitar(id)
     fun quitarTerminados() = gestor.quitarTerminados()
     fun ajustar(id: Long, segundos: Int) = gestor.ajustar(id, segundos)
+
+    fun alarmasExactasPermitidas(): Boolean = gestor.alarmasExactasPermitidas()
+
+    /** Al volver de Ajustes con el permiso concedido, los timers en marcha pasan a exactos. */
+    fun alVolverALaPantalla() {
+        if (gestor.alarmasExactasPermitidas()) gestor.reprogramarCorriendo()
+    }
 }

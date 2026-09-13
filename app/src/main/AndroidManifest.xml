@@ -4,6 +4,10 @@
     <!-- Avisar cuando termina un cronometro de cocina -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Que el timer suene en el segundo justo. Desde Android 13 arranca denegado y se pide
+         desde la pantalla de Timers; sin el, la alarma se programa inexacta.
+         No se usa USE_EXACT_ALARM: Play lo reserva para despertadores y calendarios. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".RecetarioApp"

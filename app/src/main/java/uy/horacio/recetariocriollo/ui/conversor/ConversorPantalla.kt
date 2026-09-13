@@ -179,10 +179,7 @@ private fun SeccionMedidas(
                 }
 
                 estado.resultado != null -> Text(
-                    text = Fracciones.formatearConUnidad(
-                        Fracciones.redondearParaCocina(estado.resultado, estado.hasta),
-                        estado.hasta
-                    ).ifBlank { Fracciones.formatearDecimal(estado.resultado) },
+                    text = Fracciones.formatearConversion(estado.resultado, estado.hasta),
                     style = MaterialTheme.typography.displaySmall
                 )
 

@@ -17,6 +17,7 @@ import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.Escalador
 import uy.horacio.recetariocriollo.dominio.Fracciones
 import uy.horacio.recetariocriollo.dominio.PlantillaReceta
+import uy.horacio.recetariocriollo.dominio.Plantillas
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
@@ -25,6 +26,8 @@ import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
+
+const val PORCIONES_POR_DEFECTO = "4"
 
 /** Una linea de ingrediente mientras se edita: los numeros viven como texto. */
 data class LineaIngrediente(
@@ -36,6 +39,54 @@ data class LineaIngrediente(
     val aclaracion: String
 )
 
+/** "A gusto" no lleva numero; cualquier otra unidad necesita una cantidad legible y positiva. */
+fun LineaIngrediente.tieneCantidadValida(): Boolean {
+    if (unidad == Unidad.A_GUSTO) return true
+    val valor = Fracciones.parsear(cantidad) ?: return false
+    return valor > 0.0 && valor.isFinite()
+}
+
+/**
+ * Aplica [plantilla] sobre el estado del editor.
+ *
+ * - Tocar la plantilla que ya esta aplicada no hace nada.
+ * - Cambiar de plantilla saca los pasos que puso la anterior y siguen intactos;
+ *   los que el usuario escribio o edito se quedan.
+ * - Porciones y tiempo se completan solo si estaban vacios o seguian siendo
+ *   la sugerencia de la plantilla anterior.
+ */
+fun EstadoEditorReceta.conPlantilla(
+    plantilla: PlantillaReceta?,
+    nuevoId: () -> Long
+): EstadoEditorReceta {
+    if (plantilla?.id == plantillaId) return this
+    val anterior = plantillaId?.let { Plantillas.porId(it) }
+
+    val pasosPropios = pasos.filterNot { paso -> pasosDePlantilla[paso.idLocal] == paso.texto }
+    val nuevos = plantilla?.pasos.orEmpty().map { texto ->
+        LineaPaso(idLocal = nuevoId(), texto = texto, minutosTimer = "")
+    }
+
+    // Un valor "sigue sin tocar" si esta vacio o es el que puso quien estaba antes
+    // (la plantilla anterior, o el valor por defecto del editor).
+    fun reemplazable(actual: String, previo: String) = actual.isBlank() || actual == previo
+    val porcionesPrevias = anterior?.porcionesSugeridas?.toString() ?: PORCIONES_POR_DEFECTO
+    val tiempoPrevio = anterior?.tiempoSugeridoMinutos?.toString().orEmpty()
+
+    return copy(
+        plantillaId = plantilla?.id,
+        categoria = plantilla?.categoria ?: categoria,
+        porciones = if (reemplazable(porciones, porcionesPrevias)) {
+            plantilla?.porcionesSugeridas?.toString() ?: PORCIONES_POR_DEFECTO
+        } else porciones,
+        tiempo = if (reemplazable(tiempo, tiempoPrevio)) {
+            plantilla?.tiempoSugeridoMinutos?.toString().orEmpty()
+        } else tiempo,
+        pasos = pasosPropios + nuevos,
+        pasosDePlantilla = nuevos.associate { it.idLocal to it.texto }
+    )
+}
+
 data class LineaPaso(
     val idLocal: Long,
     val texto: String,
@@ -46,7 +97,7 @@ data class EstadoEditorReceta(
     val recetaId: Long = 0L,
     val nombre: String = "",
     val categoria: CategoriaReceta = CategoriaReceta.PLATO_PRINCIPAL,
-    val porciones: String = "4",
+    val porciones: String = PORCIONES_POR_DEFECTO,
     val tiempo: String = "",
     val notas: String = "",
     val fotoPath: String? = null,
@@ -55,8 +106,14 @@ data class EstadoEditorReceta(
     val catalogo: List<Ingrediente> = emptyList(),
     val esFavorita: Boolean = false,
     val guardando: Boolean = false,
+    /** Plantilla aplicada ahora, o null si se empezo en blanco. */
+    val plantillaId: String? = null,
+    /** Pasos que puso la plantilla, con su texto original: si el usuario no los toco, son de la plantilla. */
+    val pasosDePlantilla: Map<Long, String> = emptyMap(),
     val guardadaConId: Long? = null,
-    @get:StringRes val error: Int? = null
+    @get:StringRes val error: Int? = null,
+    /** Dato que completa el mensaje de error (por ejemplo, el ingrediente mal cargado). */
+    val errorDetalle: String? = null
 ) {
     val esNueva: Boolean get() = recetaId == 0L
 }
@@ -74,6 +131,12 @@ class EditorRecetaViewModel(
     val estado: StateFlow<EstadoEditorReceta> = _estado.asStateFlow()
 
     private var siguienteIdLocal = 1L
+
+    /**
+     * Fotos copiadas a files/fotos durante esta edicion. Las que no terminen en la
+     * receta guardada (se cambio, se quito o se salio sin guardar) se borran.
+     */
+    private val fotosCopiadas = mutableSetOf<String>()
 
     init {
         viewModelScope.launch {
@@ -126,20 +189,9 @@ class EditorRecetaViewModel(
     fun cambiarTiempo(valor: String) = _estado.update { it.copy(tiempo = valor) }
     fun cambiarNotas(valor: String) = _estado.update { it.copy(notas = valor) }
 
-    /** Carga el esqueleto de la plantilla sin pisar lo que ya haya escrito. */
-    fun aplicarPlantilla(plantilla: PlantillaReceta) {
-        _estado.update { actual ->
-            actual.copy(
-                categoria = plantilla.categoria,
-                porciones = if (actual.porciones.isBlank()) plantilla.porcionesSugeridas.toString()
-                else actual.porciones,
-                tiempo = if (actual.tiempo.isBlank()) plantilla.tiempoSugeridoMinutos.toString()
-                else actual.tiempo,
-                pasos = actual.pasos + plantilla.pasos.map { texto ->
-                    LineaPaso(idLocal = siguienteIdLocal++, texto = texto, minutosTimer = "")
-                }
-            )
-        }
+    /** Cambia de plantilla (o vuelve a "en blanco" con null) sin pisar lo que escribio el usuario. */
+    fun aplicarPlantilla(plantilla: PlantillaReceta?) {
+        _estado.update { actual -> actual.conPlantilla(plantilla) { siguienteIdLocal++ } }
     }
 
     fun agregarIngrediente(ingrediente: Ingrediente) {
@@ -226,6 +278,7 @@ class EditorRecetaViewModel(
     fun elegirFoto(origen: Uri) {
         viewModelScope.launch {
             val ruta = almacenFotos.guardarDesde(origen) ?: return@launch
+            fotosCopiadas += ruta
             _estado.update { it.copy(fotoPath = ruta) }
         }
     }
@@ -249,6 +302,13 @@ class EditorRecetaViewModel(
                 return
             }
         }
+        // Una cantidad ilegible no se guarda como 0: se avisa cual es.
+        actual.ingredientes.firstOrNull { !it.tieneCantidadValida() }?.let { linea ->
+            _estado.update {
+                it.copy(error = R.string.editor_cantidad_invalida, errorDetalle = linea.ingrediente.nombre)
+            }
+            return
+        }
 
         _estado.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
@@ -264,6 +324,7 @@ class EditorRecetaViewModel(
                 ingredientes = actual.ingredientes.mapIndexed { indice, linea ->
                     IngredienteDeReceta(
                         ingrediente = linea.ingrediente,
+                        // Solo "a gusto" puede quedar sin numero (ver tieneCantidadValida).
                         cantidad = Fracciones.parsear(linea.cantidad) ?: 0.0,
                         unidad = linea.unidad,
                         regla = linea.regla,
@@ -284,11 +345,21 @@ class EditorRecetaViewModel(
                     }
             )
             val id = recetas.guardar(receta)
+            // La foto que quedo en la receta ya no es de esta sesion; el resto sobra.
+            fotosCopiadas.remove(receta.fotoPath)
+            almacenFotos.descartar(fotosCopiadas)
+            fotosCopiadas.clear()
             _estado.update { it.copy(guardando = false, guardadaConId = id) }
         }
     }
 
-    fun limpiarError() = _estado.update { it.copy(error = null) }
+    override fun onCleared() {
+        // Salir sin guardar: nada de lo copiado en esta edicion quedo referenciado.
+        almacenFotos.descartar(fotosCopiadas)
+        fotosCopiadas.clear()
+    }
+
+    fun limpiarError() = _estado.update { it.copy(error = null, errorDetalle = null) }
 
     private inline fun modificarIngrediente(idLocal: Long, transformar: (LineaIngrediente) -> LineaIngrediente) {
         _estado.update { actual ->

@@ -56,4 +56,27 @@ class FraccionesTest {
         assertNull(Fracciones.parsear("una pizca"))
         assertNull(Fracciones.parsear(""))
     }
+
+    @Test
+    fun `la conversion no muestra cero para cantidades chicas`() {
+        // Issue #2: 1 cucharadita a litros decia "0 l".
+        assertEquals("0,005 l", Fracciones.formatearConversion(0.005, Unidad.LITRO))
+        assertEquals("0,0025 kg", Fracciones.formatearConversion(0.0025, Unidad.KILOGRAMO))
+        assertEquals("0,0353 oz", Fracciones.formatearConversion(0.035274, Unidad.ONZA))
+    }
+
+    @Test
+    fun `la conversion usa fracciones solo cuando caen justas`() {
+        assertEquals("1/2 taza", Fracciones.formatearConversion(0.5, Unidad.TAZA))
+        assertEquals("16 cucharadas", Fracciones.formatearConversion(16.0, Unidad.CUCHARADA))
+        assertEquals("0,417 taza", Fracciones.formatearConversion(0.4167, Unidad.TAZA))
+    }
+
+    @Test
+    fun `la conversion no redondea a escalones de cocina`() {
+        assertEquals("454 g", Fracciones.formatearConversion(453.59237, Unidad.GRAMO))
+        assertEquals("2,2 lb", Fracciones.formatearConversion(2.2046, Unidad.LIBRA))
+        assertEquals("7,6 g", Fracciones.formatearConversion(7.6, Unidad.GRAMO))
+        assertEquals("120 g", Fracciones.formatearConversion(120.0, Unidad.GRAMO))
+    }
 }

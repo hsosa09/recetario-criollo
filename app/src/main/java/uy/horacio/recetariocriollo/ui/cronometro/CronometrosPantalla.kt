@@ -1,7 +1,10 @@
 package uy.horacio.recetariocriollo.ui.cronometro
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.Cronometro
@@ -45,6 +49,7 @@ import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.contiguo
 import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
 import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
@@ -62,6 +67,14 @@ fun CronometrosPantalla(
     var minutos by rememberSaveable { mutableStateOf("") }
     var segundos by rememberSaveable { mutableStateOf("") }
     var hayPermiso by remember { mutableStateOf(Notificaciones.hayPermiso(contexto)) }
+    var alarmasExactas by remember { mutableStateOf(vistaModelo.alarmasExactasPermitidas()) }
+
+    // El permiso de alarmas exactas se concede en Ajustes: se revisa cada vez que se vuelve.
+    LifecycleResumeEffect(Unit) {
+        alarmasExactas = vistaModelo.alarmasExactasPermitidas()
+        vistaModelo.alVolverALaPantalla()
+        onPauseOrDispose { }
+    }
 
     val pedirPermiso = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -93,6 +106,33 @@ fun CronometrosPantalla(
                 }
             }
 
+            if (!alarmasExactas) {
+                item(key = "alarmas_exactas") {
+                    BloqueSeccion(fondo = RecetarioTema.extra.acentoTenue) {
+                        Text(
+                            text = stringResource(R.string.timers_alarmas_exactas),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = RecetarioTema.extra.textoAcentoTenue,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        BotonSecundario(
+                            texto = stringResource(R.string.timers_alarmas_exactas_boton),
+                            alTocar = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    contexto.startActivity(
+                                        Intent(
+                                            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                            Uri.parse("package:${contexto.packageName}")
+                                        )
+                                    )
+                                }
+                            },
+                            alto = 40.dp
+                        )
+                    }
+                }
+            }
+
             item(key = "nuevo") {
                 BloqueSeccion {
                     CampoTexto(
@@ -102,9 +142,9 @@ fun CronometrosPantalla(
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     // Atajos en grilla de 4 por fila, casilleros contiguos.
-                    GestorCronometros.ATAJOS_SEGUNDOS.chunked(4).forEach { fila ->
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            fila.forEach { atajo ->
+                    GestorCronometros.ATAJOS_SEGUNDOS.chunked(4).forEachIndexed { numeroFila, fila ->
+                        Row(modifier = Modifier.fillMaxWidth().contiguo(numeroFila, vertical = true)) {
+                            fila.forEachIndexed { columna, atajo ->
                                 BotonSecundario(
                                     texto = if (atajo >= 3600) stringResource(R.string.timers_atajo_hora)
                                     else stringResource(R.string.timers_atajo_minutos, atajo / 60),
@@ -113,7 +153,7 @@ fun CronometrosPantalla(
                                         etiqueta = ""
                                     },
                                     alto = 48.dp,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f).contiguo(columna)
                                 )
                             }
                         }
@@ -137,12 +177,14 @@ fun CronometrosPantalla(
                             teclado = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f)
                         )
+                        val total = (minutos.trim().toIntOrNull() ?: 0) * 60 +
+                            (segundos.trim().toIntOrNull() ?: 0)
                         BotonPrimario(
                             texto = stringResource(R.string.timers_arrancar),
                             alto = 44.dp,
+                            // Sin tiempo el ViewModel no crea nada: mejor que el boton lo diga.
+                            habilitado = total > 0,
                             alTocar = {
-                                val total = (minutos.trim().toIntOrNull() ?: 0) * 60 +
-                                    (segundos.trim().toIntOrNull() ?: 0)
                                 vistaModelo.crear(etiqueta, total)
                                 etiqueta = ""
                                 minutos = ""
@@ -233,18 +275,20 @@ private fun FilaCronometro(
             modifier = Modifier.padding(bottom = 10.dp)
         )
         Row(modifier = Modifier.fillMaxWidth()) {
-            val modificador = Modifier.weight(1f)
-            when (cronometro.estado) {
-                EstadoCronometro.CORRIENDO -> AccionCronometro(stringResource(R.string.timers_pausar), alPausar, modificador)
-                EstadoCronometro.PAUSADO -> AccionCronometro(stringResource(R.string.timers_reanudar), alReanudar, modificador)
-                EstadoCronometro.TERMINADO -> AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
+            val acciones = buildList {
+                when (cronometro.estado) {
+                    EstadoCronometro.CORRIENDO -> add(stringResource(R.string.timers_pausar) to alPausar)
+                    EstadoCronometro.PAUSADO -> add(stringResource(R.string.timers_reanudar) to alReanudar)
+                    EstadoCronometro.TERMINADO -> Unit
+                }
+                add(stringResource(R.string.timers_reiniciar) to alReiniciar)
+                add(stringResource(R.string.timers_menos_minuto) to { alAjustar(-60) })
+                add(stringResource(R.string.timers_mas_minuto) to { alAjustar(60) })
+                add(stringResource(R.string.timers_quitar) to alQuitar)
             }
-            if (!terminado) {
-                AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
+            acciones.forEachIndexed { indice, (texto, accion) ->
+                AccionCronometro(texto, accion, Modifier.weight(1f).contiguo(indice))
             }
-            AccionCronometro(stringResource(R.string.timers_menos_minuto), { alAjustar(-60) }, modificador)
-            AccionCronometro(stringResource(R.string.timers_mas_minuto), { alAjustar(60) }, modificador)
-            AccionCronometro(stringResource(R.string.timers_quitar), alQuitar, modificador)
         }
     }
 }

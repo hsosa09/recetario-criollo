@@ -1,7 +1,9 @@
 package uy.horacio.recetariocriollo.datos
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
@@ -22,8 +24,8 @@ class IngredienteRepositorio(
         ingredienteDao.observarConDensidad().map { lista -> lista.map { it.aDominio() } }
 
     /**
-     * Da de alta un ingrediente. Si ya existe uno con el mismo nombre devuelve ese,
-     * asi el catalogo no se llena de duplicados por diferencias de tipeo.
+     * Da de alta un ingrediente. Si ya existe uno con el mismo nombre (sin distinguir
+     * mayusculas ni tildes) devuelve ese, asi el catalogo no se llena de duplicados.
      */
     suspend fun crearSiNoExiste(
         nombre: String,
@@ -32,8 +34,12 @@ class IngredienteRepositorio(
         esSalOEspecia: Boolean = false,
         unidadHabitual: Unidad = Unidad.GRAMO
     ): Ingrediente {
-        val limpio = nombre.trim()
+        val limpio = nombre.trim().replace(Regex("\\s+"), " ")
         ingredienteDao.buscarPorNombre(limpio)?.let { return it.aDominio() }
+        // "Azucar" y "azúcar" son el mismo ingrediente que "Azúcar": no se duplica.
+        ingredienteDao.observarTodos().first()
+            .firstOrNull { Texto.mismoNombre(it.nombre, limpio) }
+            ?.let { return it.aDominio() }
         val nuevo = IngredienteEntity(
             nombre = limpio,
             categoria = categoria,

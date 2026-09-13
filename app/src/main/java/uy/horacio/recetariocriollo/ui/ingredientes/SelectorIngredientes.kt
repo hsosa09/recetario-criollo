@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import uy.horacio.recetariocriollo.R
+import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
@@ -59,9 +60,7 @@ fun ListaCatalogoIngredientes(
     var filtro by remember { mutableStateOf("") }
 
     val visibles = remember(catalogo, filtro) {
-        val texto = filtro.trim().lowercase()
-        if (texto.isEmpty()) catalogo
-        else catalogo.filter { it.nombre.lowercase().contains(texto) }
+        catalogo.filter { Texto.contiene(it.nombre, filtro) }
     }
     val porCategoria = remember(visibles) {
         visibles.groupBy { it.categoria }
@@ -99,11 +98,14 @@ fun ListaCatalogoIngredientes(
                     )
                 }
             }
-            if (alCrearNuevo != null) {
+            // Solo se ofrece crear si hay algo escrito y no existe ya con ese nombre.
+            val nombreNuevo = filtro.trim()
+            val yaExiste = catalogo.any { Texto.mismoNombre(it.nombre, nombreNuevo) }
+            if (alCrearNuevo != null && nombreNuevo.isNotEmpty() && !yaExiste) {
                 item {
                     BotonSecundario(
-                        texto = stringResource(R.string.selector_crear, filtro.trim()),
-                        alTocar = { alCrearNuevo(filtro.trim()) },
+                        texto = stringResource(R.string.selector_crear, nombreNuevo),
+                        alTocar = { alCrearNuevo(nombreNuevo) },
                         icono = Iconos.Mas,
                         modifier = Modifier
                             .fillMaxWidth()
