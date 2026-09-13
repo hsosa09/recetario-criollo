@@ -15,7 +15,7 @@
   <img alt="Kotlin 2.2" src="https://img.shields.io/badge/Kotlin-2.2-201E1D?style=flat-square&logo=kotlin&logoColor=F3F2F2">
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-201E1D?style=flat-square&logo=jetpackcompose&logoColor=F3F2F2">
   <img alt="100 % offline" src="https://img.shields.io/badge/100%20%25-offline-EC3013?style=flat-square">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-57%20unitarios%20%2B%203%20instrumentados-EC3013?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-66%20unitarios%20%2B%203%20instrumentados-EC3013?style=flat-square">
 </p>
 
 ---
@@ -34,6 +34,7 @@
   - [Conversor de medidas](#-conversor-de-medidas)
   - [Cronómetros](#-cronómetros)
   - [Tema oscuro y modo cocina](#-tema-oscuro-y-modo-cocina)
+  - [Cajón, catálogo y ajustes](#-cajón-catálogo-y-ajustes)
 - [Cómo funciona por dentro](#cómo-funciona-por-dentro)
 - [Sistema de diseño](#sistema-de-diseño)
 - [Arquitectura](#arquitectura)
@@ -45,7 +46,7 @@
 
 ## Recorrido por la app
 
-La app se organiza en cuatro solapas fijas abajo: **Recetas**, **Con lo que tengo**, **Conversor** y **Timers**. La solapa de timers lleva un globo con la cantidad de cronómetros vivos, así se ve desde cualquier pantalla que hay algo en el fuego.
+La app se organiza en cuatro solapas fijas abajo: **Recetas**, **Con lo que tengo**, **Conversor** y **Timers**. La solapa de timers lleva un globo con la cantidad de cronómetros vivos, así se ve desde cualquier pantalla que hay algo en el fuego. Lo secundario (historial, catálogo y ajustes) está en el **cajón lateral**, que se abre con el menú de arriba a la izquierda.
 
 ### ▍ Mis recetas
 
@@ -118,7 +119,7 @@ Pantalla completa y oscura para cocinar con el teléfono apoyado en la mesada:
 - **Lo que más cocinás**: las tres recetas más hechas, con barras proporcionales.
 - **Cada vez que cocinaste**: receta, estrellas, fecha y nota. Tocás una y abre la receta; manteniendo apretado la borrás.
 - En el detalle de cada receta, **Cómo te salió** muestra las dos últimas notas justo antes de volver a cocinarla.
-- Se entra desde el ícono de reloj de *Mis recetas* o desde el detalle.
+- Se entra desde el cajón lateral o desde el detalle de la receta.
 
 </td>
   </tr>
@@ -190,7 +191,7 @@ Tildás lo que hay en casa y aparecen las recetas **ordenadas por porcentaje de 
 | Pestaña | Qué resuelve |
 | --- | --- |
 | **Medidas** | ml, l, cucharadita, cucharada, taza ↔ g, kg, oz, lb. Si cruzás volumen con peso usa la densidad del ingrediente elegido; sin ingrediente **no inventa un número**. Tabla fija de equivalencias de todos los días. |
-| **Por ingrediente** | Elegís entre los ingredientes con densidad cargada y ves «1 taza de azúcar ≈ 200 g». |
+| **Por ingrediente** | Filtrás y elegís entre los ingredientes con densidad cargada (primero los de tus recetas) y ves «1 taza de azúcar ≈ 200 g». |
 | **Horno** | Conversión en vivo en los dos sentidos y referencias de recetarios viejos: muy suave (90–139 °C), suave, moderado (170–199 °C), fuerte y muy fuerte (230–300 °C). |
 | **Levadura** | Fresca ↔ seca con la regla de la abuela: la seca es un tercio de la fresca. |
 
@@ -225,6 +226,32 @@ Tildás lo que hay en casa y aparecen las recetas **ordenadas por porcentaje de 
     <td><sub>Modo cocina: letra +25 % y pantalla encendida.</sub></td>
   </tr>
 </table>
+
+### ▍ Cajón, catálogo y ajustes
+
+<table>
+  <tr>
+    <td width="25%"><img src="docs/capturas/cajon.png" alt="Cajón lateral"></td>
+    <td width="25%"><img src="docs/capturas/catalogo.png" alt="Catálogo de ingredientes"></td>
+    <td width="25%"><img src="docs/capturas/catalogo-editar.png" alt="Editar un ingrediente"></td>
+    <td width="25%"><img src="docs/capturas/ajustes.png" alt="Ajustes"></td>
+  </tr>
+  <tr>
+    <td><sub>Resumen de la biblioteca y accesos.</sub></td>
+    <td><sub>Densidad y en cuántas recetas se usa.</sub></td>
+    <td><sub>Alta y edición validadas.</sub></td>
+    <td><sub>Tema, cocina, unidades y avisos.</sub></td>
+  </tr>
+</table>
+
+- **Cajón lateral:** «3 recetas · 126 ingredientes · todo en el teléfono» y accesos con datos vivos al historial, al catálogo y a los ajustes.
+- **Catálogo de ingredientes:** agrupado por categoría y con filtro. Cada ingrediente se edita (nombre, categoría, unidad, gramos por taza, si es sal o especia, si es básico de despensa) o se da de alta desde acá. No deja repetir nombres, aunque cambien tildes o mayúsculas, y **no deja borrar lo que usa alguna receta**: te dice cuántas lo usan.
+- **Ajustes:**
+  - **Tema** del sistema, claro u oscuro.
+  - **Abrir las recetas en modo cocina** por defecto.
+  - **Unidades al cargar ingredientes:** gramos y mililitros, o tazas y cucharadas (pasa a tazas solo si se sabe cuánto pesa una taza).
+  - Estado de **notificaciones y alarmas exactas**, con acceso directo a los ajustes del sistema.
+  - Todo se guarda en el teléfono con DataStore.
 
 ---
 
@@ -338,7 +365,7 @@ app/src/main/java/uy/horacio/recetariocriollo/
 | --- | --- |
 | Lenguaje | Kotlin 2.2 · KSP |
 | UI | Jetpack Compose · Material 3 · Navigation con rutas tipadas |
-| Datos | Room 2.8 · kotlinx.serialization · Coil 3 para fotos locales |
+| Datos | Room 2.8 · DataStore Preferences · kotlinx.serialization · Coil 3 para fotos locales |
 | Build | AGP 9.3 · Gradle 9.5 · compileSdk / targetSdk 37 · minSdk 26 |
 
 ---
@@ -361,7 +388,7 @@ Requiere JDK 17 o superior y `platforms;android-37` en el SDK. Si `java` no est�
 
 **Integración continua:** cada push a `main` y cada PR corren en GitHub Actions dos jobs: tests unitarios, `lintRelease` y build de debug (el APK queda como artefacto), y los tests instrumentados en un emulador API 34.
 
-**Tests unitarios (57):** `EscaladorTest`, `FraccionesTest`, `ConversorTest`, `BuscadorPorIngredientesTest`, `TextoTest`, `HistorialTest`, `IngredientesDelPasoTest`, `CronometroTest`, `LineaIngredienteTest` y `PlantillaEditorTest`.
+**Tests unitarios (66):** `EscaladorTest`, `FraccionesTest`, `ConversorTest`, `BuscadorPorIngredientesTest`, `TextoTest`, `HistorialTest`, `IngredientesDelPasoTest`, `ValidacionIngredienteTest`, `UnidadSugeridaTest`, `AjustesRepositorioTest`, `CronometroTest`, `LineaIngredienteTest` y `PlantillaEditorTest`.
 **Instrumentados (3):** `MigracionesTest` y `CocinadaDaoTest`.
 
 ---
@@ -393,8 +420,8 @@ Las fotos se eligen con el selector del sistema, sin permiso de almacenamiento. 
 | 6 | Generador guiado con plantillas | ✅ |
 | 7 | Ícono, release con R8, rediseño Modernist | 🔄 Falta prueba en dispositivo real y alta en Play Console |
 | 8.1 | Cocinar: paso a paso, «¿Cómo salió?», historial, dificultad y estrellas | ✅ |
-| 8.2 | Cajón lateral, catálogo editable y ajustes | 📝 Próxima |
-| 8.3 | Ajuste por molde y sustituciones de ingredientes | 📝 |
+| 8.2 | Cajón lateral, catálogo editable y ajustes | ✅ |
+| 8.3 | Ajuste por molde y sustituciones de ingredientes | 📝 Próxima |
 | 8.4 | Colecciones y etiquetas, planificador semanal y lista de compras por góndola | 📝 |
 | 8.5 | Compartir e importar recetas, PDF y copia de seguridad | 📝 |
 
