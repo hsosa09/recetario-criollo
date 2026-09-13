@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
+import kotlinx.coroutines.flow.first
+import uy.horacio.recetariocriollo.datos.AjustesRepositorio
 import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
@@ -33,6 +35,7 @@ data class EstadoDetalleReceta(
 class DetalleRecetaViewModel(
     private val repositorio: RecetaRepositorio,
     cocinadas: CocinadaRepositorio,
+    ajustes: AjustesRepositorio,
     private val cronometros: GestorCronometros,
     estadoGuardado: SavedStateHandle
 ) : ViewModel() {
@@ -42,6 +45,11 @@ class DetalleRecetaViewModel(
     /** null = todavia no la tocaron, se usan las porciones originales de la receta. */
     private val porcionesElegidas = MutableStateFlow<Int?>(null)
     private val modoCocina = MutableStateFlow(false)
+
+    init {
+        // El ajuste decide con qué modo abre; después se alterna a mano.
+        viewModelScope.launch { modoCocina.value = ajustes.ajustes.first().modoCocinaPorDefecto }
+    }
 
     val estado: StateFlow<EstadoDetalleReceta> =
         combine(

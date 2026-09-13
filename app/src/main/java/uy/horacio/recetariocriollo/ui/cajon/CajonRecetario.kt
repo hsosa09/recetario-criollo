@@ -25,6 +25,7 @@ import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
 import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
+import uy.horacio.recetariocriollo.ui.navegacion.RutaAjustes
 import uy.horacio.recetariocriollo.ui.navegacion.RutaCatalogo
 import uy.horacio.recetariocriollo.ui.navegacion.RutaHistorial
 
@@ -78,6 +79,11 @@ fun CajonRecetario(
                 nombre = stringResource(R.string.catalogo_titulo),
                 detalle = pluralStringResource(R.plurals.cajon_ingredientes, resumen.ingredientes, resumen.ingredientes),
                 alTocar = { alIr(RutaCatalogo) }
+            )
+            EntradaCajon(
+                nombre = stringResource(R.string.ajustes_titulo),
+                detalle = stringResource(R.string.cajon_ajustes_detalle),
+                alTocar = { alIr(RutaAjustes) }
             )
         }
     }

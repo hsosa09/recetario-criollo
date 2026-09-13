@@ -50,6 +50,8 @@ import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.ui.Fabricas
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
+import uy.horacio.recetariocriollo.ui.ajustes.AjustesPantalla
+import uy.horacio.recetariocriollo.ui.ajustes.AjustesViewModel
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
 import uy.horacio.recetariocriollo.ui.cajon.CajonRecetario
 import uy.horacio.recetariocriollo.ui.cajon.CajonViewModel
@@ -197,6 +199,11 @@ fun NavegacionRecetario(
                     alVolver = { controlador.popBackStack() },
                     alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) }
                 )
+            }
+
+            composable<RutaAjustes> {
+                val vistaModelo: AjustesViewModel = viewModel(factory = Fabricas.Factory)
+                AjustesPantalla(vistaModelo = vistaModelo, alVolver = { controlador.popBackStack() })
             }
 
             composable<RutaCatalogo> {
