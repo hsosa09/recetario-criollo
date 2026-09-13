@@ -67,7 +67,7 @@
     <string name="editor_titulo_nueva">Nueva receta</string>
     <string name="editor_titulo_editar">Editar receta</string>
     <string name="editor_plantilla">Plantilla</string>
-    <string name="editor_plantilla_ayuda">Las plantillas cargan pasos típicos del tipo de plato. Después editás lo que quieras.</string>
+    <string name="editor_plantilla_ayuda">La plantilla precarga categoría, porciones, tiempo y los pasos típicos. Cambiar de plantilla reemplaza sus pasos, no los que escribiste vos.</string>
     <string name="editor_plantilla_ninguna">Empezar en blanco</string>
     <string name="editor_nombre">Nombre de la receta</string>
     <string name="editor_categoria">Categoría</string>

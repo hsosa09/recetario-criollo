@@ -137,10 +137,17 @@ fun EditorRecetaPantalla(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
+                            item(key = "en_blanco") {
+                                ChipRecto(
+                                    texto = stringResource(R.string.editor_plantilla_ninguna),
+                                    activo = estado.plantillaId == null,
+                                    alTocar = { vistaModelo.aplicarPlantilla(null) }
+                                )
+                            }
                             items(Plantillas.todas, key = { it.id }) { plantilla ->
                                 ChipRecto(
                                     texto = plantilla.nombre,
-                                    activo = false,
+                                    activo = estado.plantillaId == plantilla.id,
                                     alTocar = { vistaModelo.aplicarPlantilla(plantilla) }
                                 )
                             }
