@@ -314,6 +314,8 @@ Requiere JDK 17 o superior y `platforms;android-37` en el SDK. Si `java` no est√
 - La firma de release se lee de `keystore.properties`, que **no** va al repo (ver `keystore.properties.ejemplo`). Sin ese archivo el release se arma igual, sin firmar.
 - El release corre con R8 (`minify` + `shrinkResources`): **hay que probarlo instalado** antes de subirlo, porque que compile no alcanza.
 
+**Integraci√≥n continua:** cada push a `main` y cada PR corren en GitHub Actions los tests unitarios, `lintRelease` y el build de debug; el APK queda como artefacto de la corrida.
+
 **Tests unitarios (48):** `EscaladorTest`, `FraccionesTest`, `ConversorTest`, `BuscadorPorIngredientesTest`, `TextoTest`, `CronometroTest`, `LineaIngredienteTest` y `PlantillaEditorTest`.
 
 ---
