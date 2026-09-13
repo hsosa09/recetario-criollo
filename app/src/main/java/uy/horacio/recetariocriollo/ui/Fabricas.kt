@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import uy.horacio.recetariocriollo.RecetarioApp
+import uy.horacio.recetariocriollo.datos.GrabadorNotas
 import uy.horacio.recetariocriollo.ui.ajustes.AjustesViewModel
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
 import uy.horacio.recetariocriollo.ui.estadisticas.EstadisticasViewModel
@@ -90,6 +91,7 @@ object Fabricas {
                 repositorio = app().contenedor.recetas,
                 cocinadas = app().contenedor.cocinadas,
                 almacenFotos = app().contenedor.almacenFotos,
+                grabador = GrabadorNotas(app()),
                 cronometros = app().contenedor.cronometros,
                 estadoGuardado = createSavedStateHandle()
             )

@@ -38,6 +38,7 @@ import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
 import uy.horacio.recetariocriollo.ui.componentes.CabeceraSeccion
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.ReproductorNota
 import uy.horacio.recetariocriollo.ui.componentes.Rotulo
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
 import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
@@ -148,6 +149,7 @@ private fun FilaCocinada(
         item.cocinada.nota?.let { nota ->
             TextoTenue(nota, estilo = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp))
         }
+        item.cocinada.audioPath?.let { ruta -> ReproductorNota(ruta = ruta, modifier = Modifier.padding(top = 4.dp)) }
         item.cocinada.fotoPath?.let { ruta ->
             AsyncImage(
                 model = ruta,
