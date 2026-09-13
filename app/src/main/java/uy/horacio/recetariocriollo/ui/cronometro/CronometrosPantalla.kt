@@ -2,7 +2,6 @@ package uy.horacio.recetariocriollo.ui.cronometro
 
 import android.Manifest
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uy.horacio.recetariocriollo.R
@@ -122,7 +122,7 @@ fun CronometrosPantalla(
                                     contexto.startActivity(
                                         Intent(
                                             Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                                            Uri.parse("package:${contexto.packageName}")
+                                            "package:${contexto.packageName}".toUri()
                                         )
                                     )
                                 }
