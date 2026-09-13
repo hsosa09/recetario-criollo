@@ -13,6 +13,7 @@ import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente.LEGUMBRES
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente.OTROS
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente.PESCADOS
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente.VERDURAS
+import uy.horacio.recetariocriollo.dominio.Temporada
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 
 /**
@@ -36,7 +37,8 @@ object CatalogoInicial {
         densidadGramosPorTaza = densidad,
         esSalOEspecia = especia,
         esBasicoDeDespensa = basico,
-        unidadHabitual = unidad
+        unidadHabitual = unidad,
+        meses = Temporada.CALENDARIO_URUGUAY[nombre] ?: Temporada.TODO_EL_ANIO
     )
 
     val ingredientes: List<IngredienteEntity> = listOf(

@@ -17,7 +17,8 @@ fun IngredienteEntity.aDominio(): Ingrediente = Ingrediente(
     densidadGramosPorTaza = densidadGramosPorTaza,
     esSalOEspecia = esSalOEspecia,
     esBasicoDeDespensa = esBasicoDeDespensa,
-    unidadHabitual = unidadHabitual
+    unidadHabitual = unidadHabitual,
+    meses = meses
 )
 
 fun Ingrediente.aEntidad(): IngredienteEntity = IngredienteEntity(
@@ -27,7 +28,8 @@ fun Ingrediente.aEntidad(): IngredienteEntity = IngredienteEntity(
     densidadGramosPorTaza = densidadGramosPorTaza,
     esSalOEspecia = esSalOEspecia,
     esBasicoDeDespensa = esBasicoDeDespensa,
-    unidadHabitual = unidadHabitual
+    unidadHabitual = unidadHabitual,
+    meses = meses
 )
 
 fun IngredienteDeRecetaConCatalogo.aDominio(): IngredienteDeReceta = IngredienteDeReceta(
@@ -44,7 +46,8 @@ fun PasoEntity.aDominio(): PasoPreparacion = PasoPreparacion(
     id = id,
     orden = orden,
     texto = texto,
-    timerSugeridoSegundos = timerSugeridoSegundos
+    timerSugeridoSegundos = timerSugeridoSegundos,
+    fotoPath = fotoPath
 )
 
 fun RecetaCompletaEntity.aDominio(): Receta = Receta(
@@ -58,6 +61,7 @@ fun RecetaCompletaEntity.aDominio(): Receta = Receta(
     esFavorita = receta.esFavorita,
     dificultad = receta.dificultad,
     moldeCm = receta.moldeCm,
+    origenId = receta.origenId,
     ingredientes = ingredientes.sortedBy { it.cruce.orden }.map { it.aDominio() },
     pasos = pasos.sortedBy { it.orden }.map { it.aDominio() }
 )
@@ -72,7 +76,8 @@ fun Receta.aEntidad(): RecetaEntity = RecetaEntity(
     fotoPath = fotoPath,
     esFavorita = esFavorita,
     dificultad = dificultad,
-    moldeCm = moldeCm
+    moldeCm = moldeCm,
+    origenId = origenId
 )
 
 fun IngredienteDeReceta.aEntidad(recetaId: Long): RecetaIngredienteEntity = RecetaIngredienteEntity(
@@ -91,7 +96,8 @@ fun PasoPreparacion.aEntidad(recetaId: Long): PasoEntity = PasoEntity(
     recetaId = recetaId,
     orden = orden,
     texto = texto.trim(),
-    timerSugeridoSegundos = timerSugeridoSegundos
+    timerSugeridoSegundos = timerSugeridoSegundos,
+    fotoPath = fotoPath
 )
 
 fun CocinadaEntity.aDominio(): Cocinada = Cocinada(
@@ -100,7 +106,9 @@ fun CocinadaEntity.aDominio(): Cocinada = Cocinada(
     fechaMillis = fechaMillis,
     estrellas = estrellas,
     porciones = porciones,
-    nota = nota
+    nota = nota,
+    fotoPath = fotoPath,
+    audioPath = audioPath
 )
 
 fun Cocinada.aEntidad(): CocinadaEntity = CocinadaEntity(
@@ -109,7 +117,9 @@ fun Cocinada.aEntidad(): CocinadaEntity = CocinadaEntity(
     fechaMillis = fechaMillis,
     estrellas = estrellas.coerceIn(1, 5),
     porciones = porciones,
-    nota = nota?.trim()?.takeIf { it.isNotEmpty() }
+    nota = nota?.trim()?.takeIf { it.isNotEmpty() },
+    fotoPath = fotoPath,
+    audioPath = audioPath
 )
 
 fun CocinadaConNombreFila.aDominio(): CocinadaConReceta =

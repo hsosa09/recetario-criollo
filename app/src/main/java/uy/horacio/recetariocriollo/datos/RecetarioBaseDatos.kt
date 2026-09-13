@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
         PasoEntity::class,
         CocinadaEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Convertidores::class)

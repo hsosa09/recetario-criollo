@@ -31,6 +31,16 @@ interface RecetaDao {
     @Query("DELETE FROM recetas WHERE id = :id")
     suspend fun borrarReceta(id: Long)
 
+    /** Sin FK en origenId (SQLite no deja agregarla con ALTER): las variantes se desvinculan a mano. */
+    @Query("UPDATE recetas SET origenId = NULL WHERE origenId = :id")
+    suspend fun desvincularVariantes(id: Long)
+
+    @Transaction
+    suspend fun borrarConVariantesSueltas(id: Long) {
+        desvincularVariantes(id)
+        borrarReceta(id)
+    }
+
     @Query("UPDATE recetas SET esFavorita = :favorita, modificadaEn = :momento WHERE id = :id")
     suspend fun marcarFavorita(id: Long, favorita: Boolean, momento: Long = System.currentTimeMillis())
 
