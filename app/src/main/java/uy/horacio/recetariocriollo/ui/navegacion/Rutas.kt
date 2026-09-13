@@ -31,6 +31,9 @@ data object RutaCatalogo
 @Serializable
 data object RutaAjustes
 
+@Serializable
+data object RutaEstadisticas
+
 /** Cocinar paso a paso con las porciones que se estaban viendo en el detalle. */
 @Serializable
 data class RutaCocina(val recetaId: Long, val porciones: Int)
