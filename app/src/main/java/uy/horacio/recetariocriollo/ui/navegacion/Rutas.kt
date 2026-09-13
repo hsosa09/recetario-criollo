@@ -34,6 +34,10 @@ data object RutaAjustes
 @Serializable
 data object RutaEstadisticas
 
+/** Comparar una receta original con una de sus variantes. */
+@Serializable
+data class RutaComparar(val originalId: Long, val varianteId: Long)
+
 /** Cocinar paso a paso con las porciones que se estaban viendo en el detalle. */
 @Serializable
 data class RutaCocina(val recetaId: Long, val porciones: Int)

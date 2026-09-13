@@ -141,6 +141,7 @@ fun ListaRecetasPantalla(
                     receta = receta,
                     resumen = estado.resumenes[receta.id],
                     deEstacion = receta.id in estado.deEstacion,
+                    original = estado.nombresOriginales[receta.id],
                     alTocar = { alAbrirReceta(receta.id) },
                     alAlternarFavorita = { vistaModelo.alternarFavorita(receta) }
                 )
@@ -154,6 +155,7 @@ private fun FilaReceta(
     receta: Receta,
     resumen: ResumenCocinadas?,
     deEstacion: Boolean,
+    original: String?,
     alTocar: () -> Unit,
     alAlternarFavorita: () -> Unit
 ) {
@@ -175,6 +177,9 @@ private fun FilaReceta(
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                 modifier = Modifier.padding(bottom = 5.dp)
             )
+            original?.let {
+                TextoTenue(texto = stringResource(R.string.variantes_variante_de, it), modifier = Modifier.padding(bottom = 2.dp))
+            }
             TextoTenue(texto = metaDeReceta(receta), modifier = Modifier.padding(bottom = 7.dp))
             LineaDificultadYVeces(receta = receta, resumen = resumen, deEstacion = deEstacion)
         }

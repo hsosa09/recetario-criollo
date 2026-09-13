@@ -135,6 +135,12 @@
     <string name="editor_ingredientes">Ingredientes</string>
     <string name="editor_ingredientes_ayuda">del catálogo, nunca texto libre</string>
     <string name="editor_guardar_receta">Guardar receta</string>
+    <string name="editor_guardar_variante">Guardar como variante</string>
+    <string name="editor_guardar_variante_ayuda">Crea una receta nueva con estos cambios y deja la que estabas editando como estaba.</string>
+    <string name="editor_sufijo_variante">(variante)</string>
+    <string name="editor_variante_titulo">Nueva variante</string>
+    <string name="editor_variante_detalle">Queda vinculada a la original para compararlas.</string>
+    <string name="editor_variante_crear">Crear variante</string>
     <string name="editor_agregar_ingrediente">Agregar ingrediente</string>
     <string name="editor_cantidad">Cantidad</string>
     <string name="editor_unidad">Unidad</string>
@@ -183,6 +189,26 @@
     </plurals>
     <string name="cajon_sin_cocinadas">Todavía sin cocinadas</string>
     <string name="historial_titulo_largo">Historial de cocinadas</string>
+
+    <!-- Variantes -->
+    <string name="variantes_titulo">Variantes</string>
+    <string name="variantes_original">La original</string>
+    <string name="variantes_variante">Variante</string>
+    <string name="variantes_variante_de">variante de %1$s</string>
+    <string name="variantes_comparar">Comparar</string>
+    <string name="comparar_titulo">Comparar</string>
+    <string name="comparar_original">Original</string>
+    <string name="comparar_variante">Variante</string>
+    <string name="comparar_datos">Datos</string>
+    <string name="comparar_sin_diferencias">Son iguales: todavía no le cambiaste nada a la variante.</string>
+    <string name="comparar_agregado">agregado</string>
+    <string name="comparar_quitado">quitado</string>
+    <string name="comparar_cambiado">cambiado</string>
+    <string name="comparar_dato_porciones">Porciones</string>
+    <string name="comparar_dato_tiempo">Tiempo</string>
+    <string name="comparar_dato_dificultad">Dificultad</string>
+    <string name="comparar_dato_molde">Molde</string>
+    <string name="comparar_dato_categoria">Categoría</string>
 
     <!-- Estadísticas -->
     <string name="estadisticas_titulo">Tu año cocinero</string>

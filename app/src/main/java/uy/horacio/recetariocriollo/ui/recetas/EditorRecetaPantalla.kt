@@ -21,7 +21,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -81,6 +83,8 @@ fun EditorRecetaPantalla(
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
     var mostrandoSelector by remember { mutableStateOf(false) }
     var nombreParaAlta by remember { mutableStateOf<String?>(null) }
+    var nombreVariante by remember { mutableStateOf<String?>(null) }
+    val textoSufijoVariante = stringResource(R.string.editor_sufijo_variante)
     val avisos = remember { SnackbarHostState() }
     val colores = MaterialTheme.colorScheme
 
@@ -117,7 +121,7 @@ fun EditorRecetaPantalla(
             ) {
                 BotonSecundario(
                     texto = stringResource(R.string.accion_guardar),
-                    alTocar = vistaModelo::guardar,
+                    alTocar = { vistaModelo.guardar() },
                     habilitado = !estado.guardando,
                     alto = 36.dp
                 )
@@ -341,10 +345,19 @@ fun EditorRecetaPantalla(
                     )
                     BotonPrimario(
                         texto = stringResource(R.string.editor_guardar_receta),
-                        alTocar = vistaModelo::guardar,
+                        alTocar = { vistaModelo.guardar() },
                         habilitado = !estado.guardando,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (!estado.esNueva) {
+                        BotonSecundario(
+                            texto = stringResource(R.string.editor_guardar_variante),
+                            alTocar = { nombreVariante = estado.nombre.trim() + " " + textoSufijoVariante },
+                            habilitado = !estado.guardando,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        TextoTenue(stringResource(R.string.editor_guardar_variante_ayuda))
+                    }
                 }
             }
         }
@@ -361,6 +374,38 @@ fun EditorRecetaPantalla(
             alCrearNuevo = { nombre ->
                 mostrandoSelector = false
                 nombreParaAlta = nombre
+            }
+        )
+    }
+
+    nombreVariante?.let { nombre ->
+        AlertDialog(
+            onDismissRequest = { nombreVariante = null },
+            containerColor = colores.background,
+            title = { Text(stringResource(R.string.editor_variante_titulo), style = MaterialTheme.typography.headlineSmall) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TextoTenue(stringResource(R.string.editor_variante_detalle), estilo = MaterialTheme.typography.bodyMedium)
+                    CampoTexto(
+                        valor = nombre,
+                        alCambiar = { nombreVariante = it },
+                        etiqueta = stringResource(R.string.editor_nombre)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        vistaModelo.guardar(nombreVariante = nombre)
+                        nombreVariante = null
+                    },
+                    enabled = nombre.isNotBlank()
+                ) { Text(stringResource(R.string.editor_variante_crear), color = colores.primary, style = MaterialTheme.typography.labelLarge) }
+            },
+            dismissButton = {
+                TextButton(onClick = { nombreVariante = null }) {
+                    Text(stringResource(R.string.accion_cancelar), color = colores.onBackground, style = MaterialTheme.typography.labelLarge)
+                }
             }
         )
     }

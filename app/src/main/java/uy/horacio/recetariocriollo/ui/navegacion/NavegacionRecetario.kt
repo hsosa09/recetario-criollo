@@ -53,6 +53,8 @@ import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
 import uy.horacio.recetariocriollo.ui.ajustes.AjustesPantalla
 import uy.horacio.recetariocriollo.ui.ajustes.AjustesViewModel
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
+import uy.horacio.recetariocriollo.ui.recetas.CompararPantalla
+import uy.horacio.recetariocriollo.ui.recetas.CompararViewModel
 import uy.horacio.recetariocriollo.ui.estadisticas.EstadisticasPantalla
 import uy.horacio.recetariocriollo.ui.estadisticas.EstadisticasViewModel
 import uy.horacio.recetariocriollo.ui.cajon.CajonRecetario
@@ -190,7 +192,9 @@ fun NavegacionRecetario(
                     alVolver = { controlador.popBackStack() },
                     alEditar = { id -> controlador.navigate(RutaEditorReceta(id)) },
                     alCocinar = { id, porciones -> controlador.navigate(RutaCocina(id, porciones)) },
-                    alVerHistorial = { controlador.navigate(RutaHistorial) }
+                    alVerHistorial = { controlador.navigate(RutaHistorial) },
+                    alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) },
+                    alComparar = { original, variante -> controlador.navigate(RutaComparar(original, variante)) }
                 )
             }
 
@@ -201,6 +205,11 @@ fun NavegacionRecetario(
                     alVolver = { controlador.popBackStack() },
                     alAbrirReceta = { id -> controlador.navigate(RutaDetalleReceta(id)) }
                 )
+            }
+
+            composable<RutaComparar> {
+                val vistaModelo: CompararViewModel = viewModel(factory = Fabricas.Factory)
+                CompararPantalla(vistaModelo = vistaModelo, alVolver = { controlador.popBackStack() })
             }
 
             composable<RutaEstadisticas> {
@@ -235,9 +244,13 @@ fun NavegacionRecetario(
                     alVolver = { controlador.popBackStack() },
                     alGuardar = { id ->
                         controlador.popBackStack()
-                        // Una receta recien creada se abre para verla ya escalable.
-                        if (argumentos.recetaId == 0L) {
-                            controlador.navigate(RutaDetalleReceta(id)) { launchSingleTop = true }
+                        when {
+                            // Una receta recién creada se abre para verla ya escalable.
+                            argumentos.recetaId == 0L ->
+                                controlador.navigate(RutaDetalleReceta(id)) { launchSingleTop = true }
+                            // Una variante nueva se abre encima de la original. Sin launchSingleTop:
+                            // reutilizaría el detalle de la original, que es el mismo destino.
+                            id != argumentos.recetaId -> controlador.navigate(RutaDetalleReceta(id))
                         }
                     }
                 )

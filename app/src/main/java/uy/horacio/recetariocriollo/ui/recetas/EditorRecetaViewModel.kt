@@ -110,6 +110,8 @@ data class EstadoEditorReceta(
     val catalogo: List<Ingrediente> = emptyList(),
     val esFavorita: Boolean = false,
     val dificultad: Dificultad? = null,
+    /** Si la receta que se edita es una variante, el id de su original. */
+    val origenId: Long? = null,
     /** Diametro del molde en cm, como texto mientras se edita. */
     val molde: String = "",
     val guardando: Boolean = false,
@@ -168,6 +170,7 @@ class EditorRecetaViewModel(
                     fotoPath = receta.fotoPath,
                     esFavorita = receta.esFavorita,
                     dificultad = receta.dificultad,
+                    origenId = receta.origenId,
                     molde = receta.moldeCm?.toString().orEmpty(),
                     ingredientes = receta.ingredientes.map { item ->
                         LineaIngrediente(
@@ -308,7 +311,11 @@ class EditorRecetaViewModel(
 
     fun quitarFoto() = _estado.update { it.copy(fotoPath = null) }
 
-    fun guardar() {
+    /**
+     * Guarda la receta, o una variante nueva con [nombreVariante]: una copia vinculada a la
+     * original que deja la receta que se editaba como estaba.
+     */
+    fun guardar(nombreVariante: String? = null) {
         val actual = _estado.value
         val porciones = actual.porciones.trim().toIntOrNull()
         when {
@@ -338,16 +345,25 @@ class EditorRecetaViewModel(
         }
 
         _estado.update { it.copy(guardando = true, error = null) }
+        val esVariante = nombreVariante != null && actual.recetaId != 0L
         viewModelScope.launch {
+            val fotoParaGuardar = when {
+                !esVariante || actual.fotoPath == null -> actual.fotoPath
+                // Una foto nueva de esta edición pasa a ser de la variante; la guardada se duplica
+                // para que cambiarla en una receta no borre la de la otra.
+                actual.fotoPath in fotosCopiadas -> actual.fotoPath
+                else -> almacenFotos.duplicar(actual.fotoPath)
+            }
             val receta = Receta(
-                id = actual.recetaId,
-                nombre = actual.nombre.trim(),
+                id = if (esVariante) 0L else actual.recetaId,
+                nombre = (if (esVariante) nombreVariante!! else actual.nombre).trim(),
+                origenId = if (esVariante) (actual.origenId ?: actual.recetaId) else actual.origenId,
                 categoria = actual.categoria,
                 porcionesBase = porciones ?: 1,
                 tiempoMinutos = actual.tiempo.trim().toIntOrNull(),
                 notas = actual.notas.trim().ifBlank { null },
-                fotoPath = actual.fotoPath,
-                esFavorita = actual.esFavorita,
+                fotoPath = fotoParaGuardar,
+                esFavorita = if (esVariante) false else actual.esFavorita,
                 dificultad = actual.dificultad,
                 moldeCm = actual.molde.trim().toIntOrNull()?.takeIf { it in RANGO_MOLDE_CM },
                 ingredientes = actual.ingredientes.mapIndexed { indice, linea ->

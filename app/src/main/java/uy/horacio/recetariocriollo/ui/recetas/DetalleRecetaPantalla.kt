@@ -2,6 +2,7 @@ package uy.horacio.recetariocriollo.ui.recetas
 
 import android.view.WindowManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,7 @@ import uy.horacio.recetariocriollo.dominio.CantidadEscalada
 import uy.horacio.recetariocriollo.dominio.Estacionalidad
 import uy.horacio.recetariocriollo.dominio.Historial
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
+import uy.horacio.recetariocriollo.dominio.modelo.Receta
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
@@ -79,6 +81,8 @@ fun DetalleRecetaPantalla(
     alEditar: (Long) -> Unit,
     alCocinar: (recetaId: Long, porciones: Int) -> Unit,
     alVerHistorial: () -> Unit,
+    alAbrirReceta: (Long) -> Unit,
+    alComparar: (originalId: Long, varianteId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
@@ -304,6 +308,18 @@ fun DetalleRecetaPantalla(
                 }
             }
 
+            if (estado.familia.isNotEmpty()) {
+                item(key = "variantes") {
+                    BloqueVariantes(
+                        receta = receta,
+                        familia = estado.familia,
+                        alAbrir = alAbrirReceta,
+                        alComparar = alComparar,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+            }
+
             if (estado.cocinadas.isNotEmpty()) {
                 item(key = "como_te_salio") {
                     BloqueComoTeSalio(
@@ -521,5 +537,55 @@ private fun BloqueComoTeSalio(
             Spacer(Modifier.height(10.dp))
         }
         BotonTexto(texto = stringResource(R.string.detalle_ver_historial), alTocar = alVerHistorial)
+    }
+}
+
+/** La original y sus variantes, con acceso a compararlas. */
+@Composable
+private fun BloqueVariantes(
+    receta: Receta,
+    familia: List<Receta>,
+    alAbrir: (Long) -> Unit,
+    alComparar: (originalId: Long, varianteId: Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colores = MaterialTheme.colorScheme
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .fileteArriba(colores.outline, 2.dp)
+            .padding(horizontal = MARGEN, vertical = 14.dp)
+    ) {
+        Rotulo(stringResource(R.string.variantes_titulo), modifier = Modifier.padding(bottom = 6.dp))
+        familia.forEach { otra ->
+            val esOriginal = otra.origenId == null
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fileteAbajo(colores.outlineVariant)
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(role = androidx.compose.ui.semantics.Role.Button) { alAbrir(otra.id) }
+                ) {
+                    Text(otra.nombre, style = MaterialTheme.typography.titleSmall)
+                    TextoTenue(stringResource(if (esOriginal) R.string.variantes_original else R.string.variantes_variante))
+                }
+                BotonSecundario(
+                    texto = stringResource(R.string.variantes_comparar),
+                    alto = 36.dp,
+                    alTocar = {
+                        // Siempre se compara la original contra la variante.
+                        if (esOriginal) alComparar(otra.id, receta.id)
+                        else if (receta.origenId == null) alComparar(receta.id, otra.id)
+                        else alComparar(otra.id, receta.id)
+                    }
+                )
+            }
+        }
     }
 }
