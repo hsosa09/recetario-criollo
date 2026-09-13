@@ -35,7 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -74,6 +74,7 @@ fun DetalleRecetaPantalla(
     vistaModelo: DetalleRecetaViewModel,
     alVolver: () -> Unit,
     alEditar: (Long) -> Unit,
+    alCocinar: (recetaId: Long, porciones: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
@@ -84,10 +85,10 @@ fun DetalleRecetaPantalla(
     val colores = MaterialTheme.colorScheme
 
     // Modo cocina: la pantalla no se apaga mientras se cocina con las manos ocupadas.
-    val contexto = LocalContext.current
+    val actividad = LocalActivity.current
     val recursos = LocalResources.current
     DisposableEffect(estado.modoCocina) {
-        val ventana = (contexto as? android.app.Activity)?.window
+        val ventana = actividad?.window
         if (estado.modoCocina) {
             ventana?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
@@ -281,11 +282,9 @@ fun DetalleRecetaPantalla(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     BotonPrimario(
-                        texto = stringResource(
-                            if (estado.modoCocina) R.string.detalle_salir_modo_cocina
-                            else R.string.detalle_entrar_modo_cocina
-                        ),
-                        alTocar = vistaModelo::alternarModoCocina,
+                        texto = stringResource(R.string.detalle_cocinar_paso_a_paso),
+                        alTocar = { alCocinar(receta.id, estado.porciones) },
+                        habilitado = receta.pasos.isNotEmpty(),
                         icono = Iconos.Llama,
                         modifier = Modifier.fillMaxWidth()
                     )

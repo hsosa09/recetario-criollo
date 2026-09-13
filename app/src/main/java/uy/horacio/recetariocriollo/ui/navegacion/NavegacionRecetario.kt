@@ -45,6 +45,9 @@ import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.ui.Fabricas
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
+import uy.horacio.recetariocriollo.ui.cocina.CocinaPantalla
+import uy.horacio.recetariocriollo.ui.cocina.CocinaViewModel
+import uy.horacio.recetariocriollo.ui.theme.PapelNoche
 import uy.horacio.recetariocriollo.ui.componentes.Iconos
 import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.conversor.ConversorPantalla
@@ -80,6 +83,8 @@ fun NavegacionRecetario(
     val entradaActual by controlador.currentBackStackEntryAsState()
     val destino = entradaActual?.destination
     val enSolapa = SOLAPAS.any { solapa -> destino?.hasRoute(solapa.clase) == true }
+    // El paso a paso es oscuro de punta a punta, incluida la franja de la barra de estado.
+    val cocinando = destino?.hasRoute(RutaCocina::class) == true
 
     // El contador de timers andando se ve desde cualquier pantalla.
     val cronometrosVm: CronometrosViewModel = viewModel(factory = Fabricas.Factory)
@@ -88,7 +93,7 @@ fun NavegacionRecetario(
     val terminados = cronometros.count { it.estado == EstadoCronometro.TERMINADO }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = if (cocinando) PapelNoche else MaterialTheme.colorScheme.background,
         bottomBar = {
             if (enSolapa) {
                 BarraSolapas(
@@ -144,7 +149,17 @@ fun NavegacionRecetario(
                 DetalleRecetaPantalla(
                     vistaModelo = vistaModelo,
                     alVolver = { controlador.popBackStack() },
-                    alEditar = { id -> controlador.navigate(RutaEditorReceta(id)) }
+                    alEditar = { id -> controlador.navigate(RutaEditorReceta(id)) },
+                    alCocinar = { id, porciones -> controlador.navigate(RutaCocina(id, porciones)) }
+                )
+            }
+
+            composable<RutaCocina> {
+                val vistaModelo: CocinaViewModel = viewModel(factory = Fabricas.Factory)
+                CocinaPantalla(
+                    vistaModelo = vistaModelo,
+                    alSalir = { controlador.popBackStack() },
+                    alTerminar = { _, _ -> controlador.popBackStack() }
                 )
             }
 

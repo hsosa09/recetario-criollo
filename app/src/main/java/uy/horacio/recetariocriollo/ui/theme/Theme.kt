@@ -136,11 +136,13 @@ private val FormasRecetario = Shapes(
 @Composable
 fun TemaRecetario(
     oscuro: Boolean = isSystemInDarkTheme(),
+    /** false para un tema anidado (el paso a paso): las barras las maneja esa pantalla. */
+    controlarBarras: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val esquema: ColorScheme = if (oscuro) EsquemaOscuro else EsquemaClaro
     val vista = LocalView.current
-    if (!vista.isInEditMode) {
+    if (controlarBarras && !vista.isInEditMode) {
         SideEffect {
             val ventana = (vista.context as Activity).window
             WindowCompat.getInsetsController(ventana, vista).apply {
