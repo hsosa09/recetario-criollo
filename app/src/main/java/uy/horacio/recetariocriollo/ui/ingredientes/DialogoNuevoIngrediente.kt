@@ -3,6 +3,7 @@ package uy.horacio.recetariocriollo.ui.ingredientes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -27,12 +29,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.Fracciones
+import uy.horacio.recetariocriollo.dominio.Temporada
 import uy.horacio.recetariocriollo.dominio.ValidacionIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.Casilla
+import uy.horacio.recetariocriollo.ui.componentes.ChipRecto
 import uy.horacio.recetariocriollo.ui.componentes.SelectorDesplegable
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
 import uy.horacio.recetariocriollo.ui.textoId
@@ -78,6 +82,7 @@ fun DialogoIngrediente(
     }
     var especia by rememberSaveable { mutableStateOf(inicial.esSalOEspecia) }
     var basico by rememberSaveable { mutableStateOf(inicial.esBasicoDeDespensa) }
+    var meses by rememberSaveable { mutableIntStateOf(inicial.meses) }
     val colores = MaterialTheme.colorScheme
 
     val problema = ValidacionIngrediente.validar(nombre, densidad, catalogo, inicial.id)
@@ -107,7 +112,8 @@ fun DialogoIngrediente(
                             densidadGramosPorTaza = Fracciones.parsear(densidad),
                             esSalOEspecia = especia,
                             esBasicoDeDespensa = basico,
-                            unidadHabitual = unidad
+                            unidadHabitual = unidad,
+                            meses = if (categoria in CATEGORIAS_CON_TEMPORADA) meses else Temporada.TODO_EL_ANIO
                         )
                     )
                 },
@@ -166,6 +172,25 @@ fun DialogoIngrediente(
                     detalle = stringResource(R.string.selector_alta_especia_ayuda),
                     alTocar = { especia = !especia }
                 )
+                if (mostrarBasico && categoria in CATEGORIAS_CON_TEMPORADA) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        TextoTenue(stringResource(R.string.catalogo_temporada))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            MESES_CORTOS.forEachIndexed { indice, id ->
+                                val mes = indice + 1
+                                ChipRecto(
+                                    texto = stringResource(id),
+                                    activo = meses != Temporada.TODO_EL_ANIO && Temporada.incluye(meses, mes),
+                                    alTocar = { meses = Temporada.alternar(meses, mes) }
+                                )
+                            }
+                        }
+                        TextoTenue(stringResource(R.string.catalogo_temporada_ayuda))
+                    }
+                }
                 if (mostrarBasico) {
                     OpcionCasilla(
                         marcada = basico,
@@ -207,3 +232,10 @@ private fun OpcionCasilla(marcada: Boolean, titulo: String, detalle: String, alT
         }
     }
 }
+
+private val CATEGORIAS_CON_TEMPORADA = setOf(CategoriaIngrediente.VERDURAS, CategoriaIngrediente.FRUTAS)
+
+private val MESES_CORTOS = listOf(
+    R.string.mes_ene, R.string.mes_feb, R.string.mes_mar, R.string.mes_abr, R.string.mes_may, R.string.mes_jun,
+    R.string.mes_jul, R.string.mes_ago, R.string.mes_sep, R.string.mes_oct, R.string.mes_nov, R.string.mes_dic
+)

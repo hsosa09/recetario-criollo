@@ -1,5 +1,8 @@
 package uy.horacio.recetariocriollo.dominio
 
+import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
+import uy.horacio.recetariocriollo.dominio.modelo.Receta
+
 /**
  * Meses de estación como máscara de 12 bits: bit 0 = enero … bit 11 = diciembre.
  * 0 significa «todo el año o sin dato»: no cuenta a la hora de decidir si una receta es de estación.
@@ -59,4 +62,32 @@ object Temporada {
         "Pera" to rango(1, 5),
         "Membrillo" to rango(3, 5)
     )
+}
+
+/** Si una receta se puede hacer con lo que está de estación en un mes dado. */
+object Estacionalidad {
+
+    private val CATEGORIAS_CON_ESTACION = setOf(
+        CategoriaIngrediente.VERDURAS,
+        CategoriaIngrediente.FRUTAS
+    )
+
+    /**
+     * De estación = tiene al menos una verdura o fruta con dato de temporada, y todas las que
+     * tienen dato están en el mes. Las que no tienen dato (papa, cebolla) no suman ni restan.
+     */
+    fun esDeEstacion(receta: Receta, mes: Int): Boolean {
+        val conDato = conDatoDeTemporada(receta)
+        return conDato.isNotEmpty() && conDato.all { Temporada.incluye(it.meses, mes) }
+    }
+
+    /** Las verduras y frutas de la receta que no están de estación en el mes. */
+    fun fueraDeEstacion(receta: Receta, mes: Int) =
+        conDatoDeTemporada(receta).filterNot { Temporada.incluye(it.meses, mes) }
+
+    private fun conDatoDeTemporada(receta: Receta) =
+        receta.ingredientes
+            .map { it.ingrediente }
+            .distinctBy { it.id }
+            .filter { it.categoria in CATEGORIAS_CON_ESTACION && it.meses != Temporada.TODO_EL_ANIO }
 }

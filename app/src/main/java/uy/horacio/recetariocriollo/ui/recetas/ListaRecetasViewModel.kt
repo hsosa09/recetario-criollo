@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
+import uy.horacio.recetariocriollo.dominio.Estacionalidad
+import java.time.LocalDate
 import uy.horacio.recetariocriollo.dominio.modelo.ResumenCocinadas
 import uy.horacio.recetariocriollo.dominio.Texto
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
@@ -22,6 +24,9 @@ data class EstadoListaRecetas(
     val texto: String = "",
     val categoria: CategoriaReceta? = null,
     val soloFavoritas: Boolean = false,
+    val soloDeEstacion: Boolean = false,
+    /** Ids de las recetas de estación en el mes actual. */
+    val deEstacion: Set<Long> = emptySet(),
     val categoriasDisponibles: List<CategoriaReceta> = emptyList(),
     /** Veces cocinada y estrellas por receta; las nunca cocinadas no están. */
     val resumenes: Map<Long, ResumenCocinadas> = emptyMap(),
@@ -31,22 +36,28 @@ data class EstadoListaRecetas(
 private data class FiltroLista(
     val texto: String = "",
     val categoria: CategoriaReceta? = null,
-    val soloFavoritas: Boolean = false
+    val soloFavoritas: Boolean = false,
+    val soloDeEstacion: Boolean = false
 )
 
 class ListaRecetasViewModel(
     private val repositorio: RecetaRepositorio,
-    cocinadas: CocinadaRepositorio
+    cocinadas: CocinadaRepositorio,
+    /** Inyectable para los tests; en la app es el mes de hoy en la zona del teléfono. */
+    private val mesActual: () -> Int = { LocalDate.now().monthValue }
 ) : ViewModel() {
 
     private val filtro = MutableStateFlow(FiltroLista())
 
     val estado: StateFlow<EstadoListaRecetas> =
         combine(repositorio.observarRecetas(), filtro, cocinadas.observarResumenes()) { recetas, filtroActual, resumenes ->
+            val mes = mesActual()
+            val deEstacion = recetas.filter { Estacionalidad.esDeEstacion(it, mes) }.map { it.id }.toSet()
             val filtradas = recetas.filter { receta ->
                 Texto.contiene(receta.nombre, filtroActual.texto) &&
                     (filtroActual.categoria == null || receta.categoria == filtroActual.categoria) &&
-                    (!filtroActual.soloFavoritas || receta.esFavorita)
+                    (!filtroActual.soloFavoritas || receta.esFavorita) &&
+                    (!filtroActual.soloDeEstacion || receta.id in deEstacion)
             }
             EstadoListaRecetas(
                 recetas = filtradas,
@@ -54,6 +65,8 @@ class ListaRecetasViewModel(
                 texto = filtroActual.texto,
                 categoria = filtroActual.categoria,
                 soloFavoritas = filtroActual.soloFavoritas,
+                soloDeEstacion = filtroActual.soloDeEstacion,
+                deEstacion = deEstacion,
                 categoriasDisponibles = recetas.map { it.categoria }.distinct().sortedBy { it.ordinal },
                 resumenes = resumenes,
                 cargando = false
@@ -67,6 +80,8 @@ class ListaRecetasViewModel(
     fun cambiarTexto(nuevo: String) = filtro.update { it.copy(texto = nuevo) }
 
     fun cambiarCategoria(nueva: CategoriaReceta?) = filtro.update { it.copy(categoria = nueva) }
+
+    fun alternarSoloDeEstacion() = filtro.update { it.copy(soloDeEstacion = !it.soloDeEstacion) }
 
     fun alternarSoloFavoritas() = filtro.update { it.copy(soloFavoritas = !it.soloFavoritas) }
 
