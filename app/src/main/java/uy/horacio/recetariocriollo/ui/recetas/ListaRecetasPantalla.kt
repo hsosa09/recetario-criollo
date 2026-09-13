@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -180,7 +181,7 @@ private fun FilaReceta(
 @Composable
 fun metaDeReceta(receta: Receta): String {
     val categoria = stringResource(receta.categoria.textoId)
-    val porciones = stringResource(R.string.receta_porciones, receta.porcionesBase)
+    val porciones = pluralStringResource(R.plurals.receta_porciones, receta.porcionesBase, receta.porcionesBase)
     return listOfNotNull(categoria, porciones, receta.tiempoLegible).joinToString(" · ")
 }
 

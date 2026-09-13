@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -164,7 +165,7 @@ fun DetalleRecetaPantalla(
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Etiqueta(stringResource(receta.categoria.textoId), acento = true)
                         receta.tiempoLegible?.let { Etiqueta(it) }
-                        Etiqueta(stringResource(R.string.receta_porciones, receta.porcionesBase))
+                        Etiqueta(pluralStringResource(R.plurals.receta_porciones, receta.porcionesBase, receta.porcionesBase))
                     }
                     if (estado.modoCocina) {
                         TextoTenue(
@@ -188,9 +189,9 @@ fun DetalleRecetaPantalla(
                     )
                     TextoTenue(
                         texto = if (estado.estaEscalada) {
-                            stringResource(R.string.detalle_cantidades_ajustadas, estado.porciones)
+                            pluralStringResource(R.plurals.detalle_cantidades_ajustadas, estado.porciones, estado.porciones)
                         } else {
-                            stringResource(R.string.detalle_receta_original, receta.porcionesBase)
+                            pluralStringResource(R.plurals.detalle_receta_original, receta.porcionesBase, receta.porcionesBase)
                         },
                         modifier = Modifier.padding(top = 10.dp)
                     )

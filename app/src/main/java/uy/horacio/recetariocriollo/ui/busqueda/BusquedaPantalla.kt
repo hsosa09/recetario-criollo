@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,7 @@ fun BusquedaPantalla(
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.weight(1f)
                         )
-                        TextoTenue(stringResource(R.string.busqueda_seleccionados, estado.seleccionados.size))
+                        TextoTenue(pluralStringResource(R.plurals.busqueda_seleccionados, estado.seleccionados.size, estado.seleccionados.size))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         ChipRecto(
@@ -176,8 +177,11 @@ private fun FilaCoincidencia(
         Text(
             text = when {
                 coincidencia.sePuedeCocinar -> stringResource(R.string.busqueda_completa)
-                coincidencia.faltantes.size == 1 -> stringResource(R.string.busqueda_falta_uno)
-                else -> stringResource(R.string.busqueda_faltan, coincidencia.faltantes.size)
+                else -> pluralStringResource(
+                    R.plurals.busqueda_faltan,
+                    coincidencia.faltantes.size,
+                    coincidencia.faltantes.size
+                )
             },
             style = MaterialTheme.typography.labelMedium,
             color = if (coincidencia.sePuedeCocinar) colores.primary else colores.onSurfaceVariant
