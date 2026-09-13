@@ -23,6 +23,17 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import uy.horacio.recetariocriollo.ui.ingredientes.HojaRecetario
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.SelectorEstrellas
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
+import uy.horacio.recetariocriollo.ui.componentes.BotonTexto
+import uy.horacio.recetariocriollo.ui.componentes.BotonPrimario
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,6 +42,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -69,7 +83,7 @@ import uy.horacio.recetariocriollo.ui.theme.TemaRecetario
 fun CocinaPantalla(
     vistaModelo: CocinaViewModel,
     alSalir: () -> Unit,
-    alTerminar: (recetaId: Long, porciones: Int) -> Unit
+    alTerminar: () -> Unit
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
     val claroAfuera = !androidx.compose.foundation.isSystemInDarkTheme()
@@ -84,6 +98,7 @@ fun CocinaPantalla(
         val avisos = remember { SnackbarHostState() }
         val alcance = rememberCoroutineScope()
         val recursos = LocalResources.current
+        var preguntando by rememberSaveable { mutableStateOf(false) }
 
         Box(
             modifier = Modifier
@@ -289,7 +304,7 @@ fun CocinaPantalla(
                                 .fillMaxHeight()
                                 .background(colores.primary)
                                 .clickable(role = Role.Button) {
-                                    if (estado.esUltimo) alTerminar(receta.id, estado.porciones) else vistaModelo.siguiente()
+                                    if (estado.esUltimo) preguntando = true else vistaModelo.siguiente()
                                 }
                                 .padding(start = 18.dp),
                             contentAlignment = Alignment.CenterStart
@@ -302,6 +317,20 @@ fun CocinaPantalla(
                         }
                     }
                 }
+            }
+
+            if (preguntando) {
+                HojaComoSalio(
+                    alGuardar = { estrellas, nota ->
+                        preguntando = false
+                        vistaModelo.registrarCocinada(estrellas, nota, alTerminar)
+                    },
+                    alSaltar = {
+                        preguntando = false
+                        alTerminar()
+                    },
+                    alCerrar = { preguntando = false }
+                )
             }
 
             SnackbarHost(
@@ -332,6 +361,55 @@ private fun PantallaEncendidaYBarrasOscuras(claroAfuera: Boolean) {
             ventana?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             barras?.isAppearanceLightStatusBars = claroAfuera
             barras?.isAppearanceLightNavigationBars = claroAfuera
+        }
+    }
+}
+
+/** «¿Cómo salió?»: estrellas y qué cambiar la próxima. Queda en el historial de la receta. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HojaComoSalio(
+    alGuardar: (estrellas: Int, nota: String) -> Unit,
+    alSaltar: () -> Unit,
+    alCerrar: () -> Unit
+) {
+    var estrellas by rememberSaveable { mutableIntStateOf(5) }
+    var nota by rememberSaveable { mutableStateOf("") }
+    val recursos = LocalResources.current
+    HojaRecetario(
+        estado = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        alCerrar = alCerrar
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = MARGEN)
+                .padding(top = 18.dp, bottom = 20.dp)
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.como_salio_titulo), style = MaterialTheme.typography.headlineSmall)
+                TextoTenue(stringResource(R.string.como_salio_detalle))
+            }
+            SelectorEstrellas(
+                valor = estrellas,
+                alElegir = { estrellas = it },
+                descripcion = { n -> recursos.getQuantityString(R.plurals.estrellas_descripcion, n, n) }
+            )
+            CampoTexto(
+                valor = nota,
+                alCambiar = { nota = it },
+                etiqueta = stringResource(R.string.como_salio_nota),
+                marcador = stringResource(R.string.como_salio_nota_ejemplo),
+                unaLinea = false,
+                lineasMinimas = 3
+            )
+            BotonPrimario(
+                texto = stringResource(R.string.como_salio_guardar),
+                alTocar = { alGuardar(estrellas, nota) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            BotonTexto(texto = stringResource(R.string.como_salio_saltar), alTocar = alSaltar)
         }
     }
 }

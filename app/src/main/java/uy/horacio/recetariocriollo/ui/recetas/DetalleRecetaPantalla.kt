@@ -47,6 +47,8 @@ import kotlinx.coroutines.launch
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.dominio.CantidadEscalada
+import uy.horacio.recetariocriollo.dominio.Historial
+import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
@@ -75,6 +77,7 @@ fun DetalleRecetaPantalla(
     alVolver: () -> Unit,
     alEditar: (Long) -> Unit,
     alCocinar: (recetaId: Long, porciones: Int) -> Unit,
+    alVerHistorial: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
@@ -273,6 +276,16 @@ fun DetalleRecetaPantalla(
                 }
             }
 
+            if (estado.cocinadas.isNotEmpty()) {
+                item(key = "como_te_salio") {
+                    BloqueComoTeSalio(
+                        cocinadas = estado.cocinadas,
+                        alVerHistorial = alVerHistorial,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+            }
+
             item(key = "acciones") {
                 Column(
                     modifier = Modifier
@@ -437,5 +450,48 @@ private fun FilaPaso(
                 )
             }
         }
+    }
+}
+
+/** «Cómo te salió»: las dos últimas cocinadas y el acceso al historial completo. */
+@Composable
+private fun BloqueComoTeSalio(
+    cocinadas: List<Cocinada>,
+    alVerHistorial: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colores = MaterialTheme.colorScheme
+    val ahora = remember { System.currentTimeMillis() }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colores.surfaceVariant)
+            .fileteArriba(colores.outline, 2.dp)
+            .padding(MARGEN)
+    ) {
+        Rotulo(stringResource(R.string.detalle_como_te_salio), modifier = Modifier.padding(bottom = 10.dp))
+        cocinadas.take(2).forEach { cocinada ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fileteAbajo(colores.outline)
+                    .padding(bottom = 10.dp)
+                    .padding(top = 2.dp)
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = Historial.estrellas(cocinada.estrellas.toDouble()),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = colores.primary
+                    )
+                    TextoTenue(Historial.fechaCorta(cocinada.fechaMillis, ahora))
+                }
+                cocinada.nota?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp), modifier = Modifier.padding(top = 3.dp))
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+        BotonTexto(texto = stringResource(R.string.detalle_ver_historial), alTocar = alVerHistorial)
     }
 }
