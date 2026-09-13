@@ -49,6 +49,7 @@ import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.contiguo
 import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
 import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
@@ -141,9 +142,9 @@ fun CronometrosPantalla(
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     // Atajos en grilla de 4 por fila, casilleros contiguos.
-                    GestorCronometros.ATAJOS_SEGUNDOS.chunked(4).forEach { fila ->
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            fila.forEach { atajo ->
+                    GestorCronometros.ATAJOS_SEGUNDOS.chunked(4).forEachIndexed { numeroFila, fila ->
+                        Row(modifier = Modifier.fillMaxWidth().contiguo(numeroFila, vertical = true)) {
+                            fila.forEachIndexed { columna, atajo ->
                                 BotonSecundario(
                                     texto = if (atajo >= 3600) stringResource(R.string.timers_atajo_hora)
                                     else stringResource(R.string.timers_atajo_minutos, atajo / 60),
@@ -152,7 +153,7 @@ fun CronometrosPantalla(
                                         etiqueta = ""
                                     },
                                     alto = 48.dp,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f).contiguo(columna)
                                 )
                             }
                         }
@@ -274,18 +275,20 @@ private fun FilaCronometro(
             modifier = Modifier.padding(bottom = 10.dp)
         )
         Row(modifier = Modifier.fillMaxWidth()) {
-            val modificador = Modifier.weight(1f)
-            when (cronometro.estado) {
-                EstadoCronometro.CORRIENDO -> AccionCronometro(stringResource(R.string.timers_pausar), alPausar, modificador)
-                EstadoCronometro.PAUSADO -> AccionCronometro(stringResource(R.string.timers_reanudar), alReanudar, modificador)
-                EstadoCronometro.TERMINADO -> AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
+            val acciones = buildList {
+                when (cronometro.estado) {
+                    EstadoCronometro.CORRIENDO -> add(stringResource(R.string.timers_pausar) to alPausar)
+                    EstadoCronometro.PAUSADO -> add(stringResource(R.string.timers_reanudar) to alReanudar)
+                    EstadoCronometro.TERMINADO -> Unit
+                }
+                add(stringResource(R.string.timers_reiniciar) to alReiniciar)
+                add(stringResource(R.string.timers_menos_minuto) to { alAjustar(-60) })
+                add(stringResource(R.string.timers_mas_minuto) to { alAjustar(60) })
+                add(stringResource(R.string.timers_quitar) to alQuitar)
             }
-            if (!terminado) {
-                AccionCronometro(stringResource(R.string.timers_reiniciar), alReiniciar, modificador)
+            acciones.forEachIndexed { indice, (texto, accion) ->
+                AccionCronometro(texto, accion, Modifier.weight(1f).contiguo(indice))
             }
-            AccionCronometro(stringResource(R.string.timers_menos_minuto), { alAjustar(-60) }, modificador)
-            AccionCronometro(stringResource(R.string.timers_mas_minuto), { alAjustar(60) }, modificador)
-            AccionCronometro(stringResource(R.string.timers_quitar), alQuitar, modificador)
         }
     }
 }
