@@ -95,6 +95,7 @@
     <string name="editor_falta_nombre">Ponele un nombre a la receta.</string>
     <string name="editor_falta_ingredientes">Agregá al menos un ingrediente.</string>
     <string name="editor_porciones_invalidas">Las porciones tienen que ser al menos 1.</string>
+    <string name="editor_cantidad_invalida">Revisá la cantidad de «%1$s»: escribila como 250, 1,5 o 1 1/2.</string>
 
     <!-- Selector de ingredientes del catálogo -->
     <string name="selector_titulo">Elegir del catálogo</string>

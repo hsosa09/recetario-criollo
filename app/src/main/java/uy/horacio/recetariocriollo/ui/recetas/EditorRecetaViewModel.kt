@@ -36,6 +36,13 @@ data class LineaIngrediente(
     val aclaracion: String
 )
 
+/** "A gusto" no lleva numero; cualquier otra unidad necesita una cantidad legible y positiva. */
+fun LineaIngrediente.tieneCantidadValida(): Boolean {
+    if (unidad == Unidad.A_GUSTO) return true
+    val valor = Fracciones.parsear(cantidad) ?: return false
+    return valor > 0.0 && valor.isFinite()
+}
+
 data class LineaPaso(
     val idLocal: Long,
     val texto: String,
@@ -56,7 +63,9 @@ data class EstadoEditorReceta(
     val esFavorita: Boolean = false,
     val guardando: Boolean = false,
     val guardadaConId: Long? = null,
-    @get:StringRes val error: Int? = null
+    @get:StringRes val error: Int? = null,
+    /** Dato que completa el mensaje de error (por ejemplo, el ingrediente mal cargado). */
+    val errorDetalle: String? = null
 ) {
     val esNueva: Boolean get() = recetaId == 0L
 }
@@ -249,6 +258,13 @@ class EditorRecetaViewModel(
                 return
             }
         }
+        // Una cantidad ilegible no se guarda como 0: se avisa cual es.
+        actual.ingredientes.firstOrNull { !it.tieneCantidadValida() }?.let { linea ->
+            _estado.update {
+                it.copy(error = R.string.editor_cantidad_invalida, errorDetalle = linea.ingrediente.nombre)
+            }
+            return
+        }
 
         _estado.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
@@ -264,6 +280,7 @@ class EditorRecetaViewModel(
                 ingredientes = actual.ingredientes.mapIndexed { indice, linea ->
                     IngredienteDeReceta(
                         ingrediente = linea.ingrediente,
+                        // Solo "a gusto" puede quedar sin numero (ver tieneCantidadValida).
                         cantidad = Fracciones.parsear(linea.cantidad) ?: 0.0,
                         unidad = linea.unidad,
                         regla = linea.regla,
@@ -288,7 +305,7 @@ class EditorRecetaViewModel(
         }
     }
 
-    fun limpiarError() = _estado.update { it.copy(error = null) }
+    fun limpiarError() = _estado.update { it.copy(error = null, errorDetalle = null) }
 
     private inline fun modificarIngrediente(idLocal: Long, transformar: (LineaIngrediente) -> LineaIngrediente) {
         _estado.update { actual ->

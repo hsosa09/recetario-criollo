@@ -91,7 +91,9 @@ fun EditorRecetaPantalla(
         estado.guardadaConId?.let(alGuardar)
     }
 
-    val mensajeError = estado.error?.let { stringResource(it) }
+    val mensajeError = estado.error?.let { id ->
+        estado.errorDetalle?.let { detalle -> stringResource(id, detalle) } ?: stringResource(id)
+    }
     LaunchedEffect(mensajeError) {
         if (mensajeError != null) {
             avisos.showSnackbar(mensajeError)
