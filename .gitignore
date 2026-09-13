@@ -18,3 +18,8 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+
+# Documentación de trabajo (contexto, traspaso, ficha de Play, análisis):
+# vive solo en local. En el repo el único Markdown es el README.
+*.md
+!/README.md
