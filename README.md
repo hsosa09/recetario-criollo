@@ -15,7 +15,7 @@
   <img alt="Kotlin 2.2" src="https://img.shields.io/badge/Kotlin-2.2-201E1D?style=flat-square&logo=kotlin&logoColor=F3F2F2">
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-201E1D?style=flat-square&logo=jetpackcompose&logoColor=F3F2F2">
   <img alt="100 % offline" src="https://img.shields.io/badge/100%20%25-offline-EC3013?style=flat-square">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-48%20unitarios-EC3013?style=flat-square">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-57%20unitarios%20%2B%203%20instrumentados-EC3013?style=flat-square">
 </p>
 
 ---
@@ -27,6 +27,8 @@
 - [Recorrido por la app](#recorrido-por-la-app)
   - [Mis recetas](#-mis-recetas)
   - [Detalle y escalador de porciones](#-detalle-y-escalador-de-porciones)
+  - [Cocinar paso a paso](#-cocinar-paso-a-paso)
+  - [Historial de cocinadas](#-historial-de-cocinadas)
   - [Alta y edición guiada](#-alta-y-edición-guiada)
   - [Con lo que tengo](#-con-lo-que-tengo)
   - [Conversor de medidas](#-conversor-de-medidas)
@@ -52,7 +54,7 @@ La app se organiza en cuatro solapas fijas abajo: **Recetas**, **Con lo que teng
     <td width="36%"><img src="docs/capturas/lista.png" alt="Lista de recetas"></td>
     <td>
 
-- Cada fila muestra **foto o inicial**, nombre, categoría, porciones y tiempo.
+- Cada fila muestra **foto o inicial**, nombre, categoría, porciones y tiempo, y debajo la **dificultad**, las **estrellas** promedio y cuántas veces la cocinaste.
 - **Buscador** por nombre que ignora tildes y mayúsculas, igual que el selector de ingredientes: «azucar» encuentra *Azúcar*.
 - **Filtros** rectangulares: *Solo favoritas*, *Todas* y las categorías que tengan recetas (entradas, platos principales, guarniciones, sopas y guisos, postres, panificados, salsas, bebidas, conservas…).
 - **Favoritas** con un toque en el corazón; quedan primeras en la lista.
@@ -71,7 +73,7 @@ La app se organiza en cuatro solapas fijas abajo: **Recetas**, **Con lo que teng
     <td width="33%"><img src="docs/capturas/timer-de-paso.png" alt="Timer arrancado desde un paso"></td>
   </tr>
   <tr>
-    <td><sub>Ficha con categoría, tiempo y porciones base.</sub></td>
+    <td><sub>Ficha con categoría, tiempo, dificultad y cómo salió las veces anteriores.</sub></td>
     <td><sub>De 12 a 24 porciones: la sal sube menos y el aceite no escala.</sub></td>
     <td><sub>Cada paso con tiempo sugerido arranca su propio timer.</sub></td>
   </tr>
@@ -81,8 +83,46 @@ La app se organiza en cuatro solapas fijas abajo: **Recetas**, **Con lo que teng
 - Cada ingrediente aclara cuando **no escala**, lleva **ajuste suave** o se **redondeó para poder medirlo**.
 - Cantidades en lenguaje de cocina: `1 2/3 cucharaditas`, `1/2 taza`, `250 g`, `a gusto`.
 - **Timer desde el paso**: queda etiquetado «Pastel de papa · paso 1» y avisa aunque salgas de la app.
-- **Modo cocina** (🔥): pantalla siempre encendida y letra un 25 % más grande.
+- **Cocinar paso a paso** como acción principal, con las porciones que estás viendo.
+- **Modo cocina** (🔥): pantalla siempre encendida y letra un 25 % más grande, sin salir del detalle.
 - Editar, marcar favorita y borrar con confirmación.
+
+### ▍ Cocinar paso a paso
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/capturas/paso-a-paso.png" alt="Modo paso a paso"></td>
+    <td width="33%"><img src="docs/capturas/como-salio.png" alt="Hoja ¿Cómo salió?"></td>
+    <td>
+
+Pantalla completa y oscura para cocinar con el teléfono apoyado en la mesada:
+
+- **Un paso por pantalla**, número gigante y texto a 27 sp. Se avanza con **Anterior / Siguiente** o deslizando.
+- **Arrancar 1 h**: el timer sugerido del paso, a un toque. Los timers en marcha se ven debajo con su cuenta.
+- **Ingredientes a mano** con las cantidades escaladas, y **primero los que nombra el paso** («batir los huevos con el azúcar» sube *Huevo* y *Azúcar*).
+- La pantalla no se apaga mientras estás cocinando.
+- En el último paso, **Terminé** pregunta **¿Cómo salió?**: estrellas y qué cambiarías la próxima vez.
+
+</td>
+  </tr>
+</table>
+
+### ▍ Historial de cocinadas
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/capturas/historial.png" alt="Historial de cocinadas"></td>
+    <td width="33%"><img src="docs/capturas/como-te-salio.png" alt="Cómo te salió en el detalle"></td>
+    <td>
+
+- **Lo que más cocinás**: las tres recetas más hechas, con barras proporcionales.
+- **Cada vez que cocinaste**: receta, estrellas, fecha y nota. Tocás una y abre la receta; manteniendo apretado la borrás.
+- En el detalle de cada receta, **Cómo te salió** muestra las dos últimas notas justo antes de volver a cocinarla.
+- Se entra desde el ícono de reloj de *Mis recetas* o desde el detalle.
+
+</td>
+  </tr>
+</table>
 
 ### ▍ Alta y edición guiada
 
@@ -110,6 +150,7 @@ Cambiar de plantilla reemplaza **sus** pasos y respeta los que escribiste vos.
 
 - **Ingredientes del catálogo, nunca texto libre.** El selector filtra la lista agrupada por categoría y, si el ingrediente no existe, lo das de alta ahí mismo (nombre, categoría, unidad, gramos por taza y si es sal, especia o leudante).
 - Por ingrediente: **cantidad** como la escribís (`250`, `2,5`, `1/2`, `1 1/2`), **unidad**, **regla de escalado** (sugerida sola) y **aclaración** («en cubos», «tibia»). Una cantidad ilegible no se guarda: te dice cuál corregir.
+- **Dificultad** (Fácil / Media / Difícil) y **molde redondo** en cm, ambos opcionales.
 - **Pasos** con timer sugerido en minutos, para subir, bajar o quitar.
 - **Foto opcional** desde la galería del sistema, sin pedir permiso de almacenamiento: se copia reducida a la carpeta privada de la app.
 
@@ -261,6 +302,7 @@ flowchart LR
     C[Conversor]
     B[BuscadorPorIngredientes]
     T[Texto]
+    H[Historial · IngredientesDelPaso]
   end
   subgraph datos["datos · Room"]
     R[Repositorios] --> D[(recetario.db)]
@@ -277,8 +319,9 @@ flowchart LR
 
 ```
 app/src/main/java/uy/horacio/recetariocriollo/
-├── dominio/       Escalador, Fracciones, Conversor, BuscadorPorIngredientes, Texto, Plantillas, modelo/
-├── datos/         Entidades y DAOs de Room, repositorios, catálogo semilla, fotos
+├── dominio/       Escalador, Fracciones, Conversor, BuscadorPorIngredientes, Texto, Historial,
+│                  IngredientesDelPaso, Plantillas, modelo/
+├── datos/         Entidades, DAOs y migraciones de Room, repositorios, catálogo semilla, fotos
 ├── cronometro/    Gestor de timers, alarma del sistema y notificación
 └── ui/            Pantallas Compose, un ViewModel por pantalla, tema y componentes
 ```
@@ -288,6 +331,7 @@ app/src/main/java/uy/horacio/recetariocriollo/
 - **El catálogo de ingredientes es normalizado.** Las recetas referencian ingredientes por id; el alta desde el editor deduplica ignorando mayúsculas y tildes.
 - **La UI nunca toca DAOs ni entidades**: habla con repositorios y modelos de dominio.
 - **Volumen ↔ peso necesita densidad.** Sin gramos por taza, `Conversor.convertir` devuelve `null` en vez de inventar.
+- **Migraciones escritas a mano.** Nunca `fallbackToDestructiveMigration`: son recetas de la gente. Cada versión exporta su esquema a `app/schemas` y tiene su test instrumentado (hoy la base va por la **versión 2**: dificultad, molde e historial de cocinadas).
 - **Sin inyección de dependencias de terceros**: un contenedor hecho a mano en `RecetarioApp` alcanza para una app de este tamaño.
 
 | | |
@@ -306,6 +350,7 @@ Requiere JDK 17 o superior y `platforms;android-37` en el SDK. Si `java` no est�
 ```bash
 ./gradlew :app:assembleDebug        # APK de desarrollo
 ./gradlew :app:testDebugUnitTest    # tests de dominio, formateo, editor y cronómetros
+./gradlew :app:connectedDebugAndroidTest   # migraciones y DAOs, con un emulador conectado
 ./gradlew :app:installDebug         # instalar en el teléfono o emulador conectado
 ./gradlew :app:bundleRelease        # AAB para Play, con R8
 ```
@@ -314,9 +359,10 @@ Requiere JDK 17 o superior y `platforms;android-37` en el SDK. Si `java` no est�
 - La firma de release se lee de `keystore.properties`, que **no** va al repo (ver `keystore.properties.ejemplo`). Sin ese archivo el release se arma igual, sin firmar.
 - El release corre con R8 (`minify` + `shrinkResources`): **hay que probarlo instalado** antes de subirlo, porque que compile no alcanza.
 
-**Integración continua:** cada push a `main` y cada PR corren en GitHub Actions los tests unitarios, `lintRelease` y el build de debug; el APK queda como artefacto de la corrida.
+**Integración continua:** cada push a `main` y cada PR corren en GitHub Actions dos jobs: tests unitarios, `lintRelease` y build de debug (el APK queda como artefacto), y los tests instrumentados en un emulador API 34.
 
-**Tests unitarios (48):** `EscaladorTest`, `FraccionesTest`, `ConversorTest`, `BuscadorPorIngredientesTest`, `TextoTest`, `CronometroTest`, `LineaIngredienteTest` y `PlantillaEditorTest`.
+**Tests unitarios (57):** `EscaladorTest`, `FraccionesTest`, `ConversorTest`, `BuscadorPorIngredientesTest`, `TextoTest`, `HistorialTest`, `IngredientesDelPasoTest`, `CronometroTest`, `LineaIngredienteTest` y `PlantillaEditorTest`.
+**Instrumentados (3):** `MigracionesTest` y `CocinadaDaoTest`.
 
 ---
 
@@ -346,11 +392,13 @@ Las fotos se eligen con el selector del sistema, sin permiso de almacenamiento. 
 | 5 | Catálogo normalizado y búsqueda por ingredientes | ✅ |
 | 6 | Generador guiado con plantillas | ✅ |
 | 7 | Ícono, release con R8, rediseño Modernist | 🔄 Falta prueba en dispositivo real y alta en Play Console |
-| 8 | Pantallas nuevas del prototipo | 📝 En análisis |
+| 8.1 | Cocinar: paso a paso, «¿Cómo salió?», historial, dificultad y estrellas | ✅ |
+| 8.2 | Cajón lateral, catálogo editable y ajustes | 📝 Próxima |
+| 8.3 | Ajuste por molde y sustituciones de ingredientes | 📝 |
+| 8.4 | Colecciones y etiquetas, planificador semanal y lista de compras por góndola | 📝 |
+| 8.5 | Compartir e importar recetas, PDF y copia de seguridad | 📝 |
 
-**Próximo, según el prototipo:** modo paso a paso a pantalla completa, historial de cocinadas con estrellas y notas, planificador semanal, lista de compras agrupada por góndola, colecciones y etiquetas, compartir e importar recetas (archivo, texto y QR), sustituciones de ingredientes, ajuste por tamaño de molde, catálogo editable, copia de seguridad y PDF.
-
-Los defectos y mejoras se siguen en [Issues](https://github.com/hsosa09/recetario-criollo/issues).
+Cada fase tiene su [milestone](https://github.com/hsosa09/recetario-criollo/milestones), y los defectos y mejoras se siguen en [Issues](https://github.com/hsosa09/recetario-criollo/issues).
 
 ---
 

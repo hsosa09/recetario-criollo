@@ -5,6 +5,7 @@ import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.NivelHorno
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
+import uy.horacio.recetariocriollo.dominio.modelo.Dificultad
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 
 /**
@@ -68,4 +69,12 @@ val NivelHorno.textoId: Int
         NivelHorno.MODERADO -> R.string.horno_moderado
         NivelHorno.FUERTE -> R.string.horno_fuerte
         NivelHorno.MUY_FUERTE -> R.string.horno_muy_fuerte
+    }
+
+@get:StringRes
+val Dificultad.textoId: Int
+    get() = when (this) {
+        Dificultad.FACIL -> R.string.dificultad_facil
+        Dificultad.MEDIA -> R.string.dificultad_media
+        Dificultad.DIFICIL -> R.string.dificultad_dificil
     }

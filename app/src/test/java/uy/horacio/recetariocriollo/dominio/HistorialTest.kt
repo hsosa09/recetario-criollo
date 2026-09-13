@@ -50,4 +50,17 @@ class HistorialTest {
     fun `sin cocinadas no hay ranking`() {
         assertTrue(Historial.masCocinadas(listOf(ResumenCocinadas.vacio(1))).isEmpty())
     }
+
+    @Test
+    fun `resume una receta desde sus cocinadas`() {
+        val lista = listOf(
+            uy.horacio.recetariocriollo.dominio.modelo.Cocinada(recetaId = 9, fechaMillis = 10, estrellas = 4, porciones = 8),
+            uy.horacio.recetariocriollo.dominio.modelo.Cocinada(recetaId = 9, fechaMillis = 30, estrellas = 5, porciones = 8)
+        )
+        val resumen = Historial.resumir(9, lista)
+        assertEquals(2, resumen.veces)
+        assertEquals(4.5, resumen.promedioEstrellas!!, 0.001)
+        assertEquals(30L, resumen.ultimaMillis)
+        assertEquals(0, Historial.resumir(9, emptyList()).veces)
+    }
 }

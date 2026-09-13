@@ -1,5 +1,6 @@
 package uy.horacio.recetariocriollo.dominio
 
+import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
 import uy.horacio.recetariocriollo.dominio.modelo.ResumenCocinadas
 import java.time.Instant
 import java.time.ZoneId
@@ -27,6 +28,16 @@ object Historial {
         val mes = MESES[fecha.monthValue - 1]
         return if (fecha.year == hoy.year) "${fecha.dayOfMonth} $mes" else "${fecha.dayOfMonth} $mes ${fecha.year}"
     }
+
+    /** Resumen de una sola receta a partir de su lista de cocinadas. */
+    fun resumir(recetaId: Long, cocinadas: List<Cocinada>): ResumenCocinadas =
+        if (cocinadas.isEmpty()) ResumenCocinadas.vacio(recetaId)
+        else ResumenCocinadas(
+            recetaId = recetaId,
+            veces = cocinadas.size,
+            promedioEstrellas = cocinadas.map { it.estrellas }.average(),
+            ultimaMillis = cocinadas.maxOf { it.fechaMillis }
+        )
 
     data class Puesto(val recetaId: Long, val veces: Int, val fraccion: Float)
 

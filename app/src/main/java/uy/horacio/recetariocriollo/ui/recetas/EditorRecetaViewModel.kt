@@ -195,6 +195,12 @@ class EditorRecetaViewModel(
     fun cambiarTiempo(valor: String) = _estado.update { it.copy(tiempo = valor) }
     fun cambiarNotas(valor: String) = _estado.update { it.copy(notas = valor) }
 
+    /** Tocar la dificultad elegida la destilda: no todas las recetas la necesitan. */
+    fun alternarDificultad(valor: Dificultad) =
+        _estado.update { it.copy(dificultad = if (it.dificultad == valor) null else valor) }
+
+    fun cambiarMolde(valor: String) = _estado.update { it.copy(molde = valor.filter(Char::isDigit).take(2), error = null) }
+
     /** Cambia de plantilla (o vuelve a "en blanco" con null) sin pisar lo que escribio el usuario. */
     fun aplicarPlantilla(plantilla: PlantillaReceta?) {
         _estado.update { actual -> actual.conPlantilla(plantilla) { siguienteIdLocal++ } }
@@ -307,6 +313,10 @@ class EditorRecetaViewModel(
                 _estado.update { it.copy(error = R.string.editor_porciones_invalidas) }
                 return
             }
+            actual.molde.isNotBlank() && actual.molde.toIntOrNull() !in RANGO_MOLDE_CM -> {
+                _estado.update { it.copy(error = R.string.editor_molde_invalido) }
+                return
+            }
         }
         // Una cantidad ilegible no se guarda como 0: se avisa cual es.
         actual.ingredientes.firstOrNull { !it.tieneCantidadValida() }?.let { linea ->
@@ -328,7 +338,7 @@ class EditorRecetaViewModel(
                 fotoPath = actual.fotoPath,
                 esFavorita = actual.esFavorita,
                 dificultad = actual.dificultad,
-                moldeCm = actual.molde.trim().toIntOrNull()?.takeIf { it in 5..60 },
+                moldeCm = actual.molde.trim().toIntOrNull()?.takeIf { it in RANGO_MOLDE_CM },
                 ingredientes = actual.ingredientes.mapIndexed { indice, linea ->
                     IngredienteDeReceta(
                         ingrediente = linea.ingrediente,
@@ -389,5 +399,6 @@ class EditorRecetaViewModel(
 
     companion object {
         const val CLAVE_ID = "recetaId"
+        val RANGO_MOLDE_CM = 5..60
     }
 }
