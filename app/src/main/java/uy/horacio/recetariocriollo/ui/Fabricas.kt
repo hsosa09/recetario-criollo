@@ -89,6 +89,7 @@ object Fabricas {
             CocinaViewModel(
                 repositorio = app().contenedor.recetas,
                 cocinadas = app().contenedor.cocinadas,
+                almacenFotos = app().contenedor.almacenFotos,
                 cronometros = app().contenedor.cronometros,
                 estadoGuardado = createSavedStateHandle()
             )

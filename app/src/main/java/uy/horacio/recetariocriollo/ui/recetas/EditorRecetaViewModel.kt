@@ -14,6 +14,7 @@ import uy.horacio.recetariocriollo.R
 import kotlinx.coroutines.flow.first
 import uy.horacio.recetariocriollo.datos.AjustesRepositorio
 import uy.horacio.recetariocriollo.datos.AlmacenFotos
+import uy.horacio.recetariocriollo.dominio.Archivos
 import uy.horacio.recetariocriollo.dominio.UnidadSugerida
 import uy.horacio.recetariocriollo.datos.IngredienteRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
@@ -94,7 +95,8 @@ fun EstadoEditorReceta.conPlantilla(
 data class LineaPaso(
     val idLocal: Long,
     val texto: String,
-    val minutosTimer: String
+    val minutosTimer: String,
+    val fotoPath: String? = null
 )
 
 data class EstadoEditorReceta(
@@ -186,6 +188,7 @@ class EditorRecetaViewModel(
                         LineaPaso(
                             idLocal = siguienteIdLocal++,
                             texto = paso.texto,
+                            fotoPath = paso.fotoPath,
                             minutosTimer = paso.timerSugeridoSegundos
                                 ?.let { (it / 60).toString() }
                                 .orEmpty()
@@ -311,6 +314,16 @@ class EditorRecetaViewModel(
 
     fun quitarFoto() = _estado.update { it.copy(fotoPath = null) }
 
+    fun elegirFotoPaso(idLocal: Long, origen: Uri) {
+        viewModelScope.launch {
+            val ruta = almacenFotos.guardarDesde(origen) ?: return@launch
+            fotosCopiadas += ruta
+            modificarPaso(idLocal) { it.copy(fotoPath = ruta) }
+        }
+    }
+
+    fun quitarFotoPaso(idLocal: Long) = modificarPaso(idLocal) { it.copy(fotoPath = null) }
+
     /**
      * Guarda la receta, o una variante nueva con [nombreVariante]: una copia vinculada a la
      * original que deja la receta que se editaba como estaba.
@@ -354,6 +367,12 @@ class EditorRecetaViewModel(
                 actual.fotoPath in fotosCopiadas -> actual.fotoPath
                 else -> almacenFotos.duplicar(actual.fotoPath)
             }
+            // En una variante, las fotos de pasos ya guardadas también se duplican.
+            val pasosParaGuardar = actual.pasos.map { linea ->
+                val foto = linea.fotoPath
+                if (esVariante && foto != null && foto !in fotosCopiadas) linea.copy(fotoPath = almacenFotos.duplicar(foto))
+                else linea
+            }
             val receta = Receta(
                 id = if (esVariante) 0L else actual.recetaId,
                 nombre = (if (esVariante) nombreVariante!! else actual.nombre).trim(),
@@ -377,7 +396,7 @@ class EditorRecetaViewModel(
                         orden = indice
                     )
                 },
-                pasos = actual.pasos
+                pasos = pasosParaGuardar
                     .filter { it.texto.isNotBlank() }
                     .mapIndexed { indice, linea ->
                         PasoPreparacion(
@@ -385,13 +404,14 @@ class EditorRecetaViewModel(
                             texto = linea.texto.trim(),
                             timerSugeridoSegundos = linea.minutosTimer.trim().toIntOrNull()
                                 ?.takeIf { it > 0 }
-                                ?.times(60)
+                                ?.times(60),
+                            fotoPath = linea.fotoPath
                         )
                     }
             )
             val id = recetas.guardar(receta)
-            // La foto que quedo en la receta ya no es de esta sesion; el resto sobra.
-            fotosCopiadas.remove(receta.fotoPath)
+            // Las fotos que quedaron en la receta ya no son de esta sesión; el resto sobra.
+            fotosCopiadas.removeAll(Archivos.deReceta(receta))
             almacenFotos.descartar(fotosCopiadas)
             fotosCopiadas.clear()
             _estado.update { it.copy(guardando = false, guardadaConId = id) }

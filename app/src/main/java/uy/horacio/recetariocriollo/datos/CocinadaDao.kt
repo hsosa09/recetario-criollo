@@ -14,6 +14,12 @@ interface CocinadaDao {
     @Query("DELETE FROM cocinadas WHERE id = :id")
     suspend fun borrar(id: Long)
 
+    @Query("SELECT * FROM cocinadas WHERE id = :id")
+    suspend fun obtener(id: Long): CocinadaEntity?
+
+    @Query("SELECT * FROM cocinadas WHERE recetaId = :recetaId")
+    suspend fun deReceta(recetaId: Long): List<CocinadaEntity>
+
     @Query("SELECT * FROM cocinadas WHERE recetaId = :recetaId ORDER BY fechaMillis DESC")
     fun observarDeReceta(recetaId: Long): Flow<List<CocinadaEntity>>
 

@@ -96,6 +96,10 @@
     <!-- ¿Cómo salió? e historial -->
     <string name="como_salio_titulo">¿Cómo salió?</string>
     <string name="como_salio_detalle">Queda en el historial de la receta y te lo muestra la próxima vez.</string>
+    <string name="como_salio_foto">Foto de cómo quedó</string>
+    <string name="como_salio_sacar_foto">Sacar foto</string>
+    <string name="como_salio_otra_foto">Otra foto</string>
+    <string name="como_salio_elegir_foto">Galería</string>
     <string name="como_salio_nota">¿Qué cambiarías la próxima?</string>
     <string name="como_salio_nota_ejemplo">Menos sal, 10 minutos más de horno…</string>
     <string name="como_salio_guardar">Guardar en el historial</string>
@@ -132,6 +136,8 @@
     <string name="editor_elegir_foto">Elegir foto</string>
     <string name="editor_cambiar_foto">Cambiar foto</string>
     <string name="editor_quitar_foto">Quitar foto</string>
+    <string name="editor_foto_paso">Foto del paso</string>
+    <string name="editor_agregar_foto_paso">Foto del paso</string>
     <string name="editor_ingredientes">Ingredientes</string>
     <string name="editor_ingredientes_ayuda">del catálogo, nunca texto libre</string>
     <string name="editor_guardar_receta">Guardar receta</string>

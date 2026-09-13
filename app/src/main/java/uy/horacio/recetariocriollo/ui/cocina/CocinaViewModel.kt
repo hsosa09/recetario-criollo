@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.stateIn
 import uy.horacio.recetariocriollo.cronometro.Cronometro
 import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.cronometro.GestorCronometros
+import android.net.Uri
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import uy.horacio.recetariocriollo.datos.AlmacenFotos
 import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
@@ -39,6 +43,7 @@ data class EstadoCocina(
 class CocinaViewModel(
     repositorio: RecetaRepositorio,
     private val cocinadas: CocinadaRepositorio,
+    private val almacenFotos: AlmacenFotos,
     private val cronometros: GestorCronometros,
     private val estadoGuardado: SavedStateHandle
 ) : ViewModel() {
@@ -96,6 +101,36 @@ class CocinaViewModel(
         return etiqueta
     }
 
+    private val _fotoResultado = MutableStateFlow<String?>(estadoGuardado[CLAVE_FOTO])
+    /** Foto de cómo quedó, ya copiada a la app, mientras se completa «¿Cómo salió?». */
+    val fotoResultado: StateFlow<String?> = _fotoResultado.asStateFlow()
+
+    fun usarFotoResultado(origen: Uri, alTerminar: () -> Unit = {}) {
+        viewModelScope.launch {
+            val ruta = almacenFotos.guardarDesde(origen)
+            if (ruta != null) {
+                _fotoResultado.value?.let { almacenFotos.borrar(it) }
+                _fotoResultado.value = ruta
+                estadoGuardado[CLAVE_FOTO] = ruta
+            }
+            alTerminar()
+        }
+    }
+
+    /** Saca la foto elegida y la borra: todavía no la usa ninguna cocinada. */
+    fun descartarFotoResultado() {
+        _fotoResultado.value?.let { almacenFotos.descartar(listOf(it)) }
+        _fotoResultado.value = null
+        estadoGuardado[CLAVE_FOTO] = null
+    }
+
+    fun archivoParaCamara() = almacenFotos.archivoParaCamara()
+
+    override fun onCleared() {
+        // Si se salió sin guardar, la foto quedó huérfana.
+        _fotoResultado.value?.let { almacenFotos.descartar(listOf(it)) }
+    }
+
     /** Anota en el historial como salio. Llama a [alTerminar] cuando quedo guardado. */
     fun registrarCocinada(estrellas: Int, nota: String, alTerminar: () -> Unit) {
         val actual = estado.value
@@ -107,14 +142,19 @@ class CocinaViewModel(
                     fechaMillis = System.currentTimeMillis(),
                     estrellas = estrellas,
                     porciones = actual.porciones,
-                    nota = nota
+                    nota = nota,
+                    fotoPath = _fotoResultado.value
                 )
             )
+            // Ya es de la cocinada: que onCleared no la borre.
+            _fotoResultado.value = null
+            estadoGuardado[CLAVE_FOTO] = null
             alTerminar()
         }
     }
 
     private companion object {
         const val CLAVE_PASO = "paso_actual"
+        const val CLAVE_FOTO = "foto_resultado"
     }
 }

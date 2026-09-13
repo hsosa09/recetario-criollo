@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,6 +92,16 @@ fun EditorRecetaPantalla(
     val elegirFoto = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri -> uri?.let(vistaModelo::elegirFoto) }
+
+    // Un solo selector para las fotos de pasos: se recuerda para qué paso se abrió.
+    var pasoEsperandoFoto by rememberSaveable { mutableStateOf<Long?>(null) }
+    val elegirFotoPaso = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        val paso = pasoEsperandoFoto
+        if (uri != null && paso != null) vistaModelo.elegirFotoPaso(paso, uri)
+        pasoEsperandoFoto = null
+    }
 
     LaunchedEffect(estado.guardadaConId) {
         estado.guardadaConId?.let(alGuardar)
@@ -312,7 +323,12 @@ fun EditorRecetaPantalla(
                     alCambiarTimer = { vistaModelo.cambiarTimerPaso(paso.idLocal, it) },
                     alSubir = { vistaModelo.moverPaso(paso.idLocal, true) },
                     alBajar = { vistaModelo.moverPaso(paso.idLocal, false) },
-                    alQuitar = { vistaModelo.quitarPaso(paso.idLocal) }
+                    alQuitar = { vistaModelo.quitarPaso(paso.idLocal) },
+                    alElegirFoto = {
+                        pasoEsperandoFoto = paso.idLocal
+                        elegirFotoPaso.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
+                    alQuitarFoto = { vistaModelo.quitarFotoPaso(paso.idLocal) }
                 )
             }
 
@@ -506,7 +522,9 @@ private fun FilaLineaPaso(
     alCambiarTimer: (String) -> Unit,
     alSubir: () -> Unit,
     alBajar: () -> Unit,
-    alQuitar: () -> Unit
+    alQuitar: () -> Unit,
+    alElegirFoto: () -> Unit,
+    alQuitarFoto: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -540,6 +558,25 @@ private fun FilaLineaPaso(
                 etiqueta = stringResource(R.string.editor_paso_timer),
                 teclado = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                linea.fotoPath?.let { ruta ->
+                    AsyncImage(
+                        model = ruta,
+                        contentDescription = stringResource(R.string.editor_foto_paso),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+                BotonSecundario(
+                    texto = stringResource(if (linea.fotoPath == null) R.string.editor_agregar_foto_paso else R.string.editor_cambiar_foto),
+                    icono = Iconos.Foto,
+                    alto = 36.dp,
+                    alTocar = alElegirFoto
+                )
+                if (linea.fotoPath != null) {
+                    BotonTexto(texto = stringResource(R.string.editor_quitar_foto), alTocar = alQuitarFoto)
+                }
+            }
         }
         Column {
             BotonIcono(
