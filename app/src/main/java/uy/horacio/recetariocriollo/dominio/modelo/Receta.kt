@@ -14,7 +14,9 @@ data class Ingrediente(
     val esSalOEspecia: Boolean = false,
     /** Cosas que siempre hay en la despensa (sal, agua, aceite). Se pueden dar por disponibles al buscar. */
     val esBasicoDeDespensa: Boolean = false,
-    val unidadHabitual: Unidad = Unidad.GRAMO
+    val unidadHabitual: Unidad = Unidad.GRAMO,
+    /** Meses de estación (ver Temporada); 0 = todo el año o sin dato. */
+    val meses: Int = 0
 )
 
 /** Un ingrediente dentro de una receta concreta, con su cantidad y su regla de escalado. */
@@ -34,7 +36,9 @@ data class PasoPreparacion(
     val orden: Int,
     val texto: String,
     /** Si el paso tiene un tiempo tipico, se puede arrancar un cronometro desde el propio paso. */
-    val timerSugeridoSegundos: Int? = null
+    val timerSugeridoSegundos: Int? = null,
+    /** «Así tiene que quedar»: foto opcional del paso. */
+    val fotoPath: String? = null
 )
 
 data class Receta(
@@ -49,6 +53,8 @@ data class Receta(
     val dificultad: Dificultad? = null,
     /** Diametro del molde redondo en cm, si la receta usa uno. Base para ajustar por molde. */
     val moldeCm: Int? = null,
+    /** Si es una variante, el id de la receta original (siempre la raíz). */
+    val origenId: Long? = null,
     val ingredientes: List<IngredienteDeReceta> = emptyList(),
     val pasos: List<PasoPreparacion> = emptyList()
 ) {
@@ -72,7 +78,11 @@ data class Cocinada(
     /** De 1 a 5. */
     val estrellas: Int,
     val porciones: Int,
-    val nota: String? = null
+    val nota: String? = null,
+    /** Foto de cómo quedó. */
+    val fotoPath: String? = null,
+    /** Nota de voz. */
+    val audioPath: String? = null
 )
 
 /** Cocinada junto con el nombre de su receta, para el historial general. */

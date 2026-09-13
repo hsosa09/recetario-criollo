@@ -1,5 +1,6 @@
 package uy.horacio.recetariocriollo.datos
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -25,6 +26,8 @@ data class RecetaEntity(
     // v2
     val dificultad: Dificultad? = null,
     val moldeCm: Int? = null,
+    // v3
+    val origenId: Long? = null,
     val creadaEn: Long = System.currentTimeMillis(),
     val modificadaEn: Long = System.currentTimeMillis()
 )
@@ -41,7 +44,9 @@ data class IngredienteEntity(
     val densidadGramosPorTaza: Double?,
     val esSalOEspecia: Boolean = false,
     val esBasicoDeDespensa: Boolean = false,
-    val unidadHabitual: Unidad = Unidad.GRAMO
+    val unidadHabitual: Unidad = Unidad.GRAMO,
+    // v3: el default tiene que coincidir con el de la migración para que Room valide el esquema.
+    @ColumnInfo(defaultValue = "0") val meses: Int = 0
 )
 
 @Entity(
@@ -90,7 +95,9 @@ data class PasoEntity(
     val recetaId: Long,
     val orden: Int,
     val texto: String,
-    val timerSugeridoSegundos: Int? = null
+    val timerSugeridoSegundos: Int? = null,
+    // v3
+    val fotoPath: String? = null
 )
 
 /** Historial: cada vez que se cocino una receta (v2). Se borra con la receta. */
@@ -112,7 +119,10 @@ data class CocinadaEntity(
     val fechaMillis: Long,
     val estrellas: Int,
     val porciones: Int,
-    val nota: String? = null
+    val nota: String? = null,
+    // v3
+    val fotoPath: String? = null,
+    val audioPath: String? = null
 )
 
 /** Resultado de la consulta agregada del historial por receta. */

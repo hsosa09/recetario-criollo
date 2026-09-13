@@ -35,7 +35,7 @@ class RecetaRepositorio(
 
     suspend fun borrar(id: Long) {
         val foto = recetaDao.obtenerPorId(id)?.receta?.fotoPath
-        recetaDao.borrarReceta(id)
+        recetaDao.borrarConVariantesSueltas(id)
         foto?.let { almacenFotos.borrar(it) }
     }
 
