@@ -1,54 +1,41 @@
 package uy.horacio.recetariocriollo.ui.busqueda
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Kitchen
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.CoincidenciaReceta
+import uy.horacio.recetariocriollo.ui.componentes.BarraProgreso
+import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
+import uy.horacio.recetariocriollo.ui.componentes.BloqueSeccion
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.CabeceraSeccion
+import uy.horacio.recetariocriollo.ui.componentes.ChipRecto
 import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
-import uy.horacio.recetariocriollo.ui.ingredientes.ListaCatalogoIngredientes
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.Rotulo
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
+import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.textoId
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BusquedaPantalla(
     vistaModelo: BusquedaViewModel,
@@ -56,181 +43,152 @@ fun BusquedaPantalla(
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
-    var eligiendo by remember { mutableStateOf(false) }
-    val hojaEstado = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colores = MaterialTheme.colorScheme
+    val porCategoria = estado.ingredientesDeRecetas
+        .groupBy { it.categoria }
+        .toSortedMap(compareBy { it.ordinal })
 
-    Scaffold(
-        modifier = modifier,
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.busqueda_titulo)) }) }
-    ) { relleno ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(relleno)
-        ) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.busqueda_elegir),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    if (estado.seleccionados.isNotEmpty()) {
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            estado.ingredientesElegidos.forEach { ingrediente ->
-                                InputChip(
-                                    selected = true,
-                                    onClick = { vistaModelo.alternar(ingrediente) },
-                                    label = { Text(ingrediente.nombre) }
-                                )
-                            }
-                        }
-                    }
+    Column(modifier = modifier.fillMaxSize()) {
+        BarraSuperior(titulo = stringResource(R.string.busqueda_titulo))
+
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item(key = "cabecera") {
+                BloqueSeccion {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 10.dp)
                     ) {
-                        OutlinedButton(onClick = { eligiendo = true }) {
-                            Icon(Icons.Default.Add, contentDescription = null)
-                            Text(
-                                text = stringResource(R.string.busqueda_seleccionados, estado.seleccionados.size),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        if (estado.seleccionados.isNotEmpty()) {
-                            TextButton(onClick = vistaModelo::limpiar) {
-                                Text(stringResource(R.string.busqueda_limpiar))
-                            }
-                        }
+                        Text(
+                            text = stringResource(R.string.busqueda_elegir),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextoTenue(stringResource(R.string.busqueda_seleccionados, estado.seleccionados.size))
                     }
-                    FilterChip(
-                        selected = estado.asumirBasicos,
-                        onClick = vistaModelo::alternarBasicos,
-                        label = { Text(stringResource(R.string.busqueda_asumir_basicos)) },
-                        leadingIcon = {
-                            if (estado.asumirBasicos) {
-                                Icon(Icons.Default.Check, contentDescription = null)
-                            }
-                        }
-                    )
-                }
-            }
-
-            when {
-                estado.seleccionados.isEmpty() -> EstadoVacio(
-                    icono = Icons.Default.Kitchen,
-                    titulo = stringResource(R.string.busqueda_sin_seleccion)
-                )
-
-                estado.resultados.isEmpty() -> EstadoVacio(
-                    icono = Icons.Default.Kitchen,
-                    titulo = stringResource(R.string.busqueda_sin_resultados)
-                )
-
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(estado.resultados, key = { it.receta.id }) { coincidencia ->
-                        TarjetaCoincidencia(
-                            coincidencia = coincidencia,
-                            alTocar = { alAbrirReceta(coincidencia.receta.id) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ChipRecto(
+                            texto = stringResource(R.string.busqueda_asumir_basicos),
+                            activo = estado.asumirBasicos,
+                            alTocar = vistaModelo::alternarBasicos,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        BotonSecundario(
+                            texto = stringResource(R.string.busqueda_limpiar),
+                            alTocar = vistaModelo::limpiar,
+                            habilitado = estado.seleccionados.isNotEmpty(),
+                            alto = 36.dp
                         )
                     }
                 }
             }
-        }
-    }
 
-    if (eligiendo) {
-        ModalBottomSheet(
-            onDismissRequest = { eligiendo = false },
-            sheetState = hojaEstado
-        ) {
-            ListaCatalogoIngredientes(
-                catalogo = estado.catalogo,
-                seleccionados = estado.seleccionados,
-                alElegir = vistaModelo::alternar,
-                conCasillas = true,
-                modifier = Modifier.heightIn(max = 560.dp)
-            )
-            TextButton(
-                onClick = { eligiendo = false },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) { Text(stringResource(R.string.accion_listo)) }
+            porCategoria.forEach { (categoria, ingredientes) ->
+                item(key = "grupo_${categoria.name}") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fileteAbajo(colores.outline)
+                            .padding(horizontal = MARGEN, vertical = 12.dp)
+                    ) {
+                        Rotulo(
+                            texto = stringResource(categoria.textoId),
+                            color = colores.onBackground.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            ingredientes.forEach { ingrediente ->
+                                ChipRecto(
+                                    texto = ingrediente.nombre,
+                                    activo = ingrediente.id in estado.seleccionados,
+                                    alTocar = { vistaModelo.alternar(ingrediente) }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item(key = "rotulo_resultados") {
+                CabeceraSeccion(
+                    rotulo = stringResource(R.string.busqueda_que_podes),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .fileteArriba(colores.outline, 2.dp)
+                )
+            }
+
+            when {
+                estado.seleccionados.isEmpty() -> item(key = "sin_seleccion") {
+                    EstadoVacio(
+                        titulo = stringResource(R.string.busqueda_sin_seleccion),
+                        modifier = Modifier.fileteArriba(colores.outline)
+                    )
+                }
+
+                estado.resultados.isEmpty() -> item(key = "sin_resultados") {
+                    EstadoVacio(
+                        titulo = stringResource(R.string.busqueda_sin_resultados),
+                        modifier = Modifier.fileteArriba(colores.outline)
+                    )
+                }
+
+                else -> items(estado.resultados, key = { it.receta.id }) { coincidencia ->
+                    FilaCoincidencia(
+                        coincidencia = coincidencia,
+                        alTocar = { alAbrirReceta(coincidencia.receta.id) }
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun TarjetaCoincidencia(
+private fun FilaCoincidencia(
     coincidencia: CoincidenciaReceta,
     alTocar: () -> Unit
 ) {
-    Card(onClick = alTocar, modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = coincidencia.receta.nombre,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = stringResource(R.string.busqueda_coincidencia, coincidencia.porcentaje),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            LinearProgressIndicator(
-                progress = { coincidencia.porcentaje / 100f },
-                modifier = Modifier.fillMaxWidth()
+    val colores = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteArriba(colores.outline)
+            .clickable(role = Role.Button, onClick = alTocar)
+            .padding(horizontal = MARGEN, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = coincidencia.receta.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
             )
             Text(
-                text = stringResource(coincidencia.receta.categoria.textoId),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = stringResource(R.string.busqueda_coincidencia, coincidencia.porcentaje),
+                style = MaterialTheme.typography.titleSmall,
+                color = colores.primary
             )
-            when {
-                coincidencia.sePuedeCocinar -> AssistChip(
-                    onClick = alTocar,
-                    label = { Text(stringResource(R.string.busqueda_completa)) },
-                    leadingIcon = { Icon(Icons.Default.Check, contentDescription = null) }
+        }
+        BarraProgreso(fraccion = coincidencia.porcentaje / 100f)
+        Text(
+            text = when {
+                coincidencia.sePuedeCocinar -> stringResource(R.string.busqueda_completa)
+                coincidencia.faltantes.size == 1 -> stringResource(R.string.busqueda_falta_uno)
+                else -> stringResource(R.string.busqueda_faltan, coincidencia.faltantes.size)
+            },
+            style = MaterialTheme.typography.labelMedium,
+            color = if (coincidencia.sePuedeCocinar) colores.primary else colores.onSurfaceVariant
+        )
+        if (coincidencia.faltantes.isNotEmpty()) {
+            TextoTenue(
+                stringResource(
+                    R.string.busqueda_faltantes,
+                    coincidencia.faltantes.joinToString { it.nombre }
                 )
-
-                coincidencia.faltantes.size == 1 -> Text(
-                    text = stringResource(R.string.busqueda_falta_uno),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                else -> Text(
-                    text = stringResource(R.string.busqueda_faltan, coincidencia.faltantes.size),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            if (coincidencia.faltantes.isNotEmpty()) {
-                Text(
-                    text = stringResource(
-                        R.string.busqueda_faltantes,
-                        coincidencia.faltantes.joinToString { it.nombre }
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            )
         }
     }
 }

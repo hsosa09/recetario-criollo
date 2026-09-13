@@ -35,6 +35,19 @@ data class Cronometro(
     }
 
     companion object {
+        /** Duracion para leer de un vistazo: "25 min", "1 h 15 min", "1 min 30 s". */
+        fun describirDuracion(segundos: Int): String {
+            val seguros = segundos.coerceAtLeast(0)
+            val horas = seguros / 3600
+            val minutos = (seguros % 3600) / 60
+            val resto = seguros % 60
+            return buildList {
+                if (horas > 0) add("$horas h")
+                if (minutos > 0) add("$minutos min")
+                if (resto > 0 || isEmpty()) add("$resto s")
+            }.joinToString(" ")
+        }
+
         /** "07:35" o "1:02:00" cuando pasa de la hora. */
         fun formatearSegundos(segundos: Int): String {
             val seguros = segundos.coerceAtLeast(0)

@@ -1,24 +1,36 @@
 package uy.horacio.recetariocriollo.ui.navegacion
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Kitchen
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -33,6 +45,8 @@ import uy.horacio.recetariocriollo.cronometro.EstadoCronometro
 import uy.horacio.recetariocriollo.ui.Fabricas
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaPantalla
 import uy.horacio.recetariocriollo.ui.busqueda.BusquedaViewModel
+import uy.horacio.recetariocriollo.ui.componentes.Iconos
+import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.conversor.ConversorPantalla
 import uy.horacio.recetariocriollo.ui.conversor.ConversorViewModel
 import uy.horacio.recetariocriollo.ui.cronometro.CronometrosPantalla
@@ -53,10 +67,10 @@ private data class Solapa(
 )
 
 private val SOLAPAS = listOf(
-    Solapa(RutaRecetas, RutaRecetas::class, Icons.AutoMirrored.Filled.MenuBook, R.string.nav_recetas),
-    Solapa(RutaBusqueda, RutaBusqueda::class, Icons.Default.Kitchen, R.string.nav_buscar),
-    Solapa(RutaConversor, RutaConversor::class, Icons.Default.Scale, R.string.nav_conversor),
-    Solapa(RutaCronometros, RutaCronometros::class, Icons.Default.Timer, R.string.nav_timers)
+    Solapa(RutaRecetas, RutaRecetas::class, Iconos.Recetas, R.string.nav_recetas),
+    Solapa(RutaBusqueda, RutaBusqueda::class, Iconos.Tengo, R.string.nav_buscar),
+    Solapa(RutaConversor, RutaConversor::class, Iconos.Conversor, R.string.nav_conversor),
+    Solapa(RutaCronometros, RutaCronometros::class, Iconos.Timer, R.string.nav_timers)
 )
 
 @Composable
@@ -74,33 +88,20 @@ fun NavegacionRecetario(
     val terminados = cronometros.count { it.estado == EstadoCronometro.TERMINADO }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             if (enSolapa) {
-                NavigationBar {
-                    SOLAPAS.forEach { solapa ->
-                        val seleccionada = destino?.hasRoute(solapa.clase) == true
-                        NavigationBarItem(
-                            selected = seleccionada,
-                            onClick = {
-                                controlador.navigate(solapa.ruta) {
-                                    popUpTo(RutaRecetas) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                if (solapa.clase == RutaCronometros::class && (activos + terminados) > 0) {
-                                    BadgedBox(badge = { Badge { Text("${activos + terminados}") } }) {
-                                        Icon(solapa.icono, contentDescription = null)
-                                    }
-                                } else {
-                                    Icon(solapa.icono, contentDescription = null)
-                                }
-                            },
-                            label = { Text(stringResource(solapa.textoId)) }
-                        )
-                    }
-                }
+                BarraSolapas(
+                    alElegir = { solapa ->
+                        controlador.navigate(solapa.ruta) {
+                            popUpTo(RutaRecetas) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    esActual = { solapa -> destino?.hasRoute(solapa.clase) == true },
+                    cantidadTimers = activos + terminados
+                )
             }
         }
     ) { relleno ->
@@ -110,6 +111,7 @@ fun NavegacionRecetario(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(relleno)
+                .consumeWindowInsets(relleno)
         ) {
             composable<RutaRecetas> {
                 val vistaModelo: ListaRecetasViewModel = viewModel(factory = Fabricas.Factory)
@@ -164,3 +166,72 @@ fun NavegacionRecetario(
         }
     }
 }
+
+/**
+ * Barra inferior del prototipo: texto e icono alineados a la izquierda, filete de
+ * 3 dp en acento sobre la solapa activa y globo cuadrado con los timers vivos.
+ */
+@Composable
+private fun BarraSolapas(
+    alElegir: (Solapa) -> Unit,
+    esActual: (Solapa) -> Boolean,
+    cantidadTimers: Int
+) {
+    val colores = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colores.background)
+            .fileteArriba(colores.outline, 2.dp)
+            .navigationBarsPadding()
+            .height(62.dp)
+    ) {
+        SOLAPAS.forEachIndexed { indice, solapa ->
+            val activa = esActual(solapa)
+            val tinta = if (activa) colores.primary else colores.onBackground.copy(alpha = 0.6f)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .fileteArriba(if (activa) colores.primary else Color.Transparent, 3.dp)
+                    .semantics { selected = activa }
+                    .clickable(role = Role.Tab) { alElegir(solapa) }
+                    .padding(horizontal = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Icon(solapa.icono, contentDescription = null, tint = tinta, modifier = Modifier.size(21.dp))
+                    if (solapa.clase == RutaCronometros::class && cantidadTimers > 0) {
+                        Box(
+                            modifier = Modifier
+                                .background(colores.primary)
+                                .padding(horizontal = 4.dp, vertical = 2.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = cantidadTimers.toString(),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, letterSpacing = 0.sp),
+                                color = colores.onPrimary
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = stringResource(solapa.textoId),
+                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = (-0.01).sp),
+                    color = tinta,
+                    maxLines = 1
+                )
+            }
+            if (indice < SOLAPAS.lastIndex) {
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight()
+                        .background(colores.outline)
+                )
+            }
+        }
+    }
+}
+

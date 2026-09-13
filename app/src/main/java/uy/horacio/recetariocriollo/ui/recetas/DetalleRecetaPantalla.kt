@@ -1,48 +1,30 @@
 package uy.horacio.recetariocriollo.ui.recetas
 
 import android.view.WindowManager
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -52,12 +34,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
@@ -67,9 +48,25 @@ import uy.horacio.recetariocriollo.dominio.CantidadEscalada
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
+import uy.horacio.recetariocriollo.ui.componentes.AvisoRecetario
+import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
+import uy.horacio.recetariocriollo.ui.componentes.BloqueSeccion
+import uy.horacio.recetariocriollo.ui.componentes.BotonIcono
+import uy.horacio.recetariocriollo.ui.componentes.BotonPrimario
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.BotonTexto
+import uy.horacio.recetariocriollo.ui.componentes.CabeceraSeccion
+import uy.horacio.recetariocriollo.ui.componentes.Etiqueta
+import uy.horacio.recetariocriollo.ui.componentes.Iconos
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.Rotulo
+import uy.horacio.recetariocriollo.ui.componentes.Stepper
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
+import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.textoId
+import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleRecetaPantalla(
     vistaModelo: DetalleRecetaViewModel,
@@ -82,6 +79,7 @@ fun DetalleRecetaPantalla(
     var pidiendoBorrar by remember { mutableStateOf(false) }
     val avisos = remember { SnackbarHostState() }
     val alcance = rememberCoroutineScope()
+    val colores = MaterialTheme.colorScheme
 
     // Modo cocina: la pantalla no se apaga mientras se cocina con las manos ocupadas.
     val contexto = LocalContext.current
@@ -97,39 +95,34 @@ fun DetalleRecetaPantalla(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(avisos) },
+        containerColor = colores.background,
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(avisos) { AvisoRecetario(it) } },
         topBar = {
-            TopAppBar(
-                title = { Text(receta?.nombre.orEmpty(), maxLines = 1) },
-                navigationIcon = {
-                    IconButton(onClick = alVolver) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.accion_volver))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = vistaModelo::alternarModoCocina) {
-                        Icon(
-                            imageVector = Icons.Default.Visibility,
-                            contentDescription = stringResource(R.string.detalle_modo_cocina),
-                            tint = if (estado.modoCocina) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(onClick = vistaModelo::alternarFavorita) {
-                        Icon(
-                            imageVector = if (receta?.esFavorita == true) Icons.Default.Favorite
-                            else Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(R.string.receta_marcar_favorita)
-                        )
-                    }
-                    IconButton(onClick = { receta?.let { alEditar(it.id) } }) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.accion_editar))
-                    }
-                    IconButton(onClick = { pidiendoBorrar = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.accion_borrar))
-                    }
-                }
-            )
+            BarraSuperior(
+                titulo = receta?.nombre.orEmpty(),
+                alVolver = alVolver,
+                descripcionVolver = stringResource(R.string.accion_volver)
+            ) {
+                BotonIcono(
+                    icono = Iconos.Llama,
+                    descripcion = stringResource(R.string.detalle_modo_cocina),
+                    alTocar = vistaModelo::alternarModoCocina,
+                    color = if (estado.modoCocina) colores.primary else colores.onBackground
+                )
+                BotonIcono(
+                    icono = if (receta?.esFavorita == true) Iconos.CorazonLleno else Iconos.CorazonVacio,
+                    descripcion = stringResource(R.string.receta_marcar_favorita),
+                    alTocar = vistaModelo::alternarFavorita,
+                    color = if (receta?.esFavorita == true) colores.primary else colores.onBackground
+                )
+                BotonIcono(
+                    icono = Iconos.Editar,
+                    descripcion = stringResource(R.string.accion_editar),
+                    alTocar = { receta?.let { alEditar(it.id) } },
+                    tamanioIcono = 20.dp
+                )
+            }
         }
     ) { relleno ->
         if (receta == null) {
@@ -144,90 +137,102 @@ fun DetalleRecetaPantalla(
             return@Scaffold
         }
 
-        val escalaTexto = if (estado.modoCocina) 1.25f else 1f
+        // En modo cocina todo el texto de lectura crece un 25 %.
+        val escala = if (estado.modoCocina) 1.25f else 1f
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(relleno),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(relleno)
         ) {
-            receta.fotoPath?.let { ruta ->
-                item {
-                    AsyncImage(
-                        model = ruta,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-                }
+            item(key = "portada") {
+                Portada(nombre = receta.nombre, fotoPath = receta.fotoPath)
             }
 
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(stringResource(receta.categoria.textoId)) },
-                        leadingIcon = { Icon(Icons.Default.Restaurant, contentDescription = null) }
+            item(key = "cabecera") {
+                BloqueSeccion {
+                    Text(
+                        text = receta.nombre,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    receta.tiempoLegible?.let { tiempo ->
-                        AssistChip(
-                            onClick = {},
-                            label = { Text(tiempo) },
-                            leadingIcon = { Icon(Icons.Default.Timer, contentDescription = null) }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Etiqueta(stringResource(receta.categoria.textoId), acento = true)
+                        receta.tiempoLegible?.let { Etiqueta(it) }
+                        Etiqueta(stringResource(R.string.receta_porciones, receta.porcionesBase))
+                    }
+                    if (estado.modoCocina) {
+                        TextoTenue(
+                            texto = stringResource(R.string.detalle_modo_cocina_activo),
+                            modifier = Modifier.padding(top = 10.dp)
                         )
                     }
                 }
             }
 
-            item {
-                SelectorPorciones(
-                    porciones = estado.porciones,
-                    porcionesBase = receta.porcionesBase,
-                    estaEscalada = estado.estaEscalada,
-                    alCambiar = vistaModelo::cambiarPorciones,
-                    alRestaurar = vistaModelo::restaurarPorciones
-                )
+            item(key = "porciones") {
+                BloqueSeccion {
+                    Rotulo(stringResource(R.string.detalle_porciones), modifier = Modifier.padding(bottom = 10.dp))
+                    Stepper(
+                        valor = estado.porciones.toString(),
+                        alRestar = { vistaModelo.cambiarPorciones(estado.porciones - 1) },
+                        alSumar = { vistaModelo.cambiarPorciones(estado.porciones + 1) },
+                        descripcionRestar = stringResource(R.string.detalle_menos_porciones),
+                        descripcionSumar = stringResource(R.string.detalle_mas_porciones),
+                        puedeRestar = estado.porciones > 1
+                    )
+                    TextoTenue(
+                        texto = if (estado.estaEscalada) {
+                            stringResource(R.string.detalle_cantidades_ajustadas, estado.porciones)
+                        } else {
+                            stringResource(R.string.detalle_receta_original, receta.porcionesBase)
+                        },
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                    if (estado.estaEscalada) {
+                        BotonTexto(
+                            texto = stringResource(R.string.detalle_restaurar),
+                            alTocar = vistaModelo::restaurarPorciones
+                        )
+                    }
+                }
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.detalle_ingredientes),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            item(key = "rotulo_ingredientes") {
+                CabeceraSeccion(stringResource(R.string.detalle_ingredientes))
             }
 
             if (estado.ingredientes.isEmpty()) {
-                item { Text(stringResource(R.string.detalle_sin_ingredientes)) }
+                item { TextoVacioSeccion(stringResource(R.string.detalle_sin_ingredientes)) }
             }
 
             items(estado.ingredientes, key = { "ingrediente_${it.ingrediente.id}" }) { escalado ->
-                FilaIngredienteEscalado(escalado = escalado, escalaTexto = escalaTexto)
+                FilaIngredienteEscalado(
+                    escalado = escalado,
+                    estaEscalada = estado.estaEscalada,
+                    escala = escala
+                )
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.detalle_preparacion),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
+            item(key = "rotulo_pasos") {
+                CabeceraSeccion(
+                    rotulo = stringResource(R.string.detalle_preparacion),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .fileteArriba(colores.outline, 2.dp)
+                        .padding(top = 2.dp)
                 )
             }
 
             if (receta.pasos.isEmpty()) {
-                item { Text(stringResource(R.string.detalle_sin_pasos)) }
+                item { TextoVacioSeccion(stringResource(R.string.detalle_sin_pasos)) }
             }
 
             itemsIndexed(receta.pasos, key = { _, paso -> "paso_${paso.id}" }) { indice, paso ->
-                TarjetaPaso(
+                FilaPaso(
                     numero = indice + 1,
                     paso = paso,
-                    escalaTexto = escalaTexto,
+                    escala = escala,
                     alArrancarTimer = { segundos ->
                         val etiqueta = vistaModelo.arrancarTimerDePaso(indice + 1, segundos)
                         alcance.launch {
@@ -240,25 +245,49 @@ fun DetalleRecetaPantalla(
             }
 
             receta.notas?.takeIf { it.isNotBlank() }?.let { notas ->
-                item {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                        ),
-                        modifier = Modifier.fillMaxWidth()
+                item(key = "notas") {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth()
+                            .fileteArriba(colores.outline, 2.dp)
+                            .padding(horizontal = MARGEN, vertical = 18.dp)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = stringResource(R.string.detalle_notas),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = notas,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = MaterialTheme.typography.bodyLarge.fontSize * escalaTexto
-                            )
-                        }
+                        Rotulo(stringResource(R.string.detalle_notas), modifier = Modifier.padding(bottom = 8.dp))
+                        Text(
+                            text = notas,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 15.sp * escala,
+                                lineHeight = 24.sp * escala
+                            ),
+                            color = colores.onBackground.copy(alpha = 0.8f)
+                        )
                     }
+                }
+            }
+
+            item(key = "acciones") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fileteArriba(colores.outline, 2.dp)
+                        .padding(MARGEN),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    BotonPrimario(
+                        texto = stringResource(
+                            if (estado.modoCocina) R.string.detalle_salir_modo_cocina
+                            else R.string.detalle_entrar_modo_cocina
+                        ),
+                        alTocar = vistaModelo::alternarModoCocina,
+                        icono = Iconos.Llama,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    BotonSecundario(
+                        texto = stringResource(R.string.detalle_borrar_receta),
+                        alTocar = { pidiendoBorrar = true },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -267,161 +296,140 @@ fun DetalleRecetaPantalla(
     if (pidiendoBorrar && receta != null) {
         AlertDialog(
             onDismissRequest = { pidiendoBorrar = false },
-            title = { Text(stringResource(R.string.detalle_borrar_titulo)) },
+            containerColor = colores.background,
+            title = { Text(stringResource(R.string.detalle_borrar_titulo), style = MaterialTheme.typography.headlineSmall) },
             text = { Text(stringResource(R.string.detalle_borrar_mensaje, receta.nombre)) },
             confirmButton = {
                 TextButton(onClick = {
                     pidiendoBorrar = false
                     vistaModelo.borrar(alVolver)
-                }) { Text(stringResource(R.string.accion_borrar)) }
+                }) { Text(stringResource(R.string.accion_borrar), color = colores.primary) }
             },
             dismissButton = {
                 TextButton(onClick = { pidiendoBorrar = false }) {
-                    Text(stringResource(R.string.accion_cancelar))
+                    Text(stringResource(R.string.accion_cancelar), color = colores.onBackground)
                 }
             }
         )
     }
 }
 
+/** Foto a todo el ancho, o la inicial grande sobre bloque neutro. */
 @Composable
-private fun SelectorPorciones(
-    porciones: Int,
-    porcionesBase: Int,
-    estaEscalada: Boolean,
-    alCambiar: (Int) -> Unit,
-    alRestaurar: () -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.detalle_porciones),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f)
-                )
-                FilledTonalIconButton(
-                    onClick = { alCambiar(porciones - 1) },
-                    enabled = porciones > 1,
-                    modifier = Modifier.size(52.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Remove,
-                        contentDescription = stringResource(R.string.detalle_menos_porciones)
-                    )
-                }
-                Text(
-                    text = porciones.toString(),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold
-                )
-                FilledTonalIconButton(
-                    onClick = { alCambiar(porciones + 1) },
-                    modifier = Modifier.size(52.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = stringResource(R.string.detalle_mas_porciones)
-                    )
-                }
-            }
-            if (estaEscalada) {
-                Text(
-                    text = stringResource(R.string.detalle_receta_original, porcionesBase),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                TextButton(onClick = alRestaurar) {
-                    Text(stringResource(R.string.detalle_restaurar))
-                }
-            }
+private fun Portada(nombre: String, fotoPath: String?) {
+    val extra = RecetarioTema.extra
+    val filete = MaterialTheme.colorScheme.outline
+    if (fotoPath != null) {
+        AsyncImage(
+            model = fotoPath,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .fileteAbajo(filete, 2.dp)
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(172.dp)
+                .background(extra.marcador)
+                .fileteAbajo(filete, 2.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = nombre.take(1).uppercase(),
+                style = MaterialTheme.typography.displaySmall.copy(fontSize = 76.sp, lineHeight = 76.sp),
+                color = extra.textoMarcador
+            )
         }
     }
 }
 
 @Composable
-private fun FilaIngredienteEscalado(escalado: CantidadEscalada, escalaTexto: Float) {
+private fun TextoVacioSeccion(texto: String) {
+    TextoTenue(
+        texto = texto,
+        estilo = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(horizontal = MARGEN, vertical = 10.dp)
+    )
+}
+
+@Composable
+private fun FilaIngredienteEscalado(
+    escalado: CantidadEscalada,
+    estaEscalada: Boolean,
+    escala: Float
+) {
     val item = escalado.ingrediente
+    val detalle = buildList {
+        item.aclaracion?.let { add(it) }
+        if (item.unidad == Unidad.A_GUSTO) add(stringResource(R.string.detalle_a_gusto))
+        if (estaEscalada && item.regla == ReglaEscalado.FIJA) add(stringResource(R.string.detalle_no_escala))
+        if (estaEscalada && item.regla == ReglaEscalado.ATENUADA) add(stringResource(R.string.detalle_ajuste_suave))
+        if (estaEscalada && escalado.redondeada) add(stringResource(R.string.detalle_redondeado_corto))
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.Top
+            .fileteArriba(MaterialTheme.colorScheme.outline)
+            .padding(horizontal = MARGEN, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = if (item.unidad == Unidad.A_GUSTO) "" else escalado.texto,
-            style = MaterialTheme.typography.titleMedium,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize * escalaTexto,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.widthIn(min = 96.dp, max = 168.dp)
+            text = if (item.unidad == Unidad.A_GUSTO) "—" else escalado.texto,
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = 15.sp * escala),
+            modifier = Modifier.widthIn(min = 86.dp * escala, max = 150.dp * escala)
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = buildString {
-                    append(item.ingrediente.nombre)
-                    if (item.unidad == Unidad.A_GUSTO) append(" (a gusto)")
-                    item.aclaracion?.let { append(", $it") }
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize * escalaTexto
+                text = item.ingrediente.nombre,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp * escala, lineHeight = 20.sp * escala)
             )
-            val nota = when {
-                item.regla == ReglaEscalado.FIJA -> stringResource(R.string.detalle_no_escala)
-                item.regla == ReglaEscalado.ATENUADA -> stringResource(R.string.detalle_ajuste_suave)
-                else -> null
-            }
-            if (nota != null) {
-                Text(
-                    text = nota,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            if (detalle.isNotEmpty()) {
+                TextoTenue(detalle.joinToString(" · "))
             }
         }
     }
 }
 
 @Composable
-private fun TarjetaPaso(
+private fun FilaPaso(
     numero: Int,
     paso: PasoPreparacion,
-    escalaTexto: Float,
+    escala: Float,
     alArrancarTimer: (Int) -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteArriba(MaterialTheme.colorScheme.outline)
+            .padding(horizontal = MARGEN, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.detalle_paso_numero, numero),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+        Text(
+            text = numero.toString(),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp * escala),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.width(26.dp * escala)
+        )
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = paso.texto,
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize * escalaTexto
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 15.sp * escala,
+                    lineHeight = 22.5.sp * escala
+                )
             )
             paso.timerSugeridoSegundos?.let { segundos ->
-                TextButton(onClick = { alArrancarTimer(segundos) }) {
-                    Icon(Icons.Default.Timer, contentDescription = null)
-                    Text(
-                        text = stringResource(
-                            R.string.detalle_arrancar_timer,
-                            Cronometro.formatearSegundos(segundos)
-                        ),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+                Spacer(Modifier.height(8.dp))
+                BotonSecundario(
+                    texto = stringResource(R.string.detalle_arrancar_timer, Cronometro.describirDuracion(segundos)),
+                    alTocar = { alArrancarTimer(segundos) },
+                    icono = Iconos.Timer,
+                    alto = 36.dp
+                )
             }
         }
     }

@@ -24,8 +24,9 @@
     <string name="lista_buscar">Buscar receta</string>
     <string name="lista_solo_favoritas">Solo favoritas</string>
     <string name="lista_vacia_titulo">Todavía no hay recetas</string>
-    <string name="lista_vacia_detalle">Tocá el botón de abajo y cargá la primera.</string>
-    <string name="lista_sin_resultados">Ninguna receta coincide con el filtro.</string>
+    <string name="lista_vacia_detalle">Tocá «Nueva receta» arriba y cargá la primera.</string>
+    <string name="lista_sin_resultados">Ninguna receta coincide</string>
+    <string name="lista_sin_resultados_detalle">Probá con otro filtro o cargá una nueva.</string>
     <string name="lista_nueva_receta">Nueva receta</string>
     <string name="filtro_todas">Todas</string>
     <string name="receta_porciones">%1$d porciones</string>
@@ -47,8 +48,13 @@
     <string name="detalle_borrar_mensaje">Se borra «%1$s» con sus ingredientes y pasos. No se puede deshacer.</string>
     <string name="detalle_modo_cocina">Modo cocina</string>
     <string name="detalle_modo_cocina_activo">Modo cocina: pantalla encendida y letra grande</string>
+    <string name="detalle_entrar_modo_cocina">Activar modo cocina</string>
+    <string name="detalle_salir_modo_cocina">Salir del modo cocina</string>
+    <string name="detalle_borrar_receta">Borrar receta</string>
+    <string name="detalle_a_gusto">a gusto</string>
+    <string name="detalle_redondeado_corto">redondeado para poder medirlo</string>
     <string name="detalle_paso_numero">Paso %1$d</string>
-    <string name="detalle_arrancar_timer">Timer %1$s</string>
+    <string name="detalle_arrancar_timer">%1$s</string>
     <string name="detalle_timer_arrancado">Cronómetro arrancado: %1$s</string>
     <string name="detalle_sin_ingredientes">Esta receta no tiene ingredientes cargados.</string>
     <string name="detalle_sin_pasos">Esta receta no tiene pasos cargados.</string>
@@ -73,6 +79,8 @@
     <string name="editor_cambiar_foto">Cambiar foto</string>
     <string name="editor_quitar_foto">Quitar foto</string>
     <string name="editor_ingredientes">Ingredientes</string>
+    <string name="editor_ingredientes_ayuda">del catálogo, nunca texto libre</string>
+    <string name="editor_guardar_receta">Guardar receta</string>
     <string name="editor_agregar_ingrediente">Agregar ingrediente</string>
     <string name="editor_cantidad">Cantidad</string>
     <string name="editor_unidad">Unidad</string>
@@ -101,6 +109,7 @@
     <string name="selector_alta_especia">Es sal, especia o leudante</string>
     <string name="selector_alta_especia_ayuda">Estos escalan atenuado: al doblar las porciones no van al doble.</string>
     <string name="selector_alta_guardar">Agregar al catálogo</string>
+    <string name="selector_densidad_corta">%1$d g por taza</string>
     <string name="selector_ya_existe">Ese ingrediente ya está en el catálogo.</string>
 
     <!-- Búsqueda por ingredientes -->
@@ -116,6 +125,7 @@
     <string name="busqueda_falta_uno">Te falta 1 ingrediente</string>
     <string name="busqueda_faltantes">Falta: %1$s</string>
     <string name="busqueda_coincidencia">%1$d%%</string>
+    <string name="busqueda_que_podes">Qué podés cocinar</string>
 
     <!-- Conversor -->
     <string name="conversor_titulo">Conversor de medidas</string>
@@ -130,31 +140,37 @@
     <string name="conversor_resultado">Resultado</string>
     <string name="conversor_ingrediente">Ingrediente</string>
     <string name="conversor_necesita_densidad">Para pasar de volumen a peso hace falta saber cuánto pesa una taza. Elegí un ingrediente en la pestaña «Por ingrediente».</string>
+    <string name="conversor_elegir_ingrediente">Elegir ingrediente</string>
+    <string name="conversor_cruza_con">Estás cruzando volumen con peso: se usa la densidad de %1$s. Cambialo en «Por ingrediente».</string>
+    <string name="conversor_ingrediente_elegi">Elegí un ingrediente</string>
+    <string name="conversor_ingrediente_ayuda">Con el peso de una taza quedan habilitadas las conversiones de volumen a peso en «Medidas».</string>
+    <string name="conversor_levadura_seca_rotulo">Levadura seca</string>
+    <string name="conversor_gramos">%1$s g</string>
     <string name="conversor_densidad_dato">1 taza de %1$s ≈ %2$s g</string>
     <string name="conversor_sin_densidad">Este ingrediente no tiene el dato de gramos por taza.</string>
     <string name="conversor_equivalencias">Equivalencias que se usan siempre</string>
-    <string name="conversor_horno_celsius">Grados centígrados</string>
-    <string name="conversor_horno_fahrenheit">Grados Fahrenheit</string>
-    <string name="conversor_horno_referencia">En la receta vieja dice</string>
+    <string name="conversor_horno_celsius">Centígrados (°C)</string>
+    <string name="conversor_horno_fahrenheit">Fahrenheit (°F)</string>
+    <string name="conversor_horno_referencia">En la receta vieja</string>
     <string name="conversor_horno_tabla">Tabla de hornos</string>
     <string name="conversor_horno_sugerida">Poné el horno en %1$d °C</string>
     <string name="conversor_horno_fuera_escala">Fuera de las referencias de horno.</string>
     <string name="conversor_levadura_fresca">Levadura fresca (g)</string>
     <string name="conversor_levadura_seca">Levadura seca (g)</string>
-    <string name="conversor_levadura_nota">Regla de la abuela: la levadura seca es un tercio de la fresca.</string>
+    <string name="conversor_levadura_nota">Regla de la abuela: la seca es un tercio de la fresca.</string>
 
     <!-- Cronómetros -->
     <string name="timers_titulo">Cronómetros</string>
     <string name="timers_nuevo">Cronómetro nuevo</string>
     <string name="timers_etiqueta">Etiqueta (torta, salsa…)</string>
-    <string name="timers_minutos">Minutos</string>
-    <string name="timers_segundos">Segundos</string>
+    <string name="timers_minutos">Min</string>
+    <string name="timers_segundos">Seg</string>
     <string name="timers_arrancar">Arrancar</string>
     <string name="timers_vacio">No hay cronómetros andando.</string>
     <string name="timers_vacio_detalle">Elegí un tiempo de arriba o armá uno a medida.</string>
     <string name="timers_pausar">Pausar</string>
     <string name="timers_reanudar">Seguir</string>
-    <string name="timers_reiniciar">Reiniciar</string>
+    <string name="timers_reiniciar">Otra vez</string>
     <string name="timers_quitar">Quitar</string>
     <string name="timers_terminado">¡Listo!</string>
     <string name="timers_mas_minuto">+1 min</string>

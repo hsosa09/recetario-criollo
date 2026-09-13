@@ -3,7 +3,6 @@ package uy.horacio.recetariocriollo.ui.ingredientes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,17 +10,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,11 +24,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
+import uy.horacio.recetariocriollo.ui.componentes.Casilla
+import uy.horacio.recetariocriollo.ui.componentes.Iconos
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.Rotulo
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
+import uy.horacio.recetariocriollo.ui.componentes.fileteArriba
 import uy.horacio.recetariocriollo.ui.textoId
 
 /**
@@ -67,25 +69,20 @@ fun ListaCatalogoIngredientes(
     }
 
     Column(modifier = modifier) {
-        OutlinedTextField(
-            value = filtro,
-            onValueChange = { filtro = it },
-            label = { Text(stringResource(R.string.selector_filtro)) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+        CampoTexto(
+            valor = filtro,
+            alCambiar = { filtro = it },
+            marcador = stringResource(R.string.selector_filtro),
+            modifier = Modifier.padding(horizontal = MARGEN, vertical = 10.dp)
         )
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             if (visibles.isEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.selector_sin_resultados),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(24.dp)
+                    TextoTenue(
+                        texto = stringResource(R.string.selector_sin_resultados),
+                        estilo = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(horizontal = MARGEN, vertical = 20.dp)
                     )
                 }
             }
@@ -104,18 +101,14 @@ fun ListaCatalogoIngredientes(
             }
             if (alCrearNuevo != null) {
                 item {
-                    TextButton(
-                        onClick = { alCrearNuevo(filtro.trim()) },
+                    BotonSecundario(
+                        texto = stringResource(R.string.selector_crear, filtro.trim()),
+                        alTocar = { alCrearNuevo(filtro.trim()) },
+                        icono = Iconos.Mas,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
-                        Text(
-                            text = stringResource(R.string.selector_crear, filtro.trim()),
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                            .padding(MARGEN)
+                    )
                 }
             }
         }
@@ -124,18 +117,15 @@ fun ListaCatalogoIngredientes(
 
 @Composable
 private fun CabeceraCategoria(categoria: CategoriaIngrediente) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .fileteAbajo(MaterialTheme.colorScheme.outline)
+            .padding(horizontal = MARGEN)
+            .padding(top = 12.dp, bottom = 8.dp)
     ) {
-        Text(
-            text = stringResource(categoria.textoId),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Rotulo(stringResource(categoria.textoId))
     }
 }
 
@@ -149,19 +139,22 @@ private fun FilaIngrediente(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = alTocar)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .fileteAbajo(MaterialTheme.colorScheme.outline)
+            .clickable(role = if (conCasilla) Role.Checkbox else Role.Button, onClick = alTocar)
+            .heightIn(min = 48.dp)
+            .padding(horizontal = MARGEN, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (conCasilla) {
-            Checkbox(checked = marcado, onCheckedChange = { alTocar() })
-        }
+        if (conCasilla) Casilla(marcada = marcado)
         Text(
             text = ingrediente.nombre,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
+        ingrediente.densidadGramosPorTaza?.let { gramos ->
+            TextoTenue(stringResource(R.string.selector_densidad_corta, gramos.toInt()))
+        }
     }
 }
 
@@ -175,11 +168,11 @@ fun HojaSelectorIngrediente(
     alCrearNuevo: (String) -> Unit
 ) {
     val estado = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = alCerrar, sheetState = estado) {
+    HojaRecetario(estado = estado, alCerrar = alCerrar) {
         Text(
             text = stringResource(R.string.selector_titulo),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(horizontal = MARGEN).padding(top = 18.dp)
         )
         ListaCatalogoIngredientes(
             catalogo = catalogo,
@@ -188,6 +181,29 @@ fun HojaSelectorIngrediente(
             conCasillas = false,
             alCrearNuevo = alCrearNuevo,
             modifier = Modifier.heightIn(max = 560.dp)
+        )
+    }
+}
+
+/** Hoja inferior del sistema: recta, con filete de tinta arriba y sin manija. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HojaRecetario(
+    estado: androidx.compose.material3.SheetState,
+    alCerrar: () -> Unit,
+    contenido: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = alCerrar,
+        sheetState = estado,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.background,
+        scrimColor = BottomSheetDefaults.ScrimColor,
+        dragHandle = null
+    ) {
+        Column(
+            modifier = Modifier.fileteArriba(MaterialTheme.colorScheme.onBackground, 2.dp),
+            content = contenido
         )
     }
 }

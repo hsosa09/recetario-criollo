@@ -1,5 +1,6 @@
 package uy.horacio.recetariocriollo.ui.recetas
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,37 +14,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import uy.horacio.recetariocriollo.R
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
+import uy.horacio.recetariocriollo.ui.componentes.BarraSuperior
+import uy.horacio.recetariocriollo.ui.componentes.BotonIcono
+import uy.horacio.recetariocriollo.ui.componentes.BotonSecundario
+import uy.horacio.recetariocriollo.ui.componentes.CampoTexto
+import uy.horacio.recetariocriollo.ui.componentes.ChipRecto
+import uy.horacio.recetariocriollo.ui.componentes.EstadoVacio
+import uy.horacio.recetariocriollo.ui.componentes.Iconos
+import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
+import uy.horacio.recetariocriollo.ui.componentes.fileteAbajo
 import uy.horacio.recetariocriollo.ui.textoId
+import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
 
 @Composable
 fun ListaRecetasPantalla(
@@ -53,188 +51,162 @@ fun ListaRecetasPantalla(
     modifier: Modifier = Modifier
 ) {
     val estado by vistaModelo.estado.collectAsStateWithLifecycle()
+    val filete = MaterialTheme.colorScheme.outline
 
-    Scaffold(
-        modifier = modifier,
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = alCrearReceta,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text(stringResource(R.string.lista_nueva_receta)) }
+    Column(modifier = modifier.fillMaxSize()) {
+        BarraSuperior(titulo = stringResource(R.string.lista_titulo)) {
+            BotonSecundario(
+                texto = stringResource(R.string.lista_nueva_receta),
+                alTocar = alCrearReceta,
+                icono = Iconos.Mas,
+                alto = 36.dp
             )
         }
-    ) { relleno ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(relleno)
-        ) {
-            OutlinedTextField(
-                value = estado.texto,
-                onValueChange = vistaModelo::cambiarTexto,
-                label = { Text(stringResource(R.string.lista_buscar)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
 
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    FilterChip(
-                        selected = estado.soloFavoritas,
-                        onClick = vistaModelo::alternarSoloFavoritas,
-                        label = { Text(stringResource(R.string.lista_solo_favoritas)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = if (estado.soloFavoritas) Icons.Default.Favorite
-                                else Icons.Default.FavoriteBorder,
-                                contentDescription = null
-                            )
-                        }
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = estado.categoria == null,
-                        onClick = { vistaModelo.cambiarCategoria(null) },
-                        label = { Text(stringResource(R.string.filtro_todas)) }
-                    )
-                }
-                items(estado.categoriasDisponibles) { categoria ->
-                    FilterChip(
-                        selected = estado.categoria == categoria,
-                        onClick = {
-                            vistaModelo.cambiarCategoria(
-                                if (estado.categoria == categoria) null else categoria
-                            )
-                        },
-                        label = { Text(stringResource(categoria.textoId)) }
-                    )
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item(key = "buscador") {
+                CampoTexto(
+                    valor = estado.texto,
+                    alCambiar = vistaModelo::cambiarTexto,
+                    marcador = stringResource(R.string.lista_buscar),
+                    alto = 42.dp,
+                    modifier = Modifier.padding(start = MARGEN, end = MARGEN, top = 14.dp, bottom = 10.dp)
+                )
+            }
+
+            item(key = "filtros") {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = MARGEN),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fileteAbajo(filete, 2.dp)
+                        .padding(bottom = 12.dp)
+                ) {
+                    item {
+                        ChipRecto(
+                            texto = stringResource(R.string.lista_solo_favoritas),
+                            activo = estado.soloFavoritas,
+                            alTocar = vistaModelo::alternarSoloFavoritas
+                        )
+                    }
+                    item {
+                        ChipRecto(
+                            texto = stringResource(R.string.filtro_todas),
+                            activo = estado.categoria == null,
+                            alTocar = { vistaModelo.cambiarCategoria(null) }
+                        )
+                    }
+                    items(estado.categoriasDisponibles) { categoria ->
+                        ChipRecto(
+                            texto = stringResource(categoria.textoId),
+                            activo = estado.categoria == categoria,
+                            alTocar = {
+                                vistaModelo.cambiarCategoria(
+                                    if (estado.categoria == categoria) null else categoria
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
             if (estado.recetas.isEmpty() && !estado.cargando) {
-                uy.horacio.recetariocriollo.ui.componentes.EstadoVacio(
-                    icono = Icons.AutoMirrored.Filled.MenuBook,
-                    titulo = if (estado.hayRecetasCargadas) {
-                        stringResource(R.string.lista_sin_resultados)
-                    } else {
-                        stringResource(R.string.lista_vacia_titulo)
-                    },
-                    detalle = if (estado.hayRecetasCargadas) null
-                    else stringResource(R.string.lista_vacia_detalle)
-                )
-            }
-
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(estado.recetas, key = { it.id }) { receta ->
-                    TarjetaReceta(
-                        receta = receta,
-                        alTocar = { alAbrirReceta(receta.id) },
-                        alAlternarFavorita = { vistaModelo.alternarFavorita(receta) }
+                item(key = "vacio") {
+                    EstadoVacio(
+                        titulo = if (estado.hayRecetasCargadas) {
+                            stringResource(R.string.lista_sin_resultados)
+                        } else {
+                            stringResource(R.string.lista_vacia_titulo)
+                        },
+                        detalle = if (estado.hayRecetasCargadas) stringResource(R.string.lista_sin_resultados_detalle)
+                        else stringResource(R.string.lista_vacia_detalle)
                     )
                 }
+            }
+
+            items(estado.recetas, key = { it.id }) { receta ->
+                FilaReceta(
+                    receta = receta,
+                    alTocar = { alAbrirReceta(receta.id) },
+                    alAlternarFavorita = { vistaModelo.alternarFavorita(receta) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TarjetaReceta(
+private fun FilaReceta(
     receta: Receta,
     alTocar: () -> Unit,
     alAlternarFavorita: () -> Unit
 ) {
-    Card(
-        onClick = alTocar,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+    val colores = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fileteAbajo(colores.outline)
+            .clickable(role = Role.Button, onClick = alTocar)
+            .padding(start = MARGEN, end = 8.dp, top = 12.dp, bottom = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        MiniaturaReceta(receta = receta, lado = 78.dp)
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = receta.nombre,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            TextoTenue(texto = metaDeReceta(receta))
+        }
+
+        BotonIcono(
+            icono = if (receta.esFavorita) Iconos.CorazonLleno else Iconos.CorazonVacio,
+            descripcion = stringResource(
+                if (receta.esFavorita) R.string.receta_quitar_favorita
+                else R.string.receta_marcar_favorita
+            ),
+            alTocar = alAlternarFavorita,
+            color = if (receta.esFavorita) colores.primary else colores.onBackground.copy(alpha = 0.45f),
+            tamanioIcono = 19.dp
+        )
+    }
+}
+
+/** "Postres · 8 porciones · 1 h", la linea de datos que acompania al nombre. */
+@Composable
+fun metaDeReceta(receta: Receta): String {
+    val categoria = stringResource(receta.categoria.textoId)
+    val porciones = stringResource(R.string.receta_porciones, receta.porcionesBase)
+    return listOfNotNull(categoria, porciones, receta.tiempoLegible).joinToString(" · ")
+}
+
+/** Foto de la receta, o su inicial sobre un bloque neutro cuando no tiene. */
+@Composable
+fun MiniaturaReceta(receta: Receta, lado: Dp, modifier: Modifier = Modifier) {
+    val extra = RecetarioTema.extra
+    if (receta.fotoPath != null) {
+        AsyncImage(
+            model = receta.fotoPath,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = modifier.size(lado)
+        )
+    } else {
+        Box(
+            modifier = modifier
+                .size(lado)
+                .background(extra.marcador),
+            contentAlignment = Alignment.Center
         ) {
-            if (receta.fotoPath != null) {
-                AsyncImage(
-                    model = receta.fotoPath,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(onClick = alTocar),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = receta.nombre,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    text = stringResource(receta.categoria.textoId),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.receta_porciones, receta.porcionesBase),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    receta.tiempoLegible?.let { tiempo ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(text = tiempo, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            }
-
-            IconButton(onClick = alAlternarFavorita) {
-                Icon(
-                    imageVector = if (receta.esFavorita) Icons.Default.Favorite
-                    else Icons.Default.FavoriteBorder,
-                    contentDescription = stringResource(
-                        if (receta.esFavorita) R.string.receta_quitar_favorita
-                        else R.string.receta_marcar_favorita
-                    ),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = receta.nombre.take(1).uppercase(),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = (lado.value * 0.44f).sp),
+                color = extra.textoMarcador
+            )
         }
     }
 }
