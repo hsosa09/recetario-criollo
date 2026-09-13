@@ -1,7 +1,12 @@
 package uy.horacio.recetariocriollo.ui.cocina
 
 import android.view.WindowManager
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
+import androidx.core.content.ContextCompat
+import uy.horacio.recetariocriollo.dominio.NotaDeVoz
+import uy.horacio.recetariocriollo.ui.componentes.ReproductorNota
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -339,8 +344,14 @@ fun CocinaPantalla(
 
             if (preguntando) {
                 val foto by vistaModelo.fotoResultado.collectAsStateWithLifecycle()
+                val audio by vistaModelo.audioResultado.collectAsStateWithLifecycle()
+                val msGrabando by vistaModelo.msGrabando.collectAsStateWithLifecycle()
                 HojaComoSalio(
                     foto = foto,
+                    audio = audio,
+                    msGrabando = msGrabando,
+                    alAlternarGrabacion = vistaModelo::alternarGrabacion,
+                    alQuitarAudio = vistaModelo::descartarAudio,
                     nuevoArchivoCamara = vistaModelo::archivoParaCamara,
                     alElegirFoto = { uri, alTerminar -> vistaModelo.usarFotoResultado(uri, alTerminar) },
                     alQuitarFoto = vistaModelo::descartarFotoResultado,
@@ -351,6 +362,7 @@ fun CocinaPantalla(
                     alSaltar = {
                         preguntando = false
                         vistaModelo.descartarFotoResultado()
+                        vistaModelo.descartarAudio()
                         alTerminar()
                     },
                     alCerrar = { preguntando = false }
@@ -394,6 +406,10 @@ private fun PantallaEncendidaYBarrasOscuras(claroAfuera: Boolean) {
 @Composable
 private fun HojaComoSalio(
     foto: String?,
+    audio: String?,
+    msGrabando: Long?,
+    alAlternarGrabacion: () -> Boolean,
+    alQuitarAudio: () -> Unit,
     nuevoArchivoCamara: () -> java.io.File,
     alElegirFoto: (android.net.Uri, alTerminar: () -> Unit) -> Unit,
     alQuitarFoto: () -> Unit,
@@ -416,6 +432,11 @@ private fun HojaComoSalio(
             if (sacada && archivo.length() > 0) alElegirFoto(android.net.Uri.fromFile(archivo)) { archivo.delete() }
             else archivo.delete()
         }
+    }
+    var sinMicrofono by rememberSaveable { mutableStateOf(false) }
+    val pedirMicrofono = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { concedido ->
+        sinMicrofono = !concedido
+        if (concedido) sinMicrofono = !alAlternarGrabacion()
     }
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let { alElegirFoto(it) {} }
@@ -466,6 +487,34 @@ private fun HojaComoSalio(
                 )
                 if (foto != null) BotonTexto(texto = stringResource(R.string.accion_quitar), alTocar = alQuitarFoto)
             }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                when {
+                    msGrabando != null -> {
+                        BotonPrimario(
+                            texto = stringResource(R.string.nota_detener, NotaDeVoz.formatear(msGrabando)),
+                            alto = 40.dp,
+                            alTocar = { alAlternarGrabacion() }
+                        )
+                    }
+                    audio != null -> {
+                        ReproductorNota(ruta = audio)
+                        BotonTexto(texto = stringResource(R.string.accion_quitar), alTocar = alQuitarAudio)
+                    }
+                    else -> BotonSecundario(
+                        texto = stringResource(R.string.nota_grabar),
+                        icono = Iconos.Microfono,
+                        alto = 40.dp,
+                        alTocar = {
+                            val permitido = ContextCompat.checkSelfPermission(contexto, Manifest.permission.RECORD_AUDIO) ==
+                                PackageManager.PERMISSION_GRANTED
+                            if (permitido) sinMicrofono = !alAlternarGrabacion()
+                            else pedirMicrofono.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    )
+                }
+            }
+            if (msGrabando != null) BarraProgreso(fraccion = NotaDeVoz.progreso(msGrabando), alto = 3.dp)
+            if (sinMicrofono) TextoTenue(stringResource(R.string.nota_sin_microfono))
             CampoTexto(
                 valor = nota,
                 alCambiar = { nota = it },

@@ -67,6 +67,7 @@ import uy.horacio.recetariocriollo.ui.componentes.CabeceraSeccion
 import uy.horacio.recetariocriollo.ui.componentes.Etiqueta
 import uy.horacio.recetariocriollo.ui.componentes.Iconos
 import uy.horacio.recetariocriollo.ui.componentes.MARGEN
+import uy.horacio.recetariocriollo.ui.componentes.ReproductorNota
 import uy.horacio.recetariocriollo.ui.componentes.Rotulo
 import uy.horacio.recetariocriollo.ui.componentes.Stepper
 import uy.horacio.recetariocriollo.ui.componentes.TextoTenue
@@ -545,6 +546,7 @@ private fun BloqueComoTeSalio(
                 cocinada.nota?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp), modifier = Modifier.padding(top = 3.dp))
                 }
+                cocinada.audioPath?.let { ruta -> ReproductorNota(ruta = ruta, modifier = Modifier.padding(top = 6.dp)) }
                 cocinada.fotoPath?.let { ruta ->
                     AsyncImage(
                         model = ruta,

@@ -100,6 +100,12 @@
     <string name="como_salio_sacar_foto">Sacar foto</string>
     <string name="como_salio_otra_foto">Otra foto</string>
     <string name="como_salio_elegir_foto">Galería</string>
+    <string name="nota_grabar">Nota de voz</string>
+    <string name="nota_detener">Detener · %1$s</string>
+    <string name="nota_escuchar">Escuchar la nota de voz</string>
+    <string name="nota_pausar">Pausar la nota de voz</string>
+    <string name="nota_de_voz">Nota de voz · %1$s</string>
+    <string name="nota_sin_microfono">No se pudo usar el micrófono. Podés escribir la nota.</string>
     <string name="como_salio_nota">¿Qué cambiarías la próxima?</string>
     <string name="como_salio_nota_ejemplo">Menos sal, 10 minutos más de horno…</string>
     <string name="como_salio_guardar">Guardar en el historial</string>

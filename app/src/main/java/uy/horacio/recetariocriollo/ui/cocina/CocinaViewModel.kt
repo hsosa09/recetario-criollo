@@ -13,7 +13,9 @@ import uy.horacio.recetariocriollo.cronometro.GestorCronometros
 import android.net.Uri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
 import uy.horacio.recetariocriollo.datos.AlmacenFotos
+import uy.horacio.recetariocriollo.datos.GrabadorNotas
 import uy.horacio.recetariocriollo.datos.CocinadaRepositorio
 import uy.horacio.recetariocriollo.datos.RecetaRepositorio
 import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
@@ -44,6 +46,7 @@ class CocinaViewModel(
     repositorio: RecetaRepositorio,
     private val cocinadas: CocinadaRepositorio,
     private val almacenFotos: AlmacenFotos,
+    private val grabador: GrabadorNotas,
     private val cronometros: GestorCronometros,
     private val estadoGuardado: SavedStateHandle
 ) : ViewModel() {
@@ -126,15 +129,59 @@ class CocinaViewModel(
 
     fun archivoParaCamara() = almacenFotos.archivoParaCamara()
 
+    private val _audioResultado = MutableStateFlow<String?>(estadoGuardado[CLAVE_AUDIO])
+    /** Nota de voz grabada para «¿Cómo salió?». */
+    val audioResultado: StateFlow<String?> = _audioResultado.asStateFlow()
+
+    private val _msGrabando = MutableStateFlow<Long?>(null)
+    /** Milisegundos grabados, o null si no se está grabando. */
+    val msGrabando: StateFlow<Long?> = _msGrabando.asStateFlow()
+
+    /** Empieza o termina la grabación. Devuelve false si no se pudo empezar (micrófono ocupado). */
+    fun alternarGrabacion(): Boolean {
+        if (grabador.grabando) {
+            terminarGrabacion()
+            return true
+        }
+        val empezo = grabador.empezar(alLlegarAlMaximo = { viewModelScope.launch { terminarGrabacion() } })
+        if (empezo) {
+            viewModelScope.launch {
+                while (grabador.grabando) {
+                    _msGrabando.value = grabador.milisegundos()
+                    delay(200)
+                }
+                _msGrabando.value = null
+            }
+        }
+        return empezo
+    }
+
+    private fun terminarGrabacion() {
+        val ruta = grabador.detener() ?: return
+        _audioResultado.value?.let { almacenFotos.descartar(listOf(it)) }
+        _audioResultado.value = ruta
+        estadoGuardado[CLAVE_AUDIO] = ruta
+    }
+
+    fun descartarAudio() {
+        grabador.cancelar()
+        _audioResultado.value?.let { almacenFotos.descartar(listOf(it)) }
+        _audioResultado.value = null
+        estadoGuardado[CLAVE_AUDIO] = null
+    }
+
     override fun onCleared() {
-        // Si se salió sin guardar, la foto quedó huérfana.
-        _fotoResultado.value?.let { almacenFotos.descartar(listOf(it)) }
+        // Si se salió sin guardar, la foto y el audio quedaron huérfanos.
+        grabador.cancelar()
+        almacenFotos.descartar(listOfNotNull(_fotoResultado.value, _audioResultado.value))
     }
 
     /** Anota en el historial como salio. Llama a [alTerminar] cuando quedo guardado. */
     fun registrarCocinada(estrellas: Int, nota: String, alTerminar: () -> Unit) {
         val actual = estado.value
         val receta = actual.receta ?: return alTerminar()
+        // Si todavía estaba grabando, lo grabado hasta ahora también cuenta.
+        if (grabador.grabando) terminarGrabacion()
         viewModelScope.launch {
             cocinadas.registrar(
                 Cocinada(
@@ -143,9 +190,12 @@ class CocinaViewModel(
                     estrellas = estrellas,
                     porciones = actual.porciones,
                     nota = nota,
-                    fotoPath = _fotoResultado.value
+                    fotoPath = _fotoResultado.value,
+                    audioPath = _audioResultado.value
                 )
             )
+            _audioResultado.value = null
+            estadoGuardado[CLAVE_AUDIO] = null
             // Ya es de la cocinada: que onCleared no la borre.
             _fotoResultado.value = null
             estadoGuardado[CLAVE_FOTO] = null
@@ -156,5 +206,6 @@ class CocinaViewModel(
     private companion object {
         const val CLAVE_PASO = "paso_actual"
         const val CLAVE_FOTO = "foto_resultado"
+        const val CLAVE_AUDIO = "audio_resultado"
     }
 }
