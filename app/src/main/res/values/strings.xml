@@ -165,6 +165,24 @@
     <string name="selector_alta_guardar">Agregar al catálogo</string>
     <string name="selector_densidad_corta">%1$d g por taza</string>
 
+    <!-- Cajón lateral -->
+    <string name="cajon_abrir">Abrir el menú</string>
+    <string name="cajon_resumen">%1$s · %2$s · todo en el teléfono</string>
+    <plurals name="cajon_recetas">
+        <item quantity="one">%1$d receta</item>
+        <item quantity="other">%1$d recetas</item>
+    </plurals>
+    <plurals name="cajon_ingredientes">
+        <item quantity="one">%1$d ingrediente</item>
+        <item quantity="other">%1$d ingredientes</item>
+    </plurals>
+    <plurals name="cajon_cocinadas">
+        <item quantity="one">%1$d vez cocinado</item>
+        <item quantity="other">%1$d veces cocinado</item>
+    </plurals>
+    <string name="cajon_sin_cocinadas">Todavía sin cocinadas</string>
+    <string name="historial_titulo_largo">Historial de cocinadas</string>
+
     <!-- Catálogo de ingredientes -->
     <string name="catalogo_titulo">Catálogo de ingredientes</string>
     <string name="catalogo_nuevo">Nuevo</string>

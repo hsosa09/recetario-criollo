@@ -34,6 +34,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.stringResource
+import uy.horacio.recetariocriollo.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -60,6 +63,9 @@ import uy.horacio.recetariocriollo.ui.theme.RecetarioTema
  */
 
 val MARGEN = 16.dp
+
+/** Lo provee la navegación en las pantallas raíz; null donde no hay cajón. */
+val LocalAbrirCajon = staticCompositionLocalOf<(() -> Unit)?> { null }
 
 /** Dibuja un filete arriba del elemento sin sumar un Composable aparte. */
 fun Modifier.fileteArriba(color: Color, grosor: Dp = 1.dp): Modifier = drawBehind {
@@ -133,6 +139,8 @@ fun BarraSuperior(
     descripcionVolver: String? = null,
     acciones: @Composable RowScope.() -> Unit = {}
 ) {
+    // En las pantallas raíz, sin «volver», va el menú que abre el cajón lateral.
+    val abrirCajon = if (alVolver == null) LocalAbrirCajon.current else null
     val filete = MaterialTheme.colorScheme.outline
     Row(
         modifier = modifier
@@ -140,7 +148,7 @@ fun BarraSuperior(
             .background(MaterialTheme.colorScheme.background)
             .height(56.dp)
             .fileteAbajo(filete, 2.dp)
-            .padding(start = if (alVolver == null) MARGEN else 6.dp, end = 8.dp),
+            .padding(start = if (alVolver == null && abrirCajon == null) MARGEN else 6.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -149,6 +157,13 @@ fun BarraSuperior(
                 icono = Iconos.Volver,
                 descripcion = descripcionVolver,
                 alTocar = alVolver
+            )
+        } else if (abrirCajon != null) {
+            BotonIcono(
+                icono = Iconos.Menu,
+                descripcion = stringResource(R.string.cajon_abrir),
+                alTocar = abrirCajon,
+                tamanioIcono = 22.dp
             )
         }
         Text(
@@ -476,11 +491,13 @@ fun <T> SelectorDesplegable(
                 Text(
                     text = actual,
                     style = MaterialTheme.typography.bodyLarge,
+                    // Color explícito: dentro de un AlertDialog el color heredado es el tenue.
+                    color = colores.onBackground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Icon(Iconos.Desplegar, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Iconos.Desplegar, contentDescription = null, tint = colores.onBackground, modifier = Modifier.size(18.dp))
             }
             DropdownMenu(
                 expanded = abierto,

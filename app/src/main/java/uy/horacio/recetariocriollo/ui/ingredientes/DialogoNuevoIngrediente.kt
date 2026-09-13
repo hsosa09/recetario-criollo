@@ -202,7 +202,7 @@ private fun OpcionCasilla(marcada: Boolean, titulo: String, detalle: String, alT
     ) {
         Casilla(marcada = marcada)
         Column {
-            Text(titulo, style = MaterialTheme.typography.titleSmall)
+            Text(titulo, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             TextoTenue(detalle)
         }
     }
