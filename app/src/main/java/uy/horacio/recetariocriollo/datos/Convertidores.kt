@@ -3,6 +3,7 @@ package uy.horacio.recetariocriollo.datos
 import androidx.room.TypeConverter
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
+import uy.horacio.recetariocriollo.dominio.modelo.Dificultad
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 
@@ -29,6 +30,13 @@ class Convertidores {
     @TypeConverter
     fun aUnidad(valor: String): Unidad =
         runCatching { Unidad.valueOf(valor) }.getOrDefault(Unidad.GRAMO)
+
+    @TypeConverter
+    fun deDificultad(valor: Dificultad?): String? = valor?.name
+
+    @TypeConverter
+    fun aDificultad(valor: String?): Dificultad? =
+        valor?.let { runCatching { Dificultad.valueOf(it) }.getOrNull() }
 
     @TypeConverter
     fun deRegla(valor: ReglaEscalado): String = valor.name

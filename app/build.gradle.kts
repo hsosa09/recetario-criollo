@@ -62,6 +62,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    // Los esquemas exportados viajan al APK de test para probar las migraciones.
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
     buildFeatures {
         compose = true
         buildConfig = true

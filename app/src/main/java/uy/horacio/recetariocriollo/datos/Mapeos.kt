@@ -1,9 +1,12 @@
 package uy.horacio.recetariocriollo.datos
 
+import uy.horacio.recetariocriollo.dominio.modelo.Cocinada
+import uy.horacio.recetariocriollo.dominio.modelo.CocinadaConReceta
 import uy.horacio.recetariocriollo.dominio.modelo.Ingrediente
 import uy.horacio.recetariocriollo.dominio.modelo.IngredienteDeReceta
 import uy.horacio.recetariocriollo.dominio.modelo.PasoPreparacion
 import uy.horacio.recetariocriollo.dominio.modelo.Receta
+import uy.horacio.recetariocriollo.dominio.modelo.ResumenCocinadas
 
 /** Traduccion entre lo que guarda Room y los modelos con los que trabaja el dominio. */
 
@@ -53,6 +56,8 @@ fun RecetaCompletaEntity.aDominio(): Receta = Receta(
     notas = receta.notas,
     fotoPath = receta.fotoPath,
     esFavorita = receta.esFavorita,
+    dificultad = receta.dificultad,
+    moldeCm = receta.moldeCm,
     ingredientes = ingredientes.sortedBy { it.cruce.orden }.map { it.aDominio() },
     pasos = pasos.sortedBy { it.orden }.map { it.aDominio() }
 )
@@ -65,7 +70,9 @@ fun Receta.aEntidad(): RecetaEntity = RecetaEntity(
     tiempoMinutos = tiempoMinutos,
     notas = notas?.takeIf { it.isNotBlank() },
     fotoPath = fotoPath,
-    esFavorita = esFavorita
+    esFavorita = esFavorita,
+    dificultad = dificultad,
+    moldeCm = moldeCm
 )
 
 fun IngredienteDeReceta.aEntidad(recetaId: Long): RecetaIngredienteEntity = RecetaIngredienteEntity(
@@ -86,3 +93,27 @@ fun PasoPreparacion.aEntidad(recetaId: Long): PasoEntity = PasoEntity(
     texto = texto.trim(),
     timerSugeridoSegundos = timerSugeridoSegundos
 )
+
+fun CocinadaEntity.aDominio(): Cocinada = Cocinada(
+    id = id,
+    recetaId = recetaId,
+    fechaMillis = fechaMillis,
+    estrellas = estrellas,
+    porciones = porciones,
+    nota = nota
+)
+
+fun Cocinada.aEntidad(): CocinadaEntity = CocinadaEntity(
+    id = id,
+    recetaId = recetaId,
+    fechaMillis = fechaMillis,
+    estrellas = estrellas.coerceIn(1, 5),
+    porciones = porciones,
+    nota = nota?.trim()?.takeIf { it.isNotEmpty() }
+)
+
+fun CocinadaConNombreFila.aDominio(): CocinadaConReceta =
+    CocinadaConReceta(cocinada = cocinada.aDominio(), nombreReceta = nombreReceta)
+
+fun ResumenCocinadasFila.aDominio(): ResumenCocinadas =
+    ResumenCocinadas(recetaId, veces, promedioEstrellas, ultimaMillis)

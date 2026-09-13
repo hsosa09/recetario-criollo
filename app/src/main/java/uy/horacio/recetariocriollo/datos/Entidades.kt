@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaIngrediente
 import uy.horacio.recetariocriollo.dominio.modelo.CategoriaReceta
+import uy.horacio.recetariocriollo.dominio.modelo.Dificultad
 import uy.horacio.recetariocriollo.dominio.modelo.ReglaEscalado
 import uy.horacio.recetariocriollo.dominio.modelo.Unidad
 
@@ -21,6 +22,9 @@ data class RecetaEntity(
     val notas: String?,
     val fotoPath: String?,
     val esFavorita: Boolean = false,
+    // v2
+    val dificultad: Dificultad? = null,
+    val moldeCm: Int? = null,
     val creadaEn: Long = System.currentTimeMillis(),
     val modificadaEn: Long = System.currentTimeMillis()
 )
@@ -87,6 +91,42 @@ data class PasoEntity(
     val orden: Int,
     val texto: String,
     val timerSugeridoSegundos: Int? = null
+)
+
+/** Historial: cada vez que se cocino una receta (v2). Se borra con la receta. */
+@Entity(
+    tableName = "cocinadas",
+    foreignKeys = [
+        ForeignKey(
+            entity = RecetaEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["recetaId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("recetaId")]
+)
+data class CocinadaEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val recetaId: Long,
+    val fechaMillis: Long,
+    val estrellas: Int,
+    val porciones: Int,
+    val nota: String? = null
+)
+
+/** Resultado de la consulta agregada del historial por receta. */
+data class ResumenCocinadasFila(
+    val recetaId: Long,
+    val veces: Int,
+    val promedioEstrellas: Double?,
+    val ultimaMillis: Long?
+)
+
+/** Cocinada con el nombre de la receta, para el historial general. */
+data class CocinadaConNombreFila(
+    @Embedded val cocinada: CocinadaEntity,
+    val nombreReceta: String
 )
 
 /** Fila de receta_ingredientes junto con la ficha del catalogo. */
